@@ -1,0 +1,36 @@
+:host {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login__card {
+  max-width: 500px;
+  width: 80%;
+  margin: auto;
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.email__icon {
+  width: 28px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active
+{
+ background-color: transparent !important;
+ color: #fff !important;
+ outline-color: #fff !important;
+  -webkit-box-shadow: 0 0 0 50px #555555 inset;
+  box-shadow: 0 0 0 50px #555555 inset;
+}
