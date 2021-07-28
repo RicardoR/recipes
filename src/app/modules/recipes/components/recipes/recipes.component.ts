@@ -33,4 +33,12 @@ export class RecipesComponent implements OnInit {
       relativeTo: this.activatedRoute,
     });
   }
+
+  goToRecipe(recipe: Recipe) {
+    if (recipe.id) {
+      this.route.navigate([RecipesRoutingNames.details, recipe.id], {
+        relativeTo: this.activatedRoute,
+      });
+    }
+  }
 }

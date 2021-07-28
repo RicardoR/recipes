@@ -6,16 +6,27 @@
     <form class="login__form" [formGroup]='form'>
       <mat-form-field appearance="fill">
         <mat-label>Enter your email</mat-label>
-        <input matInput placeholder="pat@example.com" type="text" formControlName="email" required autocomplete="nope">
+        <input matInput
+               placeholder="pat@example.com"
+               type="text"
+               formControlName="email"
+               required autocomplete="nope">
         <mat-icon class="email__icon" matSuffix>sentiment_very_satisfied</mat-icon>
         <mat-error *ngIf="form.controls.email.invalid">{{getErrorMessage()}}</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="fill">
         <mat-label>Enter your password</mat-label>
-        <input matInput [type]="hide ? 'password' : 'text'" autocomplete="nope" formControlName="password">
-        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        <input matInput
+               formControlName="password"
+               [type]="passWordHidden ? 'password' : 'text'"
+               autocomplete="nope">
+        <button mat-icon-button
+                matSuffix
+                (click)="passWordHidden = !passWordHidden"
+                [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="passWordHidden">
+          <mat-icon>{{passWordHidden ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
       </mat-form-field>
     </form>

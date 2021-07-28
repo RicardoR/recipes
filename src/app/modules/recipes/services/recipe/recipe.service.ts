@@ -19,9 +19,8 @@ export class RecipeService {
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
-    private messagesService: MessagesService,
-  ) { }
-
+    private messagesService: MessagesService
+  ) {}
 
   getRecipes(): Observable<any> {
     const result = new Subject<Recipe[]>();
@@ -30,7 +29,7 @@ export class RecipeService {
     this.firestore
       .collection(
         `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`,
-        ref => ref.orderBy('date', 'desc')
+        (ref) => ref.orderBy('date', 'desc')
       )
       .stateChanges()
       .pipe(
@@ -42,26 +41,50 @@ export class RecipeService {
               date: docData.date.toDate(),
               title: docData.title,
               description: docData.description,
+              id: document.payload.doc.id,
             } as Recipe;
           });
         })
       )
       .subscribe(
         (recipes: Recipe[]) => result.next(recipes),
-        (err) => this.messagesService.showSnackBar(err.message),
+        (err) => this.messagesService.showSnackBar(err.message)
       );
 
     return result;
   }
 
-  createRecipe() {
+  createRecipe(recipe: Recipe): Observable<void> {
+    const result = new Subject<void>();
+
     this.firestore
       .collection(
-        `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`)
-      .add({
-        description: 'descripcion',
-        title: 'titulo',
+        `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`
+      )
+      .add(recipe)
+      .then(() => result.next())
+      .catch((err) => {
+        this.messagesService.showSnackBar(err.message);
+        result.next();
+      });
+
+    return result;
+  }
+
+  getRecipeDetail(id: any): Observable<Recipe> {
+    const result = new Subject<Recipe>();
+
+
+    setTimeout(() => {
+      result.next({
+        title: 'title mock',
+        description: 'description mock',
         date: new Date(),
-      } as Recipe);
+      });
+      result.complete();
+    }, 200);
+
+
+    return result;
   }
 }
