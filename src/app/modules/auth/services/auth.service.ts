@@ -4,6 +4,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 
 import { AuthData } from '../auth-data.model';
 import { MessagesService } from '../../shared/services/messages/messages.service';
+import { AppRoutingNames } from 'src/app/app-routing.module';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,7 @@ export class AuthService {
   login(authData: AuthData): void {
     this.auth
       .signInWithEmailAndPassword(authData.email, authData.password)
-      .then((data) => console.log('login', data))
+      .then()
       .catch((err) => this.messagesService.showSnackBar(err.message));
   }
 
@@ -42,9 +43,9 @@ export class AuthService {
         };
 
         this.currentUser = userData;
-        this.router.navigate(['recipes']);
+        this.router.navigate([AppRoutingNames.recipes]);
       } else {
-        this.router.navigate(['login']);
+        this.router.navigate([AppRoutingNames.login]);
       }
     });
   }

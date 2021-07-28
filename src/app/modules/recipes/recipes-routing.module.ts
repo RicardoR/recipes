@@ -3,10 +3,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RecipesComponent } from './components/recipes/recipes.component';
 
+export const RecipesRoutingNames = {
+  new: 'new'
+}
 
 const routes: Routes = [
   { path: '', component: RecipesComponent },
-  { path: 'new', component: NewRecipeComponent}
+  { path: RecipesRoutingNames.new, component: NewRecipeComponent },
 ];
 
 @NgModule({

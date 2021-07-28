@@ -4,6 +4,7 @@ import { take } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { RecipeService } from '../../services/recipe/recipe.service';
+import { RecipesRoutingNames } from '../../recipes-routing.module';
 
 @Component({
   selector: 'app-recipes',
@@ -28,6 +29,8 @@ export class RecipesComponent implements OnInit {
   }
 
   goToCreate(): void {
-    this.route.navigate(['new'], { relativeTo: this.activatedRoute });
+    this.route.navigate([RecipesRoutingNames.new], {
+      relativeTo: this.activatedRoute,
+    });
   }
 }
