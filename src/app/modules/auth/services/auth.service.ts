@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 
-import { AuthData } from './auth-data.model';
-import { MessagesService } from './../shared/messages.service';
+import { AuthData } from '../auth-data.model';
+import { MessagesService } from '../../shared/services/messages/messages.service';
 
 @Injectable({
   providedIn: 'root',
