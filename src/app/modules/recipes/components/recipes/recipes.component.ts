@@ -22,8 +22,7 @@ export class RecipesComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // todo: change take 1 for another strategy
-    this.recipeService.getRecipes()
+    this.recipeService.getOwnRecipes()
       .pipe(take(1))
       .subscribe((data: Recipe[]) => this.recipes = data);
   }

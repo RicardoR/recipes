@@ -20,7 +20,8 @@ export class RecipeDetailsComponent implements OnInit {
   private getRecipeDetails() {
     this.route.params
       .pipe(
-        switchMap(param => this.recipesService.getRecipeDetail(param.id))
+        take(1),
+        switchMap(param => this.recipesService.getPrivateRecipeDetail(param.id))
       ).subscribe(
         (data) => {
           console.log('data', data);

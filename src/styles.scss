@@ -7,15 +7,14 @@ body {
   background-color: rgb(48, 48, 48);
  }
 
-
  .cursor-default {
    cursor: auto!important;
  }
 
- .horizontal-spacer {
-  flex: 1 1 auto;
+ .cursor-pointer {
+  cursor: pointer;
 }
 
-.cursor-pointer {
-  cursor: pointer;
+.horizontal-spacer {
+  flex: 1 1 auto;
 }
