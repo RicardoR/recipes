@@ -1,3 +1,4 @@
+import { Recipe } from './../../models/recipes.model';
 import { switchMap, take } from 'rxjs/operators';
 import { RecipeService } from './../../services/recipe/recipe.service';
 import { Component, OnInit } from '@angular/core';
@@ -9,6 +10,8 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./recipe-details.component.scss'],
 })
 export class RecipeDetailsComponent implements OnInit {
+  recipeDetails: Recipe | undefined;
+
   constructor(
     private recipesService: RecipeService,
     private route: ActivatedRoute) { }
@@ -22,10 +25,6 @@ export class RecipeDetailsComponent implements OnInit {
       .pipe(
         take(1),
         switchMap(param => this.recipesService.getPrivateRecipeDetail(param.id))
-      ).subscribe(
-        (data) => {
-          console.log('data', data);
-        }
-      );
+      ).subscribe((data: Recipe) => this.recipeDetails = data.id ? data : undefined);
   }
 }

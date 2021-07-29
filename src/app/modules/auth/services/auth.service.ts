@@ -37,7 +37,7 @@ export class AuthService {
     this.auth.authState.subscribe((user) => {
       if (user) {
         const userData: AuthData = {
-          email: user.email ? user.email : '',
+          email: user.email ?? '',
           password: '',
           uid: user.uid,
         };
