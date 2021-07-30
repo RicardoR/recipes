@@ -6,7 +6,6 @@ import { map, take } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
-import { MessagesService } from '../../../shared/services/messages/messages.service';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
@@ -16,21 +15,19 @@ const enum DatabaseCollectionsNames {
 @Injectable()
 export class RecipeService {
   private userId?: string;
+
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
-    private messagesService: MessagesService,
-  ) { }
+  ) {}
 
-
-  getRecipes(): Observable<any> {
+  getOwnRecipes(): Observable<any> {
     const result = new Subject<Recipe[]>();
-    this.userId = this.authService.currentUser?.uid;
+    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
 
     this.firestore
-      .collection(
-        `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`,
-        ref => ref.orderBy('date', 'desc')
+      .collection(privateRecipeNameCollection, (ref) =>
+        ref.orderBy('date', 'desc')
       )
       .stateChanges()
       .pipe(
@@ -38,30 +35,69 @@ export class RecipeService {
         map((docArray: DocumentChangeAction<any>[]) => {
           return docArray.map((document: DocumentChangeAction<any>) => {
             const docData = document.payload.doc.data();
-            return {
-              date: docData.date.toDate(),
-              title: docData.title,
-              description: docData.description,
-            } as Recipe;
+            return this.recipesConverter(docData, document.payload.doc.id);
           });
         })
       )
       .subscribe(
         (recipes: Recipe[]) => result.next(recipes),
-        (err) => this.messagesService.showSnackBar(err.message),
       );
 
     return result;
   }
 
-  createRecipe() {
+  createRecipe(recipe: Recipe): Observable<void> {
+    const result = new Subject<void>();
+    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+
     this.firestore
-      .collection(
-        `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`)
-      .add({
-        description: 'descripcion',
-        title: 'titulo',
-        date: new Date(),
-      } as Recipe);
+      .collection(privateRecipeNameCollection)
+      .add(recipe)
+      .then(() => result.next())
+
+    return result;
+  }
+
+  getPrivateRecipeDetail(id: string): Observable<Recipe> {
+    const result = new Subject<Recipe>();
+    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+    this.firestore
+      .collection(privateRecipeNameCollection)
+      .doc(id)
+      .get()
+      .pipe(
+        take(1),
+        map((doc) => this.recipesConverter(doc.data(), doc.id))
+      )
+      .subscribe(
+        (data) => {
+          result.next(data);
+          result.complete();
+        },
+      );
+
+    return result;
+  }
+
+  private getPrivateRecipeNameCollection(): string {
+    if (this.userId === undefined) {
+      this.userId = this.authService.currentUser?.uid;
+    }
+    return `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`;
+  }
+
+  private recipesConverter(docData: any, id: string): Recipe {
+
+    if (docData === undefined) {
+      throw new Error('Recipe does not exists');
+    }
+
+    return {
+      date: docData.date.toDate(),
+      title: docData.title,
+      description: docData.description,
+      id: id,
+      ownerId: docData.ownerId,
+    } as Recipe;
   }
 }

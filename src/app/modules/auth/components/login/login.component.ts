@@ -1,33 +1,38 @@
-import { AuthService } from '../../services/auth.service';
-import { Component } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+
 import { AuthData } from '../../auth-data.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
-  form: FormGroup = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required]),
-  });
+export class LoginComponent implements OnInit {
+  form!: FormGroup;
+  passWordHidden = true;
 
-  hide = true;
+  constructor(
+    private authService: AuthService,
+    private fb: FormBuilder
+  ) { }
 
-  constructor(private authService: AuthService) {}
+  ngOnInit() {
+    this.buildLoginForm();
+  }
 
   getErrorMessage(): string {
     if (this.form.controls.email.hasError('required')) {
       return 'You must enter a value';
     }
 
-    return this.form.controls.email.hasError('email') ? 'Not a valid email' : '';
+    return this.form.controls.email.hasError('email')
+      ? 'Not a valid email'
+      : '';
   }
 
   login(): void {
-
     if (this.form.valid) {
       const user: AuthData = {
         email: this.form.controls.email.value,
@@ -36,5 +41,12 @@ export class LoginComponent {
 
       this.authService.login(user);
     }
+  }
+
+  private buildLoginForm(): void {
+    this.form = this.fb.group({
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [Validators.required]),
+    });
   }
 }

@@ -6,10 +6,11 @@
     <mat-icon>add_circle</mat-icon>
   </button>
 </mat-toolbar>
-<div class="content">
+<div class="p-16">
   <div fxLayout="row wrap" fxLayoutGap="16px grid">
     <div fxFlex="25%" fxFlex.xs="100%" fxFlex.sm="50%" *ngFor="let recipe of recipes">
-      <mat-card class="mat-elevation-z4" >
+      <mat-card class="mat-elevation-z4 cursor-pointer"
+                (click)=goToRecipe(recipe)>
         <mat-card-header>
           <mat-card-title> {{recipe.title}}</mat-card-title>
         </mat-card-header>
@@ -21,7 +22,7 @@
           <p> {{ recipe.date | date }} </p>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-button>VIEW</button>
+          <button mat-button (click)=goToRecipe(recipe)>VIEW </button>
         </mat-card-actions>
       </mat-card>
     </div>

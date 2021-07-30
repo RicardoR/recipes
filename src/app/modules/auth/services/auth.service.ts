@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 
 import { AuthData } from '../auth-data.model';
-import { MessagesService } from '../../shared/services/messages/messages.service';
 import { AppRoutingNames } from 'src/app/app-routing.module';
 
 @Injectable({
@@ -14,7 +13,6 @@ export class AuthService {
 
   constructor(
     private auth: AngularFireAuth,
-    private messagesService: MessagesService,
     private router: Router
   ) {}
 
@@ -29,15 +27,14 @@ export class AuthService {
   login(authData: AuthData): void {
     this.auth
       .signInWithEmailAndPassword(authData.email, authData.password)
-      .then()
-      .catch((err) => this.messagesService.showSnackBar(err.message));
+      .then();
   }
 
   initAuthListener(): void {
     this.auth.authState.subscribe((user) => {
       if (user) {
         const userData: AuthData = {
-          email: user.email ? user.email : '',
+          email: user.email ?? '',
           password: '',
           uid: user.uid,
         };

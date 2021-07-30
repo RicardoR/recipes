@@ -22,8 +22,7 @@ export class RecipesComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // todo: change take 1 for another strategy
-    this.recipeService.getRecipes()
+    this.recipeService.getOwnRecipes()
       .pipe(take(1))
       .subscribe((data: Recipe[]) => this.recipes = data);
   }
@@ -32,5 +31,13 @@ export class RecipesComponent implements OnInit {
     this.route.navigate([RecipesRoutingNames.new], {
       relativeTo: this.activatedRoute,
     });
+  }
+
+  goToRecipe(recipe: Recipe) {
+    if (recipe.id) {
+      this.route.navigate([RecipesRoutingNames.details, recipe.id], {
+        relativeTo: this.activatedRoute,
+      });
+    }
   }
 }

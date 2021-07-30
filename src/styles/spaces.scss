@@ -1,0 +1,17 @@
+@import './_common.scss';
+
+.horizontal-spacer {
+  flex: 1 1 auto;
+}
+
+.margin-auto {
+  margin: auto;
+}
+
+.mt-8 {
+  margin-top: $space-default;
+}
+
+.p-16 {
+  padding: $space-2x;
+}

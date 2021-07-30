@@ -6,6 +6,7 @@ import { RecipesRoutingModule } from './recipes-routing.module';
 import { NewRecipeComponent } from './components/new-recipe/new-recipe.component';
 import { RecipesComponent } from './components/recipes/recipes.component';
 import { RecipeService } from './services/recipe/recipe.service';
+import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { RecipeService } from './services/recipe/recipe.service';
   ],
   declarations: [
     RecipesComponent,
-    NewRecipeComponent
+    NewRecipeComponent,
+    RecipeDetailsComponent
   ],
   providers: [
     RecipeService
