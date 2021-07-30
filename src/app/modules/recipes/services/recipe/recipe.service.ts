@@ -6,7 +6,6 @@ import { map, take } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
-import { MessagesService } from '../../../shared/services/messages/messages.service';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
@@ -20,7 +19,6 @@ export class RecipeService {
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
-    private messagesService: MessagesService
   ) {}
 
   getOwnRecipes(): Observable<any> {
@@ -43,7 +41,6 @@ export class RecipeService {
       )
       .subscribe(
         (recipes: Recipe[]) => result.next(recipes),
-        (err) => this.messagesService.showSnackBar(err.message)
       );
 
     return result;
@@ -57,10 +54,6 @@ export class RecipeService {
       .collection(privateRecipeNameCollection)
       .add(recipe)
       .then(() => result.next())
-      .catch((err) => {
-        this.messagesService.showSnackBar(err.message);
-        result.next();
-      });
 
     return result;
   }
@@ -81,7 +74,6 @@ export class RecipeService {
           result.next(data);
           result.complete();
         },
-        (err) => this.messagesService.showSnackBar('Error getting details', err)
       );
 
     return result;
@@ -91,14 +83,13 @@ export class RecipeService {
     if (this.userId === undefined) {
       this.userId = this.authService.currentUser?.uid;
     }
-
     return `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`;
   }
 
   private recipesConverter(docData: any, id: string): Recipe {
+
     if (docData === undefined) {
-      this.messagesService.showSnackBar('Recipe does not exists');
-      return {} as Recipe;
+      throw new Error('Recipe does not exists');
     }
 
     return {
