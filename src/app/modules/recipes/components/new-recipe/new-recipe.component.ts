@@ -1,3 +1,4 @@
+import { AuthService } from './../../../auth/services/auth.service';
 import { take } from 'rxjs/operators';
 import { Recipe } from './../../models/recipes.model';
 import { Router } from '@angular/router';
@@ -19,7 +20,8 @@ export class NewRecipeComponent implements OnInit {
   constructor(
     private recipeService: RecipeService,
     private route: Router,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -32,10 +34,12 @@ export class NewRecipeComponent implements OnInit {
 
   createReceip(): void {
     if (this.form.valid) {
+
       const recipe: Recipe = {
         title: this.form.controls.title.value,
         description: this.form.controls.description.value,
         date: new Date(),
+        ownerId: this.authService.currentUser?.uid,
       };
 
       this.recipeService.createRecipe(recipe)

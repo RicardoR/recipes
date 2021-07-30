@@ -3,4 +3,5 @@ export interface Recipe {
   description: string,
   title: string,
   id?: string,
+  ownerId?: string;
 }

@@ -97,6 +97,7 @@ export class RecipeService {
       title: docData.title,
       description: docData.description,
       id: id,
+      ownerId: docData.ownerId,
     } as Recipe;
   }
 }
