@@ -1,7 +1,7 @@
 <mat-toolbar color="primary">
   Create receipt - WIP
   <span class="horizontal-spacer"></span>
-  <button mat-icon-button  (click)="goToList()">
+  <button mat-icon-button (click)="goToList()">
     <mat-icon>view_list</mat-icon>
   </button>
 </mat-toolbar>
@@ -23,12 +23,29 @@
           <mat-label>Description</mat-label>
           <textarea matInput formControlName="description" required></textarea>
         </mat-form-field>
+
+        <ng-container formArrayName='steps'>
+          <ng-container *ngFor="let stepControl of steps.controls; let idx = index">
+            <ng-container [formGroupName]="idx">
+              <mat-form-field appearance="fill">
+                <mat-label>Step {{ idx + 1 }}</mat-label>
+                <textarea matInput formControlName="stepData" required placeholder="Enter de step data">
+                </textarea>
+                <button mat-icon-button
+                        matSuffix
+                        (click)="deleteStep(idx)">
+                  <mat-icon> delete </mat-icon>
+                </button>
+              </mat-form-field>
+            </ng-container>
+          </ng-container>
+        </ng-container>
       </form>
     </mat-card-content>
 
     <mat-card-actions>
+       <button mat-button (click)="addStep()">Add step</button>
       <button mat-button [disabled]='form.invalid' (click)='createReceip()'>Create new receip</button>
     </mat-card-actions>
   </mat-card>
-
 </div>
