@@ -98,6 +98,7 @@ export class RecipeService {
       description: docData.description,
       id: id,
       ownerId: docData.ownerId,
+      steps: docData.steps,
     } as Recipe;
   }
 }
