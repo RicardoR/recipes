@@ -15,10 +15,13 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 })
 export class NewRecipeComponent implements OnInit {
   form!: FormGroup;
-  hide = true;
 
   get steps(): FormArray {
     return this.form.get('steps') as FormArray;
+  }
+
+  get ingredients(): FormArray {
+    return this.form.get('ingredients') as FormArray;
   }
 
   constructor(
@@ -26,7 +29,7 @@ export class NewRecipeComponent implements OnInit {
     private route: Router,
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private cdf: ChangeDetectorRef,
+    private cdf: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -39,7 +42,8 @@ export class NewRecipeComponent implements OnInit {
 
   createReceip(): void {
     if (this.form.valid) {
-      const steps = this.form.controls.steps.value.map((data: any) => data.stepData);
+      const steps = this.steps.value.map((step: any) => step.data);
+      const ingredients = this.ingredients.value.map((ingredient: any) => ingredient.data);
 
       const recipe: Recipe = {
         title: this.form.controls.title.value,
@@ -47,6 +51,7 @@ export class NewRecipeComponent implements OnInit {
         date: new Date(),
         ownerId: this.authService.currentUser?.uid,
         steps: steps,
+        ingredients: ingredients,
       };
 
       this.recipeService
@@ -56,18 +61,20 @@ export class NewRecipeComponent implements OnInit {
     }
   }
 
-  stepItem(): FormGroup {
-    return this.formBuilder.group({ stepData: undefined });
+  formItem(): FormGroup {
+    return this.formBuilder.group({ data: undefined });
   }
 
-  addStep(): void {
-    this.steps.push(this.stepItem());
+  deleteControl(control: FormArray, index: number): void {
+    control.removeAt(index);
     this.cdf.detectChanges();
   }
 
-  deleteStep(index: number): void {
-    this.steps.removeAt(index);
+  addControl(control: FormArray, $event: any): void {
+    control.push(this.formItem());
     this.cdf.detectChanges();
+
+    $event.preventDefault();
   }
 
   private initForm(): void {
@@ -75,6 +82,7 @@ export class NewRecipeComponent implements OnInit {
       title: this.formBuilder.control('', [Validators.required]),
       description: this.formBuilder.control('', [Validators.required]),
       steps: this.formBuilder.array([]),
+      ingredients: this.formBuilder.array([]),
     });
   }
 }
