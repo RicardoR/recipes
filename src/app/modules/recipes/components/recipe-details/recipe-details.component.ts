@@ -20,7 +20,7 @@ export class RecipeDetailsComponent implements OnInit {
     private recipesService: RecipeService,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -39,10 +39,9 @@ export class RecipeDetailsComponent implements OnInit {
           this.recipesService.getPrivateRecipeDetail(param.id)
         )
       )
-      .subscribe(
-        (data: Recipe) => {
-          this.recipeDetails = data.id ? data : undefined;
-          this.isOwnReceip = data.ownerId === this.authService.currentUser?.uid;
-        });
+      .subscribe((data: Recipe) => {
+        this.recipeDetails = data.id ? data : undefined;
+        this.isOwnReceip = data.ownerId === this.authService.currentUser?.uid;
+      });
   }
 }

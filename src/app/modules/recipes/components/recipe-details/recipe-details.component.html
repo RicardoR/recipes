@@ -6,18 +6,59 @@
   </button>
 </mat-toolbar>
 
-<div class="mt-8">
-  <div fxFlex="40%" fxFlex.lt-md="50%" fxFlex.lt-sm="100%" class="margin-auto p-16" >
+<div class="mt-8" *ngIf="recipeDetails">
+  <div fxFlex="60%" fxFlex.lt-md="70%" fxFlex.lt-sm="100%" class="margin-auto p-16" >
     <mat-card class="mat-elevation-z4">
         <mat-card-header>
-          <mat-card-title> {{recipeDetails?.title}}</mat-card-title>
+          <mat-card-title> {{recipeDetails.title}}</mat-card-title>
+          <mat-card-subtitle> {{ recipeDetails.date | date }} </mat-card-subtitle>
         </mat-card-header>
         <img mat-card-image alt="mountain" src="https://phantom-elmundo.unidadeditorial.es/0f2a609ccf6eaa5c150e4b178e26e90b/crop/0x0/700x466/resize/746/f/jpg/assets/multimedia/imagenes/2020/12/02/16069301750615.jpg">
         <mat-card-content>
-          <p>
-              {{ recipeDetails?.description }}
-          </p>
-          <p> {{ recipeDetails?.date | date }} </p>
+          <p> {{ recipeDetails.description }} </p>
+
+          <mat-accordion multi>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Ingredients
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <mat-selection-list role="list">
+                <ng-container *ngIf="(recipeDetails.ingredients && recipeDetails.ingredients.length > 0); else noIngredientsFound">
+                  <mat-list-option *ngFor="let ingredient of recipeDetails.ingredients">
+                    {{ ingredient }}
+                  </mat-list-option>
+                </ng-container>
+
+                <ng-template #noIngredientsFound>
+                  No ingredients found
+                </ng-template>
+
+              </mat-selection-list>
+            </mat-expansion-panel>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Steps
+                </mat-panel-title>
+
+              </mat-expansion-panel-header>
+              <mat-selection-list role="list">
+                <ng-container *ngIf="(recipeDetails.steps && recipeDetails.steps.length > 0); else noStepsFound">
+                  <mat-list-option *ngFor="let step of recipeDetails.steps">
+                    {{ step }}
+                  </mat-list-option>
+                </ng-container>
+
+                <ng-template #noStepsFound>
+                  No steps found
+                </ng-template>
+
+              </mat-selection-list>
+            </mat-expansion-panel>
+          </mat-accordion>
+
         </mat-card-content>
         <mat-card-actions *ngIf="isOwnReceip">
           <button mat-button>EDIT </button>

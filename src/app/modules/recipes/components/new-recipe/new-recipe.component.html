@@ -1,7 +1,7 @@
 <mat-toolbar color="primary">
   Create receipt - WIP
   <span class="horizontal-spacer"></span>
-  <button mat-icon-button  (click)="goToList()">
+  <button mat-icon-button (click)="goToList()">
     <mat-icon>view_list</mat-icon>
   </button>
 </mat-toolbar>
@@ -14,7 +14,7 @@
     <mat-card-content>
       <form class="new-recipe__form" [formGroup]='form'>
         <mat-form-field appearance="fill">
-          <mat-label>Title receip</mat-label>
+          <mat-label>Title</mat-label>
           <input matInput type="text" formControlName="title" required>
           <mat-icon matSuffix>receipt</mat-icon>
         </mat-form-field>
@@ -23,6 +23,61 @@
           <mat-label>Description</mat-label>
           <textarea matInput formControlName="description" required></textarea>
         </mat-form-field>
+
+        <mat-accordion multi>
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Ingredients
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ng-container formArrayName="ingredients">
+                <ng-container *ngFor="let ingredientControl of ingredients.controls; let idx = index">
+                  <ng-container [formGroupName]="idx">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Ingredient </mat-label>
+                      <textarea matInput formControlName="data" required placeholder="Ingredient data">
+                      </textarea>
+                      <button mat-icon-button
+                              matSuffix
+                              (click)="deleteControl(ingredients, idx)">
+                        <mat-icon> delete </mat-icon>
+                      </button>
+                    </mat-form-field>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+              <mat-action-row>
+                <button mat-button color="basic" (click)="addControl(ingredients, $event)">Add ingredient</button>
+              </mat-action-row>
+            </mat-expansion-panel>
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Steps
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ng-container formArrayName="steps">
+                <ng-container *ngFor="let stepControl of steps.controls; let idx = index">
+                  <ng-container [formGroupName]="idx">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Step {{ idx + 1 }}</mat-label>
+                      <textarea matInput formControlName="data" required placeholder="Enter de step data">
+                      </textarea>
+                      <button mat-icon-button
+                              matSuffix
+                              (click)="deleteControl(steps, idx)">
+                        <mat-icon> delete </mat-icon>
+                      </button>
+                    </mat-form-field>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+              <mat-action-row>
+                <button mat-button color="basic" (click)="addControl(steps, $event)">Add step</button>
+              </mat-action-row>
+            </mat-expansion-panel>
+          </mat-accordion>
       </form>
     </mat-card-content>
 
@@ -30,5 +85,4 @@
       <button mat-button [disabled]='form.invalid' (click)='createReceip()'>Create new receip</button>
     </mat-card-actions>
   </mat-card>
-
 </div>
