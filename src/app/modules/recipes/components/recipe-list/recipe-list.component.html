@@ -10,13 +10,16 @@
   <div fxLayout="row wrap" fxLayoutGap="16px grid">
     <div fxFlex="25%" fxFlex.xs="100%" fxFlex.sm="50%"
          *ngFor="let recipe of recipes">
-      <mat-card class="mat-elevation-z4 cursor-pointer"
-                (click)=goToRecipe(recipe)>
-        <mat-card-header>
+      <mat-card class="mat-elevation-z4">
+        <mat-card-header (click)=goToRecipe(recipe) class="cursor-pointer">
           <mat-card-title> {{recipe.title}}</mat-card-title>
         </mat-card-header>
-        <img mat-card-image alt="mountain" src="https://phantom-elmundo.unidadeditorial.es/0f2a609ccf6eaa5c150e4b178e26e90b/crop/0x0/700x466/resize/746/f/jpg/assets/multimedia/imagenes/2020/12/02/16069301750615.jpg">
-        <mat-card-content>
+        <img (click)=goToRecipe(recipe)
+             class="cursor-pointer"
+             mat-card-image
+             alt="mountain"
+             src="https://phantom-elmundo.unidadeditorial.es/0f2a609ccf6eaa5c150e4b178e26e90b/crop/0x0/700x466/resize/746/f/jpg/assets/multimedia/imagenes/2020/12/02/16069301750615.jpg">
+        <mat-card-content (click)=goToRecipe(recipe) class="cursor-pointer">
           <p>
               {{ recipe.description }}
           </p>
@@ -24,6 +27,7 @@
         </mat-card-content>
         <mat-card-actions>
           <button mat-button (click)=goToRecipe(recipe)>VIEW </button>
+          <button mat-button color="warn" (click)="deleteRecipe(recipe)">Delete</button>
         </mat-card-actions>
       </mat-card>
     </div>

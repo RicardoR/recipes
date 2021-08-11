@@ -18,13 +18,10 @@ export class RecipeListComponent implements OnInit {
     private route: Router,
     private activatedRoute: ActivatedRoute,
     private recipeService: RecipeService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-
-    this.recipeService.getOwnRecipes()
-      .pipe(take(1))
-      .subscribe((data: Recipe[]) => this.recipes = data);
+    this.getRecipes();
   }
 
   goToCreate(): void {
@@ -33,11 +30,26 @@ export class RecipeListComponent implements OnInit {
     });
   }
 
-  goToRecipe(recipe: Recipe) {
+  goToRecipe(recipe: Recipe): void {
     if (recipe.id) {
       this.route.navigate([RecipesRoutingNames.details, recipe.id], {
         relativeTo: this.activatedRoute,
       });
     }
+  }
+
+  deleteRecipe(recipe: Recipe): void {
+    if (recipe.id) {
+      this.recipeService
+        .deleteRecipe(recipe.id)
+        .subscribe(() => this.getRecipes());
+    }
+  }
+
+  private getRecipes(): void {
+    this.recipeService
+      .getOwnRecipes()
+      .pipe(take(1))
+      .subscribe((data: Recipe[]) => (this.recipes = data));
   }
 }

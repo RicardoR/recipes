@@ -11,8 +11,14 @@ export const RecipesRoutingNames = {
 };
 
 const routes: Routes = [
-  { path: '', component: RecipeListComponent },
-  { path: RecipesRoutingNames.new, component: NewRecipeComponent },
+  {
+    path: '',
+    component: RecipeListComponent
+  },
+  {
+    path: RecipesRoutingNames.new,
+    component: NewRecipeComponent
+  },
   {
     path: `${RecipesRoutingNames.details}/:id`,
     component: RecipeDetailsComponent,

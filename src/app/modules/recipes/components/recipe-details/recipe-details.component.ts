@@ -13,7 +13,7 @@ import { RecipeService } from './../../services/recipe/recipe.service';
   styleUrls: ['./recipe-details.component.scss'],
 })
 export class RecipeDetailsComponent implements OnInit {
-  recipeDetails: Recipe | undefined;
+  recipeDetails!: Recipe;
   isOwnReceip = false;
 
   constructor(
@@ -31,7 +31,13 @@ export class RecipeDetailsComponent implements OnInit {
     this.router.navigate([AppRoutingNames.recipes]);
   }
 
-  private getRecipeDetails() {
+  deleteRecipe(): void {
+    this.recipesService
+      .deleteRecipe(this.recipeDetails.id)
+      .subscribe(() => this.router.navigate([AppRoutingNames.recipes]));
+  }
+
+  private getRecipeDetails(): void {
     this.route.params
       .pipe(
         take(1),
@@ -40,7 +46,7 @@ export class RecipeDetailsComponent implements OnInit {
         )
       )
       .subscribe((data: Recipe) => {
-        this.recipeDetails = data.id ? data : undefined;
+        this.recipeDetails = data;
         this.isOwnReceip = data.ownerId === this.authService.currentUser?.uid;
       });
   }
