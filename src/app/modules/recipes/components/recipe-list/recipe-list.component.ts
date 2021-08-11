@@ -2,16 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 
-import { Recipe } from './../../models/recipes.model';
+import { Recipe } from '../../models/recipes.model';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 
 @Component({
-  selector: 'app-recipes',
-  templateUrl: './recipes.component.html',
-  styleUrls: ['./recipes.component.scss'],
+  selector: 'app-recipe-list',
+  templateUrl: './recipe-list.component.html',
+  styleUrls: ['./recipe-list.component.scss'],
 })
-export class RecipesComponent implements OnInit {
+export class RecipeListComponent implements OnInit {
   recipes: Recipe[] = [];
 
   constructor(

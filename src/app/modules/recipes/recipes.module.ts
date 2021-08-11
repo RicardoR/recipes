@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 
 import { RecipesRoutingModule } from './recipes-routing.module';
 import { NewRecipeComponent } from './components/new-recipe/new-recipe.component';
-import { RecipesComponent } from './components/recipes/recipes.component';
+import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
 import { RecipeService } from './services/recipe/recipe.service';
 import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
 
@@ -15,7 +15,7 @@ import { RecipeDetailsComponent } from './components/recipe-details/recipe-detai
     RecipesRoutingModule
   ],
   declarations: [
-    RecipesComponent,
+    RecipeListComponent,
     NewRecipeComponent,
     RecipeDetailsComponent
   ],
