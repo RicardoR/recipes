@@ -18,7 +18,7 @@ export class RecipeService {
 
   constructor(
     private firestore: AngularFirestore,
-    private authService: AuthService,
+    private authService: AuthService
   ) {}
 
   getOwnRecipes(): Observable<any> {
@@ -39,9 +39,7 @@ export class RecipeService {
           });
         })
       )
-      .subscribe(
-        (recipes: Recipe[]) => result.next(recipes),
-      );
+      .subscribe((recipes: Recipe[]) => result.next(recipes));
 
     return result;
   }
@@ -53,7 +51,7 @@ export class RecipeService {
     this.firestore
       .collection(privateRecipeNameCollection)
       .add(recipe)
-      .then(() => result.next())
+      .then(() => result.next());
 
     return result;
   }
@@ -69,13 +67,25 @@ export class RecipeService {
         take(1),
         map((doc) => this.recipesConverter(doc.data(), doc.id))
       )
-      .subscribe(
-        (data) => {
-          result.next(data);
-          result.complete();
-        },
-      );
+      .subscribe((data) => {
+        result.next(data);
+        result.complete();
+      });
 
+    return result;
+  }
+
+  deleteRecipe(id: string): Observable<boolean> {
+    const result = new Subject<boolean>();
+    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+    this.firestore
+      .collection(privateRecipeNameCollection)
+      .doc(id)
+      .delete()
+      .then(() => {
+        result.next(true);
+        result.complete();
+      })
     return result;
   }
 
@@ -87,7 +97,6 @@ export class RecipeService {
   }
 
   private recipesConverter(docData: any, id: string): Recipe {
-
     if (docData === undefined) {
       throw new Error('Recipe does not exists');
     }

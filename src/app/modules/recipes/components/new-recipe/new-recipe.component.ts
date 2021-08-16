@@ -52,6 +52,7 @@ export class NewRecipeComponent implements OnInit {
         ownerId: this.authService.currentUser?.uid,
         steps: steps,
         ingredients: ingredients,
+        id: '',
       };
 
       this.recipeService

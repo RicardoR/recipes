@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { AuthData } from '../auth-data.model';
 import { AppRoutingNames } from 'src/app/app-routing.module';
@@ -11,10 +13,7 @@ import { AppRoutingNames } from 'src/app/app-routing.module';
 export class AuthService {
   private _currentUser?: AuthData;
 
-  constructor(
-    private auth: AngularFireAuth,
-    private router: Router
-  ) {}
+  constructor(private auth: AngularFireAuth, private router: Router) {}
 
   get currentUser(): AuthData | undefined {
     return this._currentUser;
@@ -27,23 +26,29 @@ export class AuthService {
   login(authData: AuthData): void {
     this.auth
       .signInWithEmailAndPassword(authData.email, authData.password)
-      .then();
+      .then(() => this.router.navigate([AppRoutingNames.recipes]));
   }
 
-  initAuthListener(): void {
-    this.auth.authState.subscribe((user) => {
-      if (user) {
-        const userData: AuthData = {
-          email: user.email ?? '',
-          password: '',
-          uid: user.uid,
-        };
+  initAuthListener(): Observable<boolean> {
+    const userLogged = new Subject<boolean>();
 
-        this.currentUser = userData;
-        this.router.navigate([AppRoutingNames.recipes]);
-      } else {
-        this.router.navigate([AppRoutingNames.login]);
-      }
-    });
+    this.auth.authState
+      .pipe(map((user) => {
+          if (user) {
+            const userData: AuthData = {
+              email: user.email ?? '',
+              password: '',
+              uid: user.uid,
+            };
+
+            this.currentUser = userData;
+            userLogged.next(true);
+          } else {
+            this.router.navigate([AppRoutingNames.login]);
+            userLogged.next(false);
+          }
+      }))
+      .subscribe();
+    return userLogged;
   }
 }

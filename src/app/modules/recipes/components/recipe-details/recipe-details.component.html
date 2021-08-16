@@ -62,6 +62,7 @@
         </mat-card-content>
         <mat-card-actions *ngIf="isOwnReceip">
           <button mat-button>EDIT </button>
+          <button mat-button color="warn" (click)="deleteRecipe()">Delete</button>
         </mat-card-actions>
     </mat-card>
   </div>
