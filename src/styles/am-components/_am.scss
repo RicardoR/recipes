@@ -1,0 +1,9 @@
+@import "../_variables";
+
+ .custom-height-list.mat-list-base .mat-list-item,
+ .custom-height-list.mat-list-base .mat-list-option {
+  height: auto!important;
+  margin-bottom: $space-2x;
+  padding-top: $space-2x;
+  padding-bottom: $space-2x;
+}

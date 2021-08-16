@@ -13,7 +13,10 @@
           <mat-card-title> {{recipeDetails.title}}</mat-card-title>
           <mat-card-subtitle> {{ recipeDetails.date | date }} </mat-card-subtitle>
         </mat-card-header>
-        <img mat-card-image alt="mountain" src="https://phantom-elmundo.unidadeditorial.es/0f2a609ccf6eaa5c150e4b178e26e90b/crop/0x0/700x466/resize/746/f/jpg/assets/multimedia/imagenes/2020/12/02/16069301750615.jpg">
+        <img mat-card-image
+            loading="lazy"
+            alt="cooking"
+            src="https://source.unsplash.com/collection/190727/1600x900">
         <mat-card-content>
           <p> {{ recipeDetails.description }} </p>
 
@@ -24,7 +27,7 @@
                   Ingredients
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <mat-selection-list role="list">
+              <mat-selection-list class="custom-height-list" role="list">
                 <ng-container *ngIf="(recipeDetails.ingredients && recipeDetails.ingredients.length > 0); else noIngredientsFound">
                   <mat-list-option *ngFor="let ingredient of recipeDetails.ingredients">
                     {{ ingredient }}
@@ -44,7 +47,7 @@
                 </mat-panel-title>
 
               </mat-expansion-panel-header>
-              <mat-selection-list role="list">
+              <mat-selection-list class="custom-height-list" role="list">
                 <ng-container *ngIf="(recipeDetails.steps && recipeDetails.steps.length > 0); else noStepsFound">
                   <mat-list-option *ngFor="let step of recipeDetails.steps">
                     {{ step }}

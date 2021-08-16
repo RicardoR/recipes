@@ -17,8 +17,9 @@
         <img (click)=goToRecipe(recipe)
              class="cursor-pointer"
              mat-card-image
+             loading="lazy"
              alt="mountain"
-             src="https://phantom-elmundo.unidadeditorial.es/0f2a609ccf6eaa5c150e4b178e26e90b/crop/0x0/700x466/resize/746/f/jpg/assets/multimedia/imagenes/2020/12/02/16069301750615.jpg">
+             src="https://source.unsplash.com/collection/190727/1600x900">
         <mat-card-content (click)=goToRecipe(recipe) class="cursor-pointer">
           <p>
               {{ recipe.description }}
