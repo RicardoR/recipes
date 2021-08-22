@@ -26,7 +26,7 @@ export class NewRecipeComponent implements OnInit {
 
   constructor(
     private recipeService: RecipeService,
-    private route: Router,
+    private router: Router,
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private cdf: ChangeDetectorRef
@@ -37,7 +37,7 @@ export class NewRecipeComponent implements OnInit {
   }
 
   goToList(): void {
-    this.route.navigate([AppRoutingNames.recipes]);
+    this.router.navigate([AppRoutingNames.recipes]);
   }
 
   createReceip(): void {

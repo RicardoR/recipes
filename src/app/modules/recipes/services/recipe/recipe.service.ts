@@ -56,6 +56,19 @@ export class RecipeService {
     return result;
   }
 
+  editRecipe(recipe: Recipe): Observable<void> {
+    const result = new Subject<void>();
+    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+
+    this.firestore
+      .collection(privateRecipeNameCollection)
+      .doc(recipe.id)
+      .update(recipe)
+      .then(() => result.next());
+
+    return result;
+  }
+
   getPrivateRecipeDetail(id: string): Observable<Recipe> {
     const result = new Subject<Recipe>();
     const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
