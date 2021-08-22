@@ -95,9 +95,7 @@ export class EditRecipeComponent implements OnInit {
   private initForm(): void {
     this.form = this.formBuilder.group({
       title: this.formBuilder.control(this.recipeDetails.title, [Validators.required]),
-      description: this.formBuilder.control(this.recipeDetails.description, [
-        Validators.required,
-      ]),
+      description: this.formBuilder.control(this.recipeDetails.description, [Validators.required]),
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
     });
