@@ -1,4 +1,4 @@
-.new-recipe__container {
+.edit-recipe__container {
   padding: 0;
   margin-top: 25px;
   display: flex;
@@ -6,12 +6,12 @@
   justify-content: center;
 }
 
-.new-recipe__card {
+.edit-recipe__card {
   width: 80%;
   margin: auto;
 }
 
-.new-recipe__form {
+.edit-recipe__form {
   display: flex;
   flex-direction: column;
   width: 100%;

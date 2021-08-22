@@ -15,7 +15,7 @@ export class RecipeListComponent implements OnInit {
   recipes: Recipe[] = [];
 
   constructor(
-    private route: Router,
+    private router: Router,
     private activatedRoute: ActivatedRoute,
     private recipeService: RecipeService
   ) {}
@@ -25,14 +25,14 @@ export class RecipeListComponent implements OnInit {
   }
 
   goToCreate(): void {
-    this.route.navigate([RecipesRoutingNames.new], {
+    this.router.navigate([RecipesRoutingNames.new], {
       relativeTo: this.activatedRoute,
     });
   }
 
   goToRecipe(recipe: Recipe): void {
     if (recipe.id) {
-      this.route.navigate([RecipesRoutingNames.details, recipe.id], {
+      this.router.navigate([RecipesRoutingNames.details, recipe.id], {
         relativeTo: this.activatedRoute,
       });
     }

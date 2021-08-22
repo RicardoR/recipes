@@ -7,6 +7,7 @@ import { NewRecipeComponent } from './components/new-recipe/new-recipe.component
 import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
 import { RecipeService } from './services/recipe/recipe.service';
 import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
+import { EditRecipeComponent } from './components/edit-recipe/edit-recipe.component';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { RecipeDetailsComponent } from './components/recipe-details/recipe-detai
   declarations: [
     RecipeListComponent,
     NewRecipeComponent,
-    RecipeDetailsComponent
+    RecipeDetailsComponent,
+    EditRecipeComponent
   ],
   providers: [
     RecipeService

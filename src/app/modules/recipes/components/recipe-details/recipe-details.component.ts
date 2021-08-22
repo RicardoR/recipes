@@ -6,6 +6,7 @@ import { switchMap, take } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { RecipeService } from './../../services/recipe/recipe.service';
+import { RecipesRoutingNames } from '../../recipes-routing.module';
 
 @Component({
   selector: 'app-recipe-details',
@@ -18,7 +19,7 @@ export class RecipeDetailsComponent implements OnInit {
 
   constructor(
     private recipesService: RecipeService,
-    private route: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private router: Router,
     private authService: AuthService
   ) {}
@@ -37,8 +38,17 @@ export class RecipeDetailsComponent implements OnInit {
       .subscribe(() => this.router.navigate([AppRoutingNames.recipes]));
   }
 
+  editRecipe(): void {
+    if (this.recipeDetails.id) {
+      this.router.navigate([
+        `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,
+        this.recipeDetails.id,
+      ]);
+    }
+  }
+
   private getRecipeDetails(): void {
-    this.route.params
+    this.activatedRoute.params
       .pipe(
         take(1),
         switchMap((param) =>
