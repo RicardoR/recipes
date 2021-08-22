@@ -67,7 +67,7 @@ export class EditRecipeComponent implements OnInit {
         .editRecipe(recipe)
         .pipe(take(1))
         .subscribe(() =>
-          this.messagesService.showSnackBar('Receta actualizada')
+          this.messagesService.showSnackBar('Receta actualizada');
         );
     }
   }
