@@ -66,9 +66,7 @@ export class EditRecipeComponent implements OnInit {
       this.recipesService
         .editRecipe(recipe)
         .pipe(take(1))
-        .subscribe(() =>
-          this.messagesService.showSnackBar('Receta actualizada');
-        );
+        .subscribe(() => this.messagesService.showSnackBar('Receta actualizada'));
     }
   }
 
@@ -88,8 +86,8 @@ export class EditRecipeComponent implements OnInit {
     $event.preventDefault();
   }
 
-  seeReceip() {
-        this.router.navigate([`${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`, this.recipeDetails.id]);
+  seeReceip(): void {
+    this.router.navigate([`${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`, this.recipeDetails.id]);
   }
 
   private initForm(): void {
@@ -105,9 +103,7 @@ export class EditRecipeComponent implements OnInit {
     });
 
     this.recipeDetails.ingredients.forEach((ingredient) => {
-      (<FormArray>this.form.controls['ingredients']).push(
-        this.createFormItem(ingredient)
-      );
+      (<FormArray>this.form.controls['ingredients']).push(this.createFormItem(ingredient));
     });
   }
 
