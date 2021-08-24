@@ -1,12 +1,21 @@
-import { AuthService } from './../../../auth/services/auth.service';
-import { take } from 'rxjs/operators';
-import { Recipe } from './../../models/recipes.model';
 import { Router } from '@angular/router';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import { take } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
+import { Recipe } from './../../models/recipes.model';
+import { AuthService } from './../../../auth/services/auth.service';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { AppRoutingNames } from 'src/app/app-routing.module';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AuthData } from 'src/app/modules/auth/auth-data.model';
+import { UtilService } from 'src/app/modules/shared/services/utils/utils.service';
 
 @Component({
   selector: 'app-new-recipe',
@@ -15,6 +24,12 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 })
 export class NewRecipeComponent implements OnInit {
   form!: FormGroup;
+
+  destroy$: Subject<null> = new Subject();
+  fileToUpload!: File;
+  kittyImagePreview!: string | ArrayBuffer;
+  pictureForm!: FormGroup;
+  user!: AuthData;
 
   get steps(): FormArray {
     return this.form.get('steps') as FormArray;
@@ -29,7 +44,8 @@ export class NewRecipeComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private cdf: ChangeDetectorRef
+    private cdf: ChangeDetectorRef,
+    private utilService: UtilService
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +59,9 @@ export class NewRecipeComponent implements OnInit {
   createReceip(): void {
     if (this.form.valid) {
       const steps = this.steps.value.map((step: any) => step.data);
-      const ingredients = this.ingredients.value.map((ingredient: any) => ingredient.data);
+      const ingredients = this.ingredients.value.map(
+        (ingredient: any) => ingredient.data
+      );
 
       const recipe: Recipe = {
         title: this.form.controls.title.value,
@@ -85,5 +103,22 @@ export class NewRecipeComponent implements OnInit {
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
     });
+
+    this.pictureForm = this.formBuilder.group({
+      photo: [null, Validators.required, this.image.bind(this)],
+      description: [null, Validators.required],
+    });
+
+    this.user = this.authService.currentUser;
+  }
+
+  private image(
+    photoControl: AbstractControl
+  ): { [key: string]: boolean } | null {
+    if (photoControl.value) {
+      const [kittyImage] = photoControl.value.files;
+      return this.utilService.validateFile(kittyImage) ? null : { image: true };
+    }
+    return null;
   }
 }

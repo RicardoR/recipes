@@ -11,15 +11,15 @@ import { AppRoutingNames } from 'src/app/app-routing.module';
   providedIn: 'root',
 })
 export class AuthService {
-  private _currentUser?: AuthData;
+  private _currentUser!: AuthData;
 
   constructor(private auth: AngularFireAuth, private router: Router) {}
 
-  get currentUser(): AuthData | undefined {
+  get currentUser(): AuthData {
     return this._currentUser;
   }
 
-  set currentUser(user: AuthData | undefined) {
+  set currentUser(user: AuthData) {
     this._currentUser = user;
   }
 

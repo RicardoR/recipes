@@ -1,4 +1,3 @@
-import { SharedModule } from './../shared/shared.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -8,7 +7,8 @@ import { RecipeListComponent } from './components/recipe-list/recipe-list.compon
 import { RecipeService } from './services/recipe/recipe.service';
 import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
 import { EditRecipeComponent } from './components/edit-recipe/edit-recipe.component';
-
+import { UtilService } from '../shared/services/utils/utils.service';
+import { SharedModule } from './../shared/shared.module';
 @NgModule({
   imports: [
     CommonModule,
@@ -22,7 +22,8 @@ import { EditRecipeComponent } from './components/edit-recipe/edit-recipe.compon
     EditRecipeComponent
   ],
   providers: [
-    RecipeService
+    RecipeService,
+    UtilService
   ],
 })
 export class RecipesModule {}
