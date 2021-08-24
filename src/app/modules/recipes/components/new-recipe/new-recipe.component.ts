@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -7,7 +7,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { take } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
 import { Recipe } from './../../models/recipes.model';
@@ -22,14 +22,15 @@ import { UtilService } from 'src/app/modules/shared/services/utils/utils.service
   templateUrl: './new-recipe.component.html',
   styleUrls: ['./new-recipe.component.scss'],
 })
-export class NewRecipeComponent implements OnInit {
+export class NewRecipeComponent implements OnInit, OnDestroy {
   form!: FormGroup;
 
   destroy$: Subject<null> = new Subject();
   fileToUpload!: File;
-  kittyImagePreview!: string | ArrayBuffer;
+  recipeImage: string | ArrayBuffer | undefined;
   pictureForm!: FormGroup;
   user!: AuthData;
+  submitted = false;
 
   get steps(): FormArray {
     return this.form.get('steps') as FormArray;
@@ -50,6 +51,11 @@ export class NewRecipeComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.listenPicturesForm();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next(null);
   }
 
   goToList(): void {
@@ -75,7 +81,7 @@ export class NewRecipeComponent implements OnInit {
 
       this.recipeService
         .createRecipe(recipe)
-        .pipe(take(1))
+        .pipe(takeUntil(this.destroy$))
         .subscribe(() => this.goToList());
     }
   }
@@ -96,6 +102,8 @@ export class NewRecipeComponent implements OnInit {
     $event.preventDefault();
   }
 
+  postImage() {}
+
   private initForm(): void {
     this.form = this.formBuilder.group({
       title: this.formBuilder.control('', [Validators.required]),
@@ -105,8 +113,7 @@ export class NewRecipeComponent implements OnInit {
     });
 
     this.pictureForm = this.formBuilder.group({
-      photo: [null, Validators.required, this.image.bind(this)],
-      description: [null, Validators.required],
+      photo: [null, [Validators.required, this.image.bind(this)]],
     });
 
     this.user = this.authService.currentUser;
@@ -114,11 +121,28 @@ export class NewRecipeComponent implements OnInit {
 
   private image(
     photoControl: AbstractControl
-  ): { [key: string]: boolean } | null {
+  ): { [key: string]: boolean } | null | void {
     if (photoControl.value) {
       const [kittyImage] = photoControl.value.files;
       return this.utilService.validateFile(kittyImage) ? null : { image: true };
     }
-    return null;
+    return;
+  }
+
+  private listenPicturesForm() {
+    this.pictureForm
+      ?.get('photo')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((newValue) => {
+        this.handleFileChange(newValue.files);
+      });
+  }
+
+  private handleFileChange([kittyImage]: any) {
+    this.fileToUpload = kittyImage;
+    const reader = new FileReader();
+    reader.onload = (loadEvent) =>
+      (this.recipeImage = loadEvent.target?.result || undefined);
+    reader.readAsDataURL(kittyImage);
   }
 }
