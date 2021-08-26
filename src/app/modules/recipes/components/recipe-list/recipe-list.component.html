@@ -18,8 +18,8 @@
              class="cursor-pointer"
              mat-card-image
              loading="lazy"
-             alt="mountain"
-             src="https://source.unsplash.com/collection/190727/1600x900">
+             alt="Imagen de la receta"
+             [src]="recipe.imgSrc">
         <mat-card-content (click)=goToRecipe(recipe) class="cursor-pointer">
           <p>
               {{ recipe.description }}

@@ -26,6 +26,8 @@
           </mat-error>
         </mat-form-field>
       </form>
+      <mat-progress-bar *ngIf="submitted" [value]="uploadProgress$ | async" mode="determinate">
+      </mat-progress-bar>
     </mat-card-content>
     <mat-card-actions>
       <button mat-raised-button
