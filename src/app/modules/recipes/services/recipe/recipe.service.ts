@@ -112,6 +112,17 @@ export class RecipeService {
     return result;
   }
 
+  uploadFileAndGetMetadata(mediaFolderPath: string, fileToUpload: File): FilesUploadMetadata {
+    const { name } = fileToUpload;
+    const filePath = `${mediaFolderPath}/${new Date().getTime()}_${name}`;
+    const uploadTask: AngularFireUploadTask = this.storage.upload(filePath, fileToUpload);
+
+    return {
+      uploadProgress$: uploadTask.percentageChanges(),
+      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath),
+    };
+  }
+
   private getPrivateRecipeNameCollection(): string {
     if (this.userId === undefined) {
       this.userId = this.authService.currentUser?.uid;
@@ -136,20 +147,10 @@ export class RecipeService {
     } as Recipe;
   }
 
-  uploadFileAndGetMetadata(mediaFolderPath: string, fileToUpload: File): FilesUploadMetadata {
-    const { name } = fileToUpload;
-    const filePath = `${mediaFolderPath}/${new Date().getTime()}_${name}`;
-    const uploadTask: AngularFireUploadTask = this.storage.upload(
-      filePath,
-      fileToUpload
-    );
-    return {
-      uploadProgress$: uploadTask.percentageChanges(),
-      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath),
-    };
-  }
-
-  private getDownloadUrl$(uploadTask: AngularFireUploadTask, path: string): Observable<string> {
+  private getDownloadUrl$(
+    uploadTask: AngularFireUploadTask,
+    path: string
+  ): Observable<string> {
     return from(uploadTask).pipe(
       switchMap((_) => this.storage.ref(path).getDownloadURL())
     );

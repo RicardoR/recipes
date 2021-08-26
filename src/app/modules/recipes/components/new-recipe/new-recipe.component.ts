@@ -9,7 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { catchError, takeUntil } from 'rxjs/operators';
-import { EMPTY, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject } from 'rxjs';
 
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from './../../../auth/services/auth.service';
@@ -18,8 +18,8 @@ import { AppRoutingNames } from 'src/app/app-routing.module';
 import { AuthData } from 'src/app/modules/auth/auth-data.model';
 import { UtilService } from 'src/app/modules/shared/services/utils/utils.service';
 
-export const MEDIA_STORAGE_PATH = `recipes`;
-export const imageByDefault = `https://firebasestorage.googleapis.com/v0/b/recipes-4b9e9.appspot.com/o/recipes%2Frirova81%40gmail.com%2Fmedia%2F1629993697082_verduras.jpeg?alt=media&token=d0825fe1-4941-4ad1-bfd4-df4f3e82ff6e`;
+export const MEDIA_STORAGE_PATH = `recipes/images`;
+export const imageByDefault = `https://firebasestorage.googleapis.com/v0/b/recipes-4b9e9.appspot.com/o/recipes%2Fimages%2F1629995419708_verduras.jpeg?alt=media&token=251ccd8d-6009-492d-96cc-d3f226b82e84`;
 
 @Component({
   selector: 'app-new-recipe',
@@ -29,15 +29,15 @@ export const imageByDefault = `https://firebasestorage.googleapis.com/v0/b/recip
 export class NewRecipeComponent implements OnInit, OnDestroy {
   form!: FormGroup;
 
-  destroy$: Subject<null> = new Subject();
-  fileToUpload!: File;
   recipeImage: string | ArrayBuffer | undefined;
   pictureForm!: FormGroup;
   user!: AuthData;
   submitted = false;
-  uploadProgress$: any; // todo: any?
+  uploadProgress$!: Observable<number | undefined>;
 
+  private fileToUpload!: File;
   private imageRoute: string = imageByDefault;
+  private destroy$: Subject<null> = new Subject();
 
   get steps(): FormArray {
     return this.form.get('steps') as FormArray;
@@ -113,11 +113,10 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
 
   postImage() {
     this.submitted = true;
-    const mediaFolderPath = `${MEDIA_STORAGE_PATH}/${this.user.email}/media/`;
 
     const { downloadUrl$, uploadProgress$ } =
       this.recipeService.uploadFileAndGetMetadata(
-        mediaFolderPath,
+        MEDIA_STORAGE_PATH,
         this.fileToUpload
       );
     this.uploadProgress$ = uploadProgress$;
@@ -155,8 +154,10 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
     photoControl: AbstractControl
   ): { [key: string]: boolean } | null | void {
     if (photoControl.value) {
-      const [kittyImage] = photoControl.value.files;
-      return this.utilService.validateFile(kittyImage) ? null : { image: true };
+      const [recipeImage] = photoControl.value.files;
+      return this.utilService.validateFile(recipeImage)
+        ? null
+        : { image: true };
     }
     return;
   }
@@ -168,11 +169,11 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
       .subscribe((newValue) => this.handleFileChange(newValue.files));
   }
 
-  private handleFileChange([kittyImage]: any) {
-    this.fileToUpload = kittyImage;
+  private handleFileChange([recipeImage]: any) {
+    this.fileToUpload = recipeImage;
     const reader = new FileReader();
     reader.onload = (loadEvent) =>
       (this.recipeImage = loadEvent.target?.result || undefined);
-    reader.readAsDataURL(kittyImage);
+    reader.readAsDataURL(recipeImage);
   }
 }

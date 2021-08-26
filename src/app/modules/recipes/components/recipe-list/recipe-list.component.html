@@ -1,4 +1,3 @@
-
 <mat-toolbar color="primary">
   Listado de recetas
   <span class="horizontal-spacer"></span>
@@ -21,9 +20,7 @@
              alt="Imagen de la receta"
              [src]="recipe.imgSrc">
         <mat-card-content (click)=goToRecipe(recipe) class="cursor-pointer">
-          <p>
-              {{ recipe.description }}
-          </p>
+          <p> {{ recipe.description }} </p>
           <p> {{ recipe.date | date }} </p>
         </mat-card-content>
         <mat-card-actions>
