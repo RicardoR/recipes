@@ -16,10 +16,9 @@
         <img mat-card-image
             loading="lazy"
             alt="cooking"
-            src="https://source.unsplash.com/collection/190727/1600x900">
+            [src]="recipeDetails.imgSrc">
         <mat-card-content>
           <p> {{ recipeDetails.description }} </p>
-
           <mat-accordion multi>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
@@ -69,5 +68,4 @@
         </mat-card-actions>
     </mat-card>
   </div>
-
 </div>

@@ -61,6 +61,7 @@ export class EditRecipeComponent implements OnInit {
         steps: steps,
         ingredients: ingredients,
         id: this.recipeDetails.id,
+        imgSrc: this.recipeDetails.imgSrc
       };
 
       this.recipesService

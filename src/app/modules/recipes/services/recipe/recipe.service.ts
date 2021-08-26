@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { DocumentChangeAction } from '@angular/fire/firestore/interfaces';
-import { Observable, Subject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import {
+  AngularFireStorage,
+  AngularFireUploadTask,
+} from '@angular/fire/storage';
+import { from, Observable, Subject } from 'rxjs';
+import { map, switchMap, take } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
@@ -12,13 +16,19 @@ const enum DatabaseCollectionsNames {
   own = 'own'
 }
 
+export interface FilesUploadMetadata {
+  uploadProgress$: Observable<number | undefined>;
+  downloadUrl$: Observable<string>;
+}
+
 @Injectable()
 export class RecipeService {
   private userId?: string;
 
   constructor(
     private firestore: AngularFirestore,
-    private authService: AuthService
+    private authService: AuthService,
+    private storage: AngularFireStorage
   ) {}
 
   getOwnRecipes(): Observable<any> {
@@ -98,8 +108,19 @@ export class RecipeService {
       .then(() => {
         result.next(true);
         result.complete();
-      })
+      });
     return result;
+  }
+
+  uploadFileAndGetMetadata(mediaFolderPath: string, fileToUpload: File): FilesUploadMetadata {
+    const { name } = fileToUpload;
+    const filePath = `${mediaFolderPath}/${new Date().getTime()}_${name}`;
+    const uploadTask: AngularFireUploadTask = this.storage.upload(filePath, fileToUpload);
+
+    return {
+      uploadProgress$: uploadTask.percentageChanges(),
+      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath),
+    };
   }
 
   private getPrivateRecipeNameCollection(): string {
@@ -122,6 +143,16 @@ export class RecipeService {
       ownerId: docData.ownerId,
       steps: docData.steps,
       ingredients: docData.ingredients,
+      imgSrc: docData.imgSrc,
     } as Recipe;
+  }
+
+  private getDownloadUrl$(
+    uploadTask: AngularFireUploadTask,
+    path: string
+  ): Observable<string> {
+    return from(uploadTask).pipe(
+      switchMap((_) => this.storage.ref(path).getDownloadURL())
+    );
   }
 }

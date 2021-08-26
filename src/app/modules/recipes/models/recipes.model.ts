@@ -6,4 +6,5 @@ export interface Recipe {
   ingredients: string[],
   id: string,
   ownerId?: string;
+  imgSrc: string;
 }
