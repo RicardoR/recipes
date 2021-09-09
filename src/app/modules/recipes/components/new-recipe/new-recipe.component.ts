@@ -1,4 +1,3 @@
-import { MessagesService } from './../../../shared/services/messages/messages.service';
 import { Router } from '@angular/router';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import {
@@ -8,15 +7,17 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { catchError, takeUntil } from 'rxjs/operators';
 import { EMPTY, Observable, Subject } from 'rxjs';
 
 import { Recipe } from './../../models/recipes.model';
-import { AuthService } from './../../../auth/services/auth.service';
 import { RecipeService } from '../../services/recipe/recipe.service';
+import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { AuthData } from 'src/app/modules/auth/auth-data.model';
 import { UtilService } from 'src/app/modules/shared/services/utils/utils.service';
+import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
 
@@ -110,7 +111,7 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
     $event.preventDefault();
   }
 
-  postImage() {
+  postImage(): void {
     this.submitted = true;
 
     const { downloadUrl$, uploadProgress$ } =
@@ -134,6 +135,10 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
       });
   }
 
+  dropElement(event: CdkDragDrop<string[]>, list: AbstractControl[]): void {
+    moveItemInArray(list, event.previousIndex, event.currentIndex);
+  }
+
   private initForm(): void {
     this.form = this.formBuilder.group({
       title: this.formBuilder.control('', [Validators.required]),
@@ -149,9 +154,7 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
     this.user = this.authService.currentUser;
   }
 
-  private image(
-    photoControl: AbstractControl
-  ): { [key: string]: boolean } | null | void {
+  private image( photoControl: AbstractControl): { [key: string]: boolean } | null | void {
     if (photoControl.value) {
       const [recipeImage] = photoControl.value.files;
       return this.utilService.validateFile(recipeImage)
@@ -161,7 +164,7 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
     return;
   }
 
-  private listenPicturesForm() {
+  private listenPicturesForm(): void {
     this.pictureForm
       ?.get('photo')
       ?.valueChanges.pipe(takeUntil(this.destroy$))

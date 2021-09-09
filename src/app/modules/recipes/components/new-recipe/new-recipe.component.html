@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  Crear receta - WIP
+  Crear receta
   <span class="horizontal-spacer"></span>
   <button mat-icon-button (click)="goToList()">
     <mat-icon>view_list</mat-icon>
@@ -68,11 +68,13 @@
                   Ingredientes
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <ng-container formArrayName="ingredients">
+              <div formArrayName="ingredients"
+                   cdkDropList
+                   (cdkDropListDropped)="dropElement($event, ingredients.controls)">
                 <ng-container *ngFor="let ingredientControl of ingredients.controls; let idx = index">
-                  <ng-container [formGroupName]="idx">
+                  <div cdkDrag [formGroupName]="idx">
                     <mat-form-field appearance="fill" class="w-100">
-                      <mat-label>Ingredient </mat-label>
+                      <mat-label>Ingrediente {{ idx + 1 }}</mat-label>
                       <textarea matInput
                                 formControlName="data"
                                 required
@@ -83,10 +85,16 @@
                               (click)="deleteControl(ingredients, idx)">
                         <mat-icon> delete </mat-icon>
                       </button>
+                      <button class="cursor-move"
+                              mat-icon-button
+                              matSuffix
+                              cdkDragHandle>
+                        <mat-icon> drag_indicator </mat-icon>
+                      </button>
                     </mat-form-field>
-                  </ng-container>
+                  </div>
                 </ng-container>
-              </ng-container>
+              </div>
               <mat-action-row>
                 <button mat-button
                         color="basic"
@@ -98,14 +106,16 @@
             <mat-expansion-panel expanded>
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  Steps
+                  Pasos
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <ng-container formArrayName="steps">
+              <div formArrayName="steps"
+                   cdkDropList
+                   (cdkDropListDropped)="dropElement($event, steps.controls)">
                 <ng-container *ngFor="let stepControl of steps.controls; let idx = index">
-                  <ng-container [formGroupName]="idx">
+                  <div cdkDrag [formGroupName]="idx">
                     <mat-form-field appearance="fill" class="w-100">
-                      <mat-label>Step {{ idx + 1 }}</mat-label>
+                      <mat-label>Paso {{ idx + 1 }}</mat-label>
                       <textarea matInput
                                 formControlName="data"
                                 required
@@ -116,10 +126,16 @@
                               (click)="deleteControl(steps, idx)">
                         <mat-icon> delete </mat-icon>
                       </button>
+                      <button class="cursor-move"
+                              mat-icon-button
+                              matSuffix
+                              cdkDragHandle>
+                        <mat-icon> drag_indicator </mat-icon>
+                      </button>
                     </mat-form-field>
-                  </ng-container>
+                  </div>
                 </ng-container>
-              </ng-container>
+              </div>
               <mat-action-row>
                 <button mat-button
                         color="basic"

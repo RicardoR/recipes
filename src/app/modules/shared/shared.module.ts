@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AngularMaterialModule } from './angular-material.module';
 
@@ -10,6 +11,7 @@ import { AngularMaterialModule } from './angular-material.module';
     CommonModule,
     ReactiveFormsModule,
     FlexLayoutModule,
+    DragDropModule,
 
     // Own modules
     AngularMaterialModule,
@@ -18,6 +20,7 @@ import { AngularMaterialModule } from './angular-material.module';
     CommonModule,
     ReactiveFormsModule,
     FlexLayoutModule,
+    DragDropModule,
 
     // Own modules
     AngularMaterialModule,
