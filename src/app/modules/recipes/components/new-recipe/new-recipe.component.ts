@@ -19,7 +19,6 @@ import { AuthData } from 'src/app/modules/auth/auth-data.model';
 import { UtilService } from 'src/app/modules/shared/services/utils/utils.service';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
-export const imageByDefault = `https://firebasestorage.googleapis.com/v0/b/recipes-4b9e9.appspot.com/o/recipes%2Fimages%2F1629995419708_verduras.jpeg?alt=media&token=251ccd8d-6009-492d-96cc-d3f226b82e84`;
 
 @Component({
   selector: 'app-new-recipe',
@@ -36,7 +35,7 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
   uploadProgress$!: Observable<number | undefined>;
 
   private fileToUpload!: File;
-  private imageRoute: string = imageByDefault;
+  private imageRoute: string = '';
   private destroy$: Subject<null> = new Subject();
 
   get steps(): FormArray {

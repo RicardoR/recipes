@@ -8,10 +8,18 @@
   margin: auto;
 }
 
-.mt-8 {
+.mt-1 {
   margin-top: $space-default;
 }
 
-.p-16 {
+.mb-1 {
+  margin-bottom: $space-default;
+}
+
+.mb-2 {
+  margin-bottom: $space-2x;
+}
+
+.p-2 {
   padding: $space-2x;
 }
