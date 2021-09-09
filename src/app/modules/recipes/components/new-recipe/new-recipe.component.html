@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  Crear receta - WIP
+  Crear receta
   <span class="horizontal-spacer"></span>
   <button mat-icon-button (click)="goToList()">
     <mat-icon>view_list</mat-icon>
@@ -7,39 +7,7 @@
 </mat-toolbar>
 
 <div class="new-recipe__container">
-  <mat-card class="new-recipe__card">
-    <img *ngIf="recipeImage"
-        class="preview-image"
-        [src]="recipeImage"
-        alt="Imagen de la receta"/>
-    <mat-card-content>
-      <form *ngIf="user" [formGroup]="pictureForm">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Imagen de la receta</mat-label>
-          <ngx-mat-file-input accept="image/*"
-                              formControlName="photo"
-                              placeholder="Basic outline placeholder">
-          </ngx-mat-file-input>
-          <mat-icon matSuffix>folder</mat-icon>
-          <mat-error *ngIf="pictureForm.controls['photo'].hasError('image')">
-              Formato de archivo incorrecto
-          </mat-error>
-        </mat-form-field>
-      </form>
-      <mat-progress-bar *ngIf="submitted" [value]="uploadProgress$ | async" mode="determinate">
-      </mat-progress-bar>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button
-              color="primary"
-              [disabled]="pictureForm.invalid || submitted"
-              (click)="postImage()">
-            Subir imagen
-      </button>
-    </mat-card-actions>
-  </mat-card>
-
-  <mat-card class="new-recipe__card mt-8">
+  <mat-card class="new-recipe__card mt-1">
     <mat-card-header>
       <mat-card-title>Nueva receta</mat-card-title>
     </mat-card-header>
@@ -62,6 +30,37 @@
           </textarea>
         </mat-form-field>
 
+        <div class="mb-2">
+          <p>Imagen de la receta</p>
+          <img *ngIf="recipeImage"
+            mat-card-image
+            class="preview-image"
+            [src]="recipeImage"
+            alt="Imagen de la receta"/>
+          <div *ngIf="user" [formGroup]="pictureForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Imagen de la receta</mat-label>
+              <ngx-mat-file-input accept="image/*"
+                                  formControlName="photo"
+                                  placeholder="Basic outline placeholder">
+              </ngx-mat-file-input>
+              <mat-icon matSuffix>folder</mat-icon>
+              <mat-error *ngIf="pictureForm.controls['photo'].hasError('image')">
+                  Formato de archivo incorrecto
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <mat-progress-bar *ngIf="submitted" [value]="uploadProgress$ | async" mode="determinate">
+          </mat-progress-bar>
+
+          <button mat-raised-button
+              color="primary"
+              [disabled]="pictureForm.invalid || submitted"
+              (click)="postImage()">
+            Subir imagen
+          </button>
+        </div>
+
         <mat-accordion multi>
             <mat-expansion-panel expanded>
               <mat-expansion-panel-header>
@@ -69,11 +68,13 @@
                   Ingredientes
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <ng-container formArrayName="ingredients">
+              <div formArrayName="ingredients"
+                   cdkDropList
+                   (cdkDropListDropped)="dropElement($event, ingredients.controls)">
                 <ng-container *ngFor="let ingredientControl of ingredients.controls; let idx = index">
-                  <ng-container [formGroupName]="idx">
+                  <div cdkDrag [formGroupName]="idx">
                     <mat-form-field appearance="fill" class="w-100">
-                      <mat-label>Ingredient </mat-label>
+                      <mat-label>Ingrediente {{ idx + 1 }}</mat-label>
                       <textarea matInput
                                 formControlName="data"
                                 required
@@ -84,10 +85,16 @@
                               (click)="deleteControl(ingredients, idx)">
                         <mat-icon> delete </mat-icon>
                       </button>
+                      <button class="cursor-move"
+                              mat-icon-button
+                              matSuffix
+                              cdkDragHandle>
+                        <mat-icon> drag_indicator </mat-icon>
+                      </button>
                     </mat-form-field>
-                  </ng-container>
+                  </div>
                 </ng-container>
-              </ng-container>
+              </div>
               <mat-action-row>
                 <button mat-button
                         color="basic"
@@ -99,14 +106,16 @@
             <mat-expansion-panel expanded>
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  Steps
+                  Pasos
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <ng-container formArrayName="steps">
+              <div formArrayName="steps"
+                   cdkDropList
+                   (cdkDropListDropped)="dropElement($event, steps.controls)">
                 <ng-container *ngFor="let stepControl of steps.controls; let idx = index">
-                  <ng-container [formGroupName]="idx">
+                  <div cdkDrag [formGroupName]="idx">
                     <mat-form-field appearance="fill" class="w-100">
-                      <mat-label>Step {{ idx + 1 }}</mat-label>
+                      <mat-label>Paso {{ idx + 1 }}</mat-label>
                       <textarea matInput
                                 formControlName="data"
                                 required
@@ -117,10 +126,16 @@
                               (click)="deleteControl(steps, idx)">
                         <mat-icon> delete </mat-icon>
                       </button>
+                      <button class="cursor-move"
+                              mat-icon-button
+                              matSuffix
+                              cdkDragHandle>
+                        <mat-icon> drag_indicator </mat-icon>
+                      </button>
                     </mat-form-field>
-                  </ng-container>
+                  </div>
                 </ng-container>
-              </ng-container>
+              </div>
               <mat-action-row>
                 <button mat-button
                         color="basic"

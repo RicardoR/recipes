@@ -143,7 +143,7 @@ export class RecipeService {
       ownerId: docData.ownerId,
       steps: docData.steps,
       ingredients: docData.ingredients,
-      imgSrc: docData.imgSrc,
+      imgSrc: docData.imgSrc ? docData.imgSrc : 'assets/images/verduras.jpeg',
     } as Recipe;
   }
 
