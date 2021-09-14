@@ -123,6 +123,10 @@ export class RecipeService {
     };
   }
 
+  deleteImage(ref: string): Observable<any> {
+    return this.storage.refFromURL(ref).delete();
+  }
+
   private getPrivateRecipeNameCollection(): string {
     if (this.userId === undefined) {
       this.userId = this.authService.currentUser?.uid;

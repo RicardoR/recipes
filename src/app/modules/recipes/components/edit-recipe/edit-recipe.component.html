@@ -28,7 +28,46 @@
                     cdkTextareaAutosize>
           </textarea>
         </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput
+                    formControlName="description"
+                    required
+                    cdkTextareaAutosize>
+          </textarea>
+        </mat-form-field>
 
+        <div class="mb-2">
+          <p>Imagen de la receta</p>
+          <img *ngIf="recipeImage"
+            mat-card-image
+            class="preview-image"
+            [src]="recipeImage"
+            alt="Imagen de la receta"/>
+          <div *ngIf="user && pictureForm" [formGroup]="pictureForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Imagen de la receta</mat-label>
+              <ngx-mat-file-input accept="image/*"
+                                  formControlName="photo"
+                                  placeholder="Basic outline placeholder">
+              </ngx-mat-file-input>
+              <mat-icon matSuffix>folder</mat-icon>
+              <mat-error *ngIf="pictureForm.controls['photo'].hasError('image')">
+                  Formato de archivo incorrecto
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <mat-progress-bar *ngIf="submitted" [value]="uploadProgress$ | async" mode="determinate">
+          </mat-progress-bar>
+
+          <button mat-raised-button
+              color="primary"
+              *ngIf="user && pictureForm"
+              [disabled]="pictureForm.invalid || submitted"
+              (click)="postImage()">
+            Subir imagen
+          </button>
+        </div>
         <mat-accordion multi>
             <mat-expansion-panel expanded>
               <mat-expansion-panel-header>
