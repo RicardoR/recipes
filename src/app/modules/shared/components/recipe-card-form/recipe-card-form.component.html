@@ -146,7 +146,7 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button *ngIf="isOwnRecipe && edittingMode; else isNotOwnReceip"
+      <button *ngIf="!edittingMode || (isOwnRecipe && edittingMode); else isNotOwnReceip"
               mat-raised-button
               color="primary"
               [disabled]='form.invalid'

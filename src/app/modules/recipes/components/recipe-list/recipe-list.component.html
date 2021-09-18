@@ -25,7 +25,10 @@
         </mat-card-content>
         <mat-card-actions>
           <button mat-button (click)=goToRecipe(recipe)>Ver </button>
-          <button mat-button color="warn" (click)="deleteRecipe(recipe)">Borrar</button>
+          <button mat-button
+                  *ngIf="recipe.ownerId === userId"
+                  color="warn"
+                  (click)="deleteRecipe(recipe)">Borrar</button>
         </mat-card-actions>
       </mat-card>
     </div>

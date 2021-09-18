@@ -1,21 +1,22 @@
-import { AuthService } from './../../../auth/services/auth.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
-import { switchMap, take } from 'rxjs/operators';
-
+import { RecipesRoutingNames } from '../../recipes-routing.module';
+import { AuthService } from './../../../auth/services/auth.service';
 import { Recipe } from './../../models/recipes.model';
 import { RecipeService } from './../../services/recipe/recipe.service';
-import { RecipesRoutingNames } from '../../recipes-routing.module';
 
 @Component({
   selector: 'app-recipe-details',
   templateUrl: './recipe-details.component.html',
   styleUrls: ['./recipe-details.component.scss'],
 })
-export class RecipeDetailsComponent implements OnInit {
+export class RecipeDetailsComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;
   isOwnReceip = false;
+  private destroy$: Subject<null> = new Subject();
 
   constructor(
     private recipesService: RecipeService,
@@ -28,6 +29,11 @@ export class RecipeDetailsComponent implements OnInit {
     this.getRecipeDetails();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next(null);
+    this.destroy$.complete();
+  }
+
   goToList(): void {
     this.router.navigate([AppRoutingNames.recipes]);
   }
@@ -35,6 +41,10 @@ export class RecipeDetailsComponent implements OnInit {
   deleteRecipe(): void {
     this.recipesService
       .deleteRecipe(this.recipeDetails.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() =>this.recipesService.deleteImage(this.recipeDetails.imgSrc))
+      )
       .subscribe(() => this.router.navigate([AppRoutingNames.recipes]));
   }
 
@@ -50,10 +60,8 @@ export class RecipeDetailsComponent implements OnInit {
   private getRecipeDetails(): void {
     this.activatedRoute.params
       .pipe(
-        take(1),
-        switchMap((param) =>
-          this.recipesService.getPrivateRecipeDetail(param.id)
-        )
+        takeUntil(this.destroy$),
+        switchMap((param) => this.recipesService.getPrivateRecipeDetail(param.id))
       )
       .subscribe((data: Recipe) => {
         this.recipeDetails = data;

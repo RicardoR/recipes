@@ -1,27 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { take } from 'rxjs/operators';
-
+import { Subject } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
+import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { Recipe } from '../../models/recipes.model';
-import { RecipeService } from '../../services/recipe/recipe.service';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
+import { RecipeService } from '../../services/recipe/recipe.service';
+
 
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.scss'],
 })
-export class RecipeListComponent implements OnInit {
+export class RecipeListComponent implements OnInit, OnDestroy {
   recipes: Recipe[] = [];
+  userId?: string;
+
+  private destroy$: Subject<null> = new Subject();
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private recipeService: RecipeService
+    private recipeService: RecipeService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.getRecipes();
+    this.userId = this.authService.currentUser?.uid;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next(null);
+    this.destroy$.complete();
   }
 
   goToCreate(): void {
@@ -42,6 +54,10 @@ export class RecipeListComponent implements OnInit {
     if (recipe.id) {
       this.recipeService
         .deleteRecipe(recipe.id)
+        .pipe(
+          takeUntil(this.destroy$),
+          switchMap(() => this.recipeService.deleteImage(recipe.imgSrc))
+        )
         .subscribe(() => this.getRecipes());
     }
   }
@@ -49,7 +65,7 @@ export class RecipeListComponent implements OnInit {
   private getRecipes(): void {
     this.recipeService
       .getOwnRecipes()
-      .pipe(take(1))
+      .pipe(takeUntil(this.destroy$))
       .subscribe((data: Recipe[]) => (this.recipes = data));
   }
 }
