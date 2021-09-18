@@ -5,6 +5,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AngularMaterialModule } from './angular-material.module';
+import { RecipeCardFormComponent } from './components/recipe-card-form/recipe-card-form.component';
 
 @NgModule({
   imports: [
@@ -24,6 +25,12 @@ import { AngularMaterialModule } from './angular-material.module';
 
     // Own modules
     AngularMaterialModule,
+
+    // Shared Components
+    RecipeCardFormComponent
+  ],
+  declarations: [
+    RecipeCardFormComponent
   ],
 })
 export class SharedModule {}
