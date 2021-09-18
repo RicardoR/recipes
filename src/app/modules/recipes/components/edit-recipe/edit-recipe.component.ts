@@ -7,12 +7,12 @@ import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { AuthData } from 'src/app/modules/auth/auth-data.model';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
+import { MEDIA_STORAGE_PATH } from 'src/app/modules/shared/components/recipe-card-form/recipe-card-form.component';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { UtilService } from 'src/app/modules/shared/services/utils/utils.service';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
-import { MEDIA_STORAGE_PATH } from '../new-recipe/new-recipe.component';
 
 @Component({
   selector: 'app-edit-recipe',

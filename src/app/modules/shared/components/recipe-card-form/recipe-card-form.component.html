@@ -1,0 +1,157 @@
+<div class="recipe-card-form__container">
+  <mat-card class="recipe-card-form__card mt-1">
+    <mat-card-header>
+      <mat-card-title>
+        <ng-content select="[title]"></ng-content>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="recipe-card-form__form" [formGroup]='form'>
+        <mat-form-field appearance="fill">
+          <mat-label>Título</mat-label>
+          <input matInput
+                 type="text"
+                 formControlName="title"
+                 required>
+          <mat-icon matSuffix>receipt</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput
+                    formControlName="description"
+                    required
+                    cdkTextareaAutosize>
+          </textarea>
+        </mat-form-field>
+
+        <div class="mb-2">
+          <p>Imagen de la receta</p>
+          <img *ngIf="recipeImage"
+            mat-card-image
+            class="preview-image"
+            [src]="recipeImage"
+            alt="Imagen de la receta"/>
+          <div *ngIf="user" [formGroup]="pictureForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Imagen de la receta</mat-label>
+              <ngx-mat-file-input accept="image/*"
+                                  formControlName="photo"
+                                  placeholder="Basic outline placeholder">
+              </ngx-mat-file-input>
+              <mat-icon matSuffix>folder</mat-icon>
+              <mat-error *ngIf="pictureForm.controls['photo'].hasError('image')">
+                  Formato de archivo incorrecto
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <mat-progress-bar *ngIf="submitted" [value]="uploadProgress$ | async" mode="determinate">
+          </mat-progress-bar>
+
+          <button mat-raised-button
+              color="primary"
+              [disabled]="pictureForm.invalid || submitted"
+              (click)="postImage()">
+            Subir imagen
+          </button>
+        </div>
+
+        <mat-accordion multi>
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Ingredientes
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div formArrayName="ingredients"
+                   cdkDropList
+                   (cdkDropListDropped)="dropElement($event, ingredients.controls)">
+                <ng-container *ngFor="let ingredientControl of ingredients.controls; let idx = index">
+                  <div cdkDrag [formGroupName]="idx">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Ingrediente {{ idx + 1 }}</mat-label>
+                      <textarea matInput
+                                formControlName="data"
+                                required
+                                placeholder="Ingrediente"
+                                cdkTextareaAutosize>
+                      </textarea>
+                      <button mat-icon-button
+                              matSuffix
+                              (click)="deleteControl(ingredients, idx)">
+                        <mat-icon> delete </mat-icon>
+                      </button>
+                      <button class="cursor-move"
+                              mat-icon-button
+                              matSuffix
+                              cdkDragHandle>
+                        <mat-icon> drag_indicator </mat-icon>
+                      </button>
+                    </mat-form-field>
+                  </div>
+                </ng-container>
+              </div>
+              <mat-action-row>
+                <button mat-button
+                        color="basic"
+                        (click)="addControl(ingredients, $event)">
+                        Añadir ingrediente
+                </button>
+              </mat-action-row>
+            </mat-expansion-panel>
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Pasos
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div formArrayName="steps"
+                   cdkDropList
+                   (cdkDropListDropped)="dropElement($event, steps.controls)">
+                <ng-container *ngFor="let stepControl of steps.controls; let idx = index">
+                  <div cdkDrag [formGroupName]="idx">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Paso {{ idx + 1 }}</mat-label>
+                      <textarea matInput
+                                formControlName="data"
+                                required
+                                placeholder="Paso"
+                                cdkTextareaAutosize>
+                      </textarea>
+                      <button mat-icon-button
+                              matSuffix
+                              (click)="deleteControl(steps, idx)">
+                        <mat-icon> delete </mat-icon>
+                      </button>
+                      <button class="cursor-move"
+                              mat-icon-button
+                              matSuffix
+                              cdkDragHandle>
+                        <mat-icon> drag_indicator </mat-icon>
+                      </button>
+                    </mat-form-field>
+                  </div>
+                </ng-container>
+              </div>
+              <mat-action-row>
+                <button mat-button
+                        color="basic"
+                        (click)="addControl(steps, $event)">
+                        Añadir paso
+                </button>
+              </mat-action-row>
+            </mat-expansion-panel>
+          </mat-accordion>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button
+              color="primary"
+              [disabled]='form.invalid'
+              (click)='sendReceip()'>
+          <ng-content select="[button-action-text]"></ng-content>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
