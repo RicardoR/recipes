@@ -217,9 +217,7 @@ export class RecipeCardFormComponent implements OnInit {
     });
 
     this._recipeDetails.ingredients.forEach((ingredient) => {
-      (<FormArray>this.form?.get('ingredients')).push(
-        this.createFormItem(ingredient)
-      );
+      (<FormArray>this.form?.get('ingredients')).push(this.createFormItem(ingredient));
     });
   }
 }
