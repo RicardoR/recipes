@@ -146,12 +146,25 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-raised-button
+      <button *ngIf="isOwnRecipe && edittingMode; else isNotOwnReceip"
+              mat-raised-button
               color="primary"
               [disabled]='form.invalid'
-              (click)='sendReceip()'>
+              (click)='sendReceip()' >
           <ng-content select="[button-action-text]"></ng-content>
       </button>
+      <button *ngIf="edittingMode"
+              mat-button
+              [disabled]='form.invalid'
+              (click)='seeReceipt()' >
+              Ver receta
+      </button>
+      <ng-template #isNotOwnReceip>
+        <button [disabled]=true
+                mat-button >
+                Sólo el propietario puede editar sus recetas
+        </button>
+      </ng-template>
     </mat-card-actions>
   </mat-card>
 </div>

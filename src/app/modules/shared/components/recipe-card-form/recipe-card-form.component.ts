@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   OnInit,
   Output,
 } from '@angular/core';
@@ -31,6 +32,16 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
 })
 export class RecipeCardFormComponent implements OnInit {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
+  @Output() seeReceipt$: EventEmitter<void> = new EventEmitter();
+
+  @Input() set recipeDetails(value: Recipe) {
+    if (value) {
+      this._recipeDetails = value;
+
+      this.fillEditingData();
+      this.fillForm();
+    }
+  }
 
   form!: FormGroup;
 
@@ -39,10 +50,13 @@ export class RecipeCardFormComponent implements OnInit {
   user!: AuthData;
   submitted = false;
   uploadProgress$!: Observable<number | undefined>;
+  isOwnRecipe!: boolean;
+  edittingMode: boolean = false;
 
   private fileToUpload!: File;
   private imageRoute: string = '';
   private destroy$: Subject<null> = new Subject();
+  private _recipeDetails!: Recipe;
 
   get steps(): FormArray {
     return this.form.get('steps') as FormArray;
@@ -72,28 +86,34 @@ export class RecipeCardFormComponent implements OnInit {
 
   sendReceip(): void {
     if (this.form.valid) {
-      const steps = this.steps.value.map((step: any) => step.data);
-      const ingredients = this.ingredients.value.map(
-        (ingredient: any) => ingredient.data
+      const steps = this.steps.controls.map(
+        (control: any) => control.value.data
       );
+      const ingredients = this.ingredients.controls.map(
+        (control: any) => control.value.data
+      );
+
+      const imageRoute = this.imageRoute
+        ? this.imageRoute
+        : this._recipeDetails.imgSrc;
 
       const recipe: Recipe = {
         title: this.form.controls.title.value,
         description: this.form.controls.description.value,
-        date: new Date(),
+        date: this._recipeDetails ? this._recipeDetails.date : new Date(),
         ownerId: this.authService.currentUser?.uid,
         steps: steps,
         ingredients: ingredients,
-        id: '',
-        imgSrc: this.imageRoute,
+        id: this._recipeDetails ? this._recipeDetails.id : '',
+        imgSrc: imageRoute,
       };
 
       this.recipeChanged$.emit(recipe);
     }
   }
 
-  formItem(): FormGroup {
-    return this.formBuilder.group({ data: undefined });
+  createFormItem(data?: string): FormGroup {
+    return this.formBuilder.group({ data: data });
   }
 
   deleteControl(control: FormArray, index: number): void {
@@ -102,7 +122,7 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   addControl(control: FormArray, $event: any): void {
-    control.push(this.formItem());
+    control.push(this.createFormItem());
     this.cdf.detectChanges();
 
     $event.preventDefault();
@@ -134,6 +154,10 @@ export class RecipeCardFormComponent implements OnInit {
 
   dropElement(event: CdkDragDrop<string[]>, list: AbstractControl[]): void {
     moveItemInArray(list, event.previousIndex, event.currentIndex);
+  }
+
+  seeReceipt(): void {
+    this.seeReceipt$.next();
   }
 
   private initForm(): void {
@@ -176,5 +200,26 @@ export class RecipeCardFormComponent implements OnInit {
     reader.onload = (loadEvent) =>
       (this.recipeImage = loadEvent.target?.result || undefined);
     reader.readAsDataURL(recipeImage);
+  }
+
+  private fillEditingData(): void {
+    this.edittingMode = true;
+    this.isOwnRecipe = this._recipeDetails.ownerId === this.user.uid;
+    this.recipeImage = this._recipeDetails.imgSrc;
+  }
+
+  private fillForm(): void {
+    this.form?.get('title')?.patchValue(this._recipeDetails.title);
+    this.form?.get('description')?.patchValue(this._recipeDetails.description);
+
+    this._recipeDetails.steps.forEach((step) => {
+      (<FormArray>this.form?.get('steps')).push(this.createFormItem(step));
+    });
+
+    this._recipeDetails.ingredients.forEach((ingredient) => {
+      (<FormArray>this.form?.get('ingredients')).push(
+        this.createFormItem(ingredient)
+      );
+    });
   }
 }
