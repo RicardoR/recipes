@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,11 +12,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MaterialFileInputModule } from 'ngx-material-file-input';
 
+
 @NgModule({
   imports: [
     // Material
     MatButtonModule,
     MatCardModule,
+    MatDialogModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
@@ -31,6 +33,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     // Material
     MatButtonModule,
     MatCardModule,
+    MatDialogModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,

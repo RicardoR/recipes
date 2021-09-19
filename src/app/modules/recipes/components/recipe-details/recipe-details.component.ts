@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { EMPTY, Subject } from 'rxjs';
+import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
+import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { AuthService } from './../../../auth/services/auth.service';
 import { Recipe } from './../../models/recipes.model';
 import { RecipeService } from './../../services/recipe/recipe.service';
@@ -22,7 +24,8 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     private recipesService: RecipeService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -39,11 +42,20 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   }
 
   deleteRecipe(): void {
-    this.recipesService
-      .deleteRecipe(this.recipeDetails.id)
+    const dialogRef = this.dialog.open(DeleteRecipeDialogComponent);
+
+    dialogRef
+      .afterClosed()
       .pipe(
         takeUntil(this.destroy$),
-        switchMap(() =>this.recipesService.deleteImage(this.recipeDetails.imgSrc))
+        concatMap((data) =>
+          data === true
+            ? this.recipesService.deleteRecipe(this.recipeDetails.id)
+            : EMPTY
+        ),
+        switchMap(() =>
+          this.recipesService.deleteImage(this.recipeDetails.imgSrc)
+        )
       )
       .subscribe(() => this.router.navigate([AppRoutingNames.recipes]));
   }
@@ -61,7 +73,9 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     this.activatedRoute.params
       .pipe(
         takeUntil(this.destroy$),
-        switchMap((param) => this.recipesService.getPrivateRecipeDetail(param.id))
+        switchMap((param) =>
+          this.recipesService.getPrivateRecipeDetail(param.id)
+        )
       )
       .subscribe((data: Recipe) => {
         this.recipeDetails = data;

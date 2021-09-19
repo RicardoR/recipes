@@ -5,7 +5,7 @@ import {
   AngularFireStorage,
   AngularFireUploadTask,
 } from '@angular/fire/storage';
-import { from, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, from, Observable, Subject } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
@@ -13,13 +13,15 @@ import { AuthService } from '../../../auth/services/auth.service';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
-  own = 'own'
+  own = 'own',
 }
 
 export interface FilesUploadMetadata {
   uploadProgress$: Observable<number | undefined>;
   downloadUrl$: Observable<string>;
 }
+
+const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 
 @Injectable()
 export class RecipeService {
@@ -112,10 +114,16 @@ export class RecipeService {
     return result;
   }
 
-  uploadFileAndGetMetadata(mediaFolderPath: string, fileToUpload: File): FilesUploadMetadata {
+  uploadFileAndGetMetadata(
+    mediaFolderPath: string,
+    fileToUpload: File
+  ): FilesUploadMetadata {
     const { name } = fileToUpload;
     const filePath = `${mediaFolderPath}/${new Date().getTime()}_${name}`;
-    const uploadTask: AngularFireUploadTask = this.storage.upload(filePath, fileToUpload);
+    const uploadTask: AngularFireUploadTask = this.storage.upload(
+      filePath,
+      fileToUpload
+    );
 
     return {
       uploadProgress$: uploadTask.percentageChanges(),
@@ -124,6 +132,9 @@ export class RecipeService {
   }
 
   deleteImage(ref: string): Observable<any> {
+    if (ref === DEFAULT_IMAGE) {
+      return new BehaviorSubject<any>(true);
+    }
     return this.storage.refFromURL(ref).delete();
   }
 
@@ -147,7 +158,7 @@ export class RecipeService {
       ownerId: docData.ownerId,
       steps: docData.steps,
       ingredients: docData.ingredients,
-      imgSrc: docData.imgSrc ? docData.imgSrc : 'assets/images/verduras.jpeg',
+      imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
     } as Recipe;
   }
 

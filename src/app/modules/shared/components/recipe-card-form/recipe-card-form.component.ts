@@ -95,7 +95,7 @@ export class RecipeCardFormComponent implements OnInit {
 
       const imageRoute = this.imageRoute
         ? this.imageRoute
-        : this._recipeDetails.imgSrc;
+        : this._recipeDetails?.imgSrc;
 
       const recipe: Recipe = {
         title: this.form.controls.title.value,
@@ -105,7 +105,7 @@ export class RecipeCardFormComponent implements OnInit {
         steps: steps,
         ingredients: ingredients,
         id: this._recipeDetails ? this._recipeDetails.id : '',
-        imgSrc: imageRoute,
+        imgSrc: imageRoute ? imageRoute : '',
       };
 
       this.recipeChanged$.emit(recipe);
