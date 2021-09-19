@@ -9,6 +9,7 @@ import { RecipeDetailsComponent } from './components/recipe-details/recipe-detai
 import { EditRecipeComponent } from './components/edit-recipe/edit-recipe.component';
 import { UtilService } from '../shared/services/utils/utils.service';
 import { SharedModule } from './../shared/shared.module';
+import { DeleteRecipeDialogComponent } from './components/delete-recipe-dialog/delete-recipe-dialog.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -19,7 +20,8 @@ import { SharedModule } from './../shared/shared.module';
     RecipeListComponent,
     NewRecipeComponent,
     RecipeDetailsComponent,
-    EditRecipeComponent
+    EditRecipeComponent,
+    DeleteRecipeDialogComponent
   ],
   providers: [
     RecipeService,

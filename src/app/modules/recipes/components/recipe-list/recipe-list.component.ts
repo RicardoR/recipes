@@ -1,12 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { EMPTY, Subject } from 'rxjs';
+import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
-
+import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 
 @Component({
   selector: 'app-recipe-list',
@@ -23,7 +24,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private recipeService: RecipeService,
-    private authService: AuthService
+    private authService: AuthService,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -52,13 +54,19 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   deleteRecipe(recipe: Recipe): void {
     if (recipe.id) {
-      this.recipeService
-        .deleteRecipe(recipe.id)
+      const dialogRef = this.dialog.open(DeleteRecipeDialogComponent);
+
+      dialogRef
+        .afterClosed()
         .pipe(
           takeUntil(this.destroy$),
-          switchMap(() => this.recipeService.deleteImage(recipe.imgSrc))
+          concatMap((data) =>
+            data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
+          ),
+          switchMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
+          concatMap(() => this.recipeService.getOwnRecipes())
         )
-        .subscribe(() => this.getRecipes());
+        .subscribe((data: Recipe[]) => (this.recipes = data));
     }
   }
 

@@ -1,0 +1,9 @@
+<h2 mat-dialog-title>¿Estás seguro que quieres eliminar la receta?</h2>
+<mat-dialog-content class="mat-typography">
+  <h3>Confirma para borrar la receta</h3>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Eliminar</button>
+</mat-dialog-actions>
