@@ -149,13 +149,12 @@
       <button *ngIf="!edittingMode || (isOwnRecipe && edittingMode); else isNotOwnReceip"
               mat-raised-button
               color="primary"
-              [disabled]='form.invalid'
+              [disabled]='form.invalid || isSending'
               (click)='sendReceip()' >
           <ng-content select="[button-action-text]"></ng-content>
       </button>
       <button *ngIf="edittingMode"
               mat-button
-              [disabled]='form.invalid'
               (click)='seeReceipt()' >
               Ver receta
       </button>

@@ -52,6 +52,7 @@ export class RecipeCardFormComponent implements OnInit {
   uploadProgress$!: Observable<number | undefined>;
   isOwnRecipe!: boolean;
   edittingMode: boolean = false;
+  isSending = false;
 
   private fileToUpload!: File;
   private imageRoute: string = '';
@@ -86,6 +87,7 @@ export class RecipeCardFormComponent implements OnInit {
 
   sendReceip(): void {
     if (this.form.valid) {
+      this.isSending = true;
       const steps = this.steps.controls.map(
         (control: any) => control.value.data
       );
@@ -217,7 +219,9 @@ export class RecipeCardFormComponent implements OnInit {
     });
 
     this._recipeDetails.ingredients.forEach((ingredient) => {
-      (<FormArray>this.form?.get('ingredients')).push(this.createFormItem(ingredient));
+      (<FormArray>this.form?.get('ingredients')).push(
+        this.createFormItem(ingredient)
+      );
     });
   }
 }
