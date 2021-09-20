@@ -1,12 +1,17 @@
+
 :host {
   color: white;
 }
 
 .content > mat-card {
-    width: 200px;
+  width: 200px;
 }
 
 .recipe-image {
   height: 240px;
   object-fit: cover;
+}
+
+.recipe-description {
+  min-height: 40px;
 }
