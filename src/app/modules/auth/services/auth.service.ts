@@ -31,7 +31,6 @@ export class AuthService {
 
   initAuthListener(): Observable<boolean> {
     const userLogged = new Subject<boolean>();
-
     this.auth.authState
       .pipe(map((user) => {
           if (user) {

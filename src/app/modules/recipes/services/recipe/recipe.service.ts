@@ -37,8 +37,33 @@ export class RecipeService {
     const result = new Subject<Recipe[]>();
     const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
 
+    // todo: refactor!
     this.firestore
       .collection(privateRecipeNameCollection, (ref) =>
+        ref.orderBy('date', 'desc')
+      )
+      .stateChanges()
+      .pipe(
+        take(1),
+        map((docArray: DocumentChangeAction<any>[]) => {
+          return docArray.map((document: DocumentChangeAction<any>) => {
+            const docData = document.payload.doc.data();
+            return this.recipesConverter(docData, document.payload.doc.id);
+          });
+        })
+      )
+      .subscribe((recipes: Recipe[]) => result.next(recipes));
+
+    return result;
+  }
+
+  getPublicRecipes(): Observable<any> {
+    const result = new Subject<Recipe[]>();
+    const publicRecipeNameCollection = `${DatabaseCollectionsNames.recipes}`;
+
+    // todo: refactor!
+    this.firestore
+      .collection(publicRecipeNameCollection, (ref) =>
         ref.orderBy('date', 'desc')
       )
       .stateChanges()

@@ -10,9 +10,9 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 
 @Component({
-  selector: 'app-recipe-list',
-  templateUrl: './recipe-list.component.html',
-  styleUrls: ['./recipe-list.component.scss'],
+  selector: 'app-public-recipe-list',
+  templateUrl: './public-recipe-list.component.html',
+  styleUrls: ['./public-recipe-list.component.scss'],
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   recipes: Recipe[] = [];
@@ -72,7 +72,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   private getRecipes(): void {
     this.recipeService
-      .getOwnRecipes()
+      .getPublicRecipes()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data: Recipe[]) => (this.recipes = data));
   }

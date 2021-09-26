@@ -6,6 +6,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AngularMaterialModule } from './angular-material.module';
 import { RecipeCardFormComponent } from './components/recipe-card-form/recipe-card-form.component';
+import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
 
 @NgModule({
   imports: [
@@ -27,10 +28,12 @@ import { RecipeCardFormComponent } from './components/recipe-card-form/recipe-ca
     AngularMaterialModule,
 
     // Shared Components
-    RecipeCardFormComponent
+    RecipeCardFormComponent,
+    RecipeListComponent,
   ],
   declarations: [
-    RecipeCardFormComponent
+    RecipeCardFormComponent,
+    RecipeListComponent
   ],
 })
 export class SharedModule {}

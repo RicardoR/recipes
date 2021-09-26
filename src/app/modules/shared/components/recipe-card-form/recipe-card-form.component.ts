@@ -168,6 +168,7 @@ export class RecipeCardFormComponent implements OnInit {
       description: this.formBuilder.control('', [Validators.required]),
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
+      isPublic: this.formBuilder.control(''),
     });
 
     this.pictureForm = this.formBuilder.group({

@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MaterialFileInputModule } from 'ngx-material-file-input';
@@ -25,6 +26,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     MatInputModule,
     MatListModule,
     MatProgressBarModule,
+    MatSlideToggleModule,
     MatSnackBarModule,
     MatToolbarModule,
     MaterialFileInputModule,
@@ -40,6 +42,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     MatInputModule,
     MatListModule,
     MatProgressBarModule,
+    MatSlideToggleModule,
     MatSnackBarModule,
     MatToolbarModule,
     MaterialFileInputModule,
