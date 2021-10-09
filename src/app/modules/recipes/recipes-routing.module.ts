@@ -6,17 +6,19 @@ import { RecipeDetailsComponent } from './components/recipe-details/recipe-detai
 import { NewRecipeComponent } from './components/new-recipe/new-recipe.component';
 import { RecipeListComponent } from './components/public-recipe-list/public-recipe-list.component';
 import { MyRecipesComponent } from './components/my-recipes/my-recipes.component';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { PrivateRecipeGuard } from './guards/private-recipe.guard';
 
 export const RecipesRoutingNames = {
   edit: 'edit',
   new: 'new',
   details: 'details',
+  myRecipes: 'my-recipes',
 };
 
 const routes: Routes = [
   {
-    path: 'my-recipes',
+    path: RecipesRoutingNames.myRecipes,
     component: MyRecipesComponent,
     canActivate: [AuthGuard],
   },
@@ -32,6 +34,7 @@ const routes: Routes = [
   {
     path: `${RecipesRoutingNames.details}/:id`,
     component: RecipeDetailsComponent,
+    canActivate: [PrivateRecipeGuard],
   },
   {
     path: `${RecipesRoutingNames.edit}/:id`,

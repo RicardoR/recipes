@@ -7,4 +7,5 @@ export interface Recipe {
   id: string,
   ownerId?: string;
   imgSrc: string;
+  private: boolean;
 }

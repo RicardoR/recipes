@@ -1,7 +1,7 @@
 import { AppRoutingNames } from './../../../../app-routing.module';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subject, EMPTY } from 'rxjs';
 import { takeUntil, concatMap, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
@@ -23,7 +23,6 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private activatedRoute: ActivatedRoute,
     private recipeService: RecipeService,
     private authService: AuthService,
     public dialog: MatDialog
