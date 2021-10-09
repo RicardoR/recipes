@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthReadyGuard } from './modules/auth/guards/auth-ready.guard';
 
-import { AuthGuard } from './modules/auth/auth.guard';
 
 export const AppRoutingNames = {
   recipes: 'recipes',
@@ -11,9 +11,9 @@ export const AppRoutingNames = {
 const routes: Routes = [
   {
     path: AppRoutingNames.recipes,
+    canActivate: [AuthReadyGuard],
     loadChildren: () =>
-      import('./modules/recipes/recipes.module').then((m) => m.RecipesModule),
-    canLoad: [AuthGuard],
+      import('./modules/recipes/recipes.module').then((m) => m.RecipesModule)
   },
   {
     path: AppRoutingNames.login,

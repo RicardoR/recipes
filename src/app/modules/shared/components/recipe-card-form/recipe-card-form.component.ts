@@ -108,6 +108,7 @@ export class RecipeCardFormComponent implements OnInit {
         ingredients: ingredients,
         id: this._recipeDetails ? this._recipeDetails.id : '',
         imgSrc: imageRoute ? imageRoute : '',
+        private: this.form.controls.isPrivate.value,
       };
 
       this.recipeChanged$.emit(recipe);
@@ -168,6 +169,7 @@ export class RecipeCardFormComponent implements OnInit {
       description: this.formBuilder.control('', [Validators.required]),
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
+      isPrivate: this.formBuilder.control(false),
     });
 
     this.pictureForm = this.formBuilder.group({
@@ -211,15 +213,15 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   private fillForm(): void {
-    this.form?.get('title')?.patchValue(this._recipeDetails.title);
-    this.form?.get('description')?.patchValue(this._recipeDetails.description);
-
+    this.form.controls.title.patchValue(this._recipeDetails.title);
+    this.form.controls.description.patchValue(this._recipeDetails.description);
+    this.form.controls.isPrivate.patchValue(this._recipeDetails.private);
     this._recipeDetails.steps.forEach((step) => {
-      (<FormArray>this.form?.get('steps')).push(this.createFormItem(step));
+      (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
     });
 
     this._recipeDetails.ingredients.forEach((ingredient) => {
-      (<FormArray>this.form?.get('ingredients')).push(
+      (<FormArray>this.form.controls.ingredients).push(
         this.createFormItem(ingredient)
       );
     });

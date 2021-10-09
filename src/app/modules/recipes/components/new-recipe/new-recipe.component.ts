@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
+import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { Recipe } from './../../models/recipes.model';
 
@@ -24,7 +25,9 @@ export class NewRecipeComponent implements OnDestroy {
   }
 
   goToList(): void {
-    this.router.navigate([AppRoutingNames.recipes]);
+    this.router.navigate([
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+    ]);
   }
 
   createRecipe(recipe: Recipe): void {

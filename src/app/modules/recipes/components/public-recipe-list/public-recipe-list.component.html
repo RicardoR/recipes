@@ -1,0 +1,16 @@
+<mat-toolbar color="primary">
+  Listado de recetas
+  <span class="horizontal-spacer"></span>
+  <button *ngIf="userId"
+          mat-icon-button
+          (click)="goToCreate()">
+    <mat-icon>add_circle</mat-icon>
+  </button>
+</mat-toolbar>
+<div class="p-2">
+   <app-recipe-list [recipes]="recipes"
+                    [userId]="userId"
+                    (goToRecipe$)="goToRecipe($event)"
+                    (deleteRecipe$)="deleteRecipe($event)">
+  </app-recipe-list>
+</div>

@@ -13,7 +13,6 @@ import { AuthService } from '../../../auth/services/auth.service';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
-  own = 'own',
 }
 
 export interface FilesUploadMetadata {
@@ -35,8 +34,9 @@ export class RecipeService {
 
   getOwnRecipes(): Observable<any> {
     const result = new Subject<Recipe[]>();
-    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+    const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
+    // todo: refactor!
     this.firestore
       .collection(privateRecipeNameCollection, (ref) =>
         ref.orderBy('date', 'desc')
@@ -56,12 +56,36 @@ export class RecipeService {
     return result;
   }
 
+  getPublicRecipes(): Observable<any> {
+    const result = new Subject<Recipe[]>();
+    const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
+
+    // todo: refactor!
+    this.firestore
+      .collection(publicRecipeNameCollection, (ref) =>
+        ref.where('private', '==', false).orderBy('date', 'desc')
+      )
+      .stateChanges()
+      .pipe(
+        take(1),
+        map((docArray: DocumentChangeAction<any>[]) => {
+          return docArray.map((document: DocumentChangeAction<any>) => {
+            const docData = document.payload.doc.data();
+            return this.recipesConverter(docData, document.payload.doc.id);
+          });
+        })
+      )
+      .subscribe((recipes: Recipe[]) => result.next(recipes));
+
+    return result;
+  }
+
   createRecipe(recipe: Recipe): Observable<void> {
     const result = new Subject<void>();
-    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+    const recipeNameCollection = DatabaseCollectionsNames.recipes;
 
     this.firestore
-      .collection(privateRecipeNameCollection)
+      .collection(recipeNameCollection)
       .add(recipe)
       .then(() => result.next());
 
@@ -70,7 +94,7 @@ export class RecipeService {
 
   editRecipe(recipe: Recipe): Observable<void> {
     const result = new Subject<void>();
-    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+    const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
     this.firestore
       .collection(privateRecipeNameCollection)
@@ -83,7 +107,8 @@ export class RecipeService {
 
   getPrivateRecipeDetail(id: string): Observable<Recipe> {
     const result = new Subject<Recipe>();
-    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+    const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
+
     this.firestore
       .collection(privateRecipeNameCollection)
       .doc(id)
@@ -102,7 +127,7 @@ export class RecipeService {
 
   deleteRecipe(id: string): Observable<boolean> {
     const result = new Subject<boolean>();
-    const privateRecipeNameCollection = this.getPrivateRecipeNameCollection();
+    const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     this.firestore
       .collection(privateRecipeNameCollection)
       .doc(id)
@@ -138,13 +163,6 @@ export class RecipeService {
     return this.storage.refFromURL(ref).delete();
   }
 
-  private getPrivateRecipeNameCollection(): string {
-    if (this.userId === undefined) {
-      this.userId = this.authService.currentUser?.uid;
-    }
-    return `${DatabaseCollectionsNames.recipes}/${this.userId}/${DatabaseCollectionsNames.own}`;
-  }
-
   private recipesConverter(docData: any, id: string): Recipe {
     if (docData === undefined) {
       throw new Error('Recipe does not exists');
@@ -159,7 +177,8 @@ export class RecipeService {
       steps: docData.steps,
       ingredients: docData.ingredients,
       imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
-    } as Recipe;
+      private: docData.private
+    };
   }
 
   private getDownloadUrl$(

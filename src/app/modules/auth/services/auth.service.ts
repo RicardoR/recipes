@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 import { AuthData } from '../auth-data.model';
 import { AppRoutingNames } from 'src/app/app-routing.module';
@@ -31,9 +31,10 @@ export class AuthService {
 
   initAuthListener(): Observable<boolean> {
     const userLogged = new Subject<boolean>();
-
     this.auth.authState
-      .pipe(map((user) => {
+      .pipe(
+        take(1),
+        map((user) => {
           if (user) {
             const userData: AuthData = {
               email: user.email ?? '',
@@ -44,11 +45,19 @@ export class AuthService {
             this.currentUser = userData;
             userLogged.next(true);
           } else {
-            this.router.navigate([AppRoutingNames.login]);
             userLogged.next(false);
           }
       }))
       .subscribe();
     return userLogged;
+  }
+
+  authServiceReady(): Observable<boolean> {
+    const authServiceReady = new Subject<boolean>();
+
+    this.initAuthListener()
+      .pipe(take(1))
+      .subscribe(() => authServiceReady.next(true));
+    return authServiceReady;
   }
 }
