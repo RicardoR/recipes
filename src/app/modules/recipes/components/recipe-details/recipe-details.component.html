@@ -14,9 +14,10 @@
           <mat-card-subtitle> {{ recipeDetails.date | date }} </mat-card-subtitle>
         </mat-card-header>
         <img mat-card-image
-            loading="lazy"
-            alt="cooking"
-            [src]="recipeDetails.imgSrc">
+             class="recipe-details__image"
+             loading="lazy"
+             alt="cooking"
+             [src]="recipeDetails.imgSrc">
         <mat-card-content>
           <p> {{ recipeDetails.description }} </p>
           <mat-accordion multi>
