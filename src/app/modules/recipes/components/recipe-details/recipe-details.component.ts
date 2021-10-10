@@ -38,7 +38,11 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   }
 
   goToList(): void {
-    this.router.navigate([AppRoutingNames.recipes]);
+    const route = this.authService.currentUser?.uid
+      ? `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
+      : AppRoutingNames.recipes;
+
+    this.router.navigate([route]);
   }
 
   deleteRecipe(): void {

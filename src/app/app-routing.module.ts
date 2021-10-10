@@ -13,13 +13,14 @@ const routes: Routes = [
     path: AppRoutingNames.recipes,
     canActivate: [AuthReadyGuard],
     loadChildren: () =>
-      import('./modules/recipes/recipes.module').then((m) => m.RecipesModule)
+      import('./modules/recipes/recipes.module').then((m) => m.RecipesModule),
   },
   {
     path: AppRoutingNames.login,
     loadChildren: () =>
       import('./modules/auth/auth.module').then((m) => m.AuthModule),
   },
+  { path: '**', redirectTo: AppRoutingNames.recipes },
 ];
 
 @NgModule({

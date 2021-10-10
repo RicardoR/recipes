@@ -1,12 +1,15 @@
-import { ErrorHandler, NgModule } from '@angular/core';
+import { LOCALE_ID, ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 
+import localeEs from '@angular/common/locales/es';
+import { registerLocaleData } from '@angular/common';
+registerLocaleData(localeEs, 'es');
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 import { AppErrorHandler } from './app-error-handle';
 import { AuthModule } from './modules/auth/auth.module';
@@ -31,6 +34,10 @@ import { SharedModule } from './modules/shared/shared.module';
       provide: ErrorHandler,
       useClass: AppErrorHandler,
     },
+    {
+      provide: LOCALE_ID,
+      useValue: 'es'
+    }
   ],
   bootstrap: [AppComponent],
 })

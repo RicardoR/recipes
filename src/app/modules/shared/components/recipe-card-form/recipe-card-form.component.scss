@@ -14,4 +14,9 @@
     flex-direction: column;
     width: 100%;
   }
+
+  .preview-image {
+    max-height: 400px;
+    object-fit: cover;
+  }
 }

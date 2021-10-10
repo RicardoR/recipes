@@ -5,7 +5,7 @@ import {
   AngularFireStorage,
   AngularFireUploadTask,
 } from '@angular/fire/storage';
-import { BehaviorSubject, from, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, Observable, Subject } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
@@ -24,7 +24,6 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 
 @Injectable()
 export class RecipeService {
-  private userId?: string;
 
   constructor(
     private firestore: AngularFirestore,
@@ -35,11 +34,11 @@ export class RecipeService {
   getOwnRecipes(): Observable<any> {
     const result = new Subject<Recipe[]>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
+    const userId = this.authService.currentUser.uid;
 
-    // todo: refactor!
     this.firestore
       .collection(privateRecipeNameCollection, (ref) =>
-        ref.orderBy('date', 'desc')
+        ref.where('ownerId', '==', userId).orderBy('date', 'desc')
       )
       .stateChanges()
       .pipe(
@@ -57,25 +56,42 @@ export class RecipeService {
   }
 
   getPublicRecipes(): Observable<any> {
+    const userId = this.authService.currentUser?.uid ? this.authService.currentUser?.uid : '-1';
+
     const result = new Subject<Recipe[]>();
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
-    // todo: refactor!
-    this.firestore
+    const queryOne = this.firestore
       .collection(publicRecipeNameCollection, (ref) =>
         ref.where('private', '==', false).orderBy('date', 'desc')
       )
-      .stateChanges()
+      .stateChanges();
+
+    const queryTwo = this.firestore
+      .collection(publicRecipeNameCollection, (ref) =>
+        ref
+          .where('private', '==', true)
+          .where('ownerId', '==', userId)
+          .orderBy('date', 'desc')
+      )
+      .stateChanges();
+
+    combineLatest([queryOne, queryTwo])
       .pipe(
         take(1),
-        map((docArray: DocumentChangeAction<any>[]) => {
-          return docArray.map((document: DocumentChangeAction<any>) => {
+        map(([docOne, docTwo]) => {
+          const allRecipes = [...docOne, ...docTwo];
+
+          return allRecipes.map((document: DocumentChangeAction<any>) => {
             const docData = document.payload.doc.data();
             return this.recipesConverter(docData, document.payload.doc.id);
           });
         })
       )
-      .subscribe((recipes: Recipe[]) => result.next(recipes));
+      .subscribe((recipes: Recipe[]) => {
+        recipes.sort((recipeOne, recipeTwo) => recipeTwo.date.getTime() - recipeOne.date.getTime());
+        result.next(recipes)
+      });
 
     return result;
   }
