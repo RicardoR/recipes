@@ -34,8 +34,9 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   }
 
   goToList(): void {
-    this.router.navigate([AppRoutingNames.recipes]);
-  }
+    this.router.navigate([
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+    ]);  }
 
   goToReceipt(): void {
     this.router.navigate([

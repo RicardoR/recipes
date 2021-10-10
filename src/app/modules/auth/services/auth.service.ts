@@ -6,6 +6,7 @@ import { map, take } from 'rxjs/operators';
 
 import { AuthData } from '../auth-data.model';
 import { AppRoutingNames } from 'src/app/app-routing.module';
+import { RecipesRoutingNames } from '../../recipes/recipes-routing.module';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,11 @@ export class AuthService {
   login(authData: AuthData): void {
     this.auth
       .signInWithEmailAndPassword(authData.email, authData.password)
-      .then(() => this.router.navigate([AppRoutingNames.recipes]));
+      .then(() =>
+        this.router.navigate([
+          `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+        ])
+      );
   }
 
   initAuthListener(): Observable<boolean> {
