@@ -10,6 +10,8 @@ import { Recipe } from './../../../recipes/models/recipes.model';
 export class RecipeListComponent {
   @Input() recipes: Recipe[] = [];
   @Input() userId?: string;
+  @Input() ribbonTitle = 'Privada';
+  @Input() publicList = true;
   @Output() goToRecipe$: EventEmitter<Recipe> = new EventEmitter();
   @Output() deleteRecipe$: EventEmitter<Recipe> = new EventEmitter();
 

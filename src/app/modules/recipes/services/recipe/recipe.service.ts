@@ -88,7 +88,10 @@ export class RecipeService {
           });
         })
       )
-      .subscribe((recipes: Recipe[]) => result.next(recipes));
+      .subscribe((recipes: Recipe[]) => {
+        recipes.sort((recipeOne, recipeTwo) => recipeTwo.date.getTime() - recipeOne.date.getTime());
+        result.next(recipes)
+      });
 
     return result;
   }

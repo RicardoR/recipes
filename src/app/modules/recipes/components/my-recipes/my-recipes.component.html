@@ -8,6 +8,8 @@
 <div class="p-2">
   <app-recipe-list [recipes]="recipes"
                    [userId]="userId"
+                   [ribbonTitle]="'Privada'"
+                   [publicList]= false
                    (goToRecipe$)="goToRecipe($event)"
                    (deleteRecipe$)="deleteRecipe($event)">
   </app-recipe-list>

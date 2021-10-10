@@ -1,4 +1,11 @@
+@import '~@angular/material/theming';
 @import './_variables.scss';
+
+// Copy the palettes from selected theme.
+$app-primary: mat-palette($mat-purple);
+
+// Create Sass color vars (will be available in all the project)
+$primary: mat-color($app-primary);
 
 .color-white {
   color: $white;
