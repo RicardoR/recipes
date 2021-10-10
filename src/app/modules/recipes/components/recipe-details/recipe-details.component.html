@@ -20,26 +20,21 @@
         <mat-card-content>
           <p> {{ recipeDetails.description }} </p>
           <mat-accordion multi>
-            <mat-expansion-panel>
+            <mat-expansion-panel *ngIf="(recipeDetails.ingredients && recipeDetails.ingredients.length > 0)">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   Ingredientes
                 </mat-panel-title>
               </mat-expansion-panel-header>
               <mat-selection-list class="custom-height-list" role="list">
-                <ng-container *ngIf="(recipeDetails.ingredients && recipeDetails.ingredients.length > 0); else noIngredientsFound">
+                <ng-container>
                   <mat-list-option *ngFor="let ingredient of recipeDetails.ingredients">
                     {{ ingredient }}
                   </mat-list-option>
                 </ng-container>
-
-                <ng-template #noIngredientsFound>
-                  No se han encontrado ingredientes
-                </ng-template>
-
               </mat-selection-list>
             </mat-expansion-panel>
-            <mat-expansion-panel>
+            <mat-expansion-panel  *ngIf="(recipeDetails.steps && recipeDetails.steps.length > 0)">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   Pasos
@@ -47,16 +42,11 @@
 
               </mat-expansion-panel-header>
               <mat-selection-list class="custom-height-list" role="list">
-                <ng-container *ngIf="(recipeDetails.steps && recipeDetails.steps.length > 0); else noStepsFound">
+                <ng-container>
                   <mat-list-option *ngFor="let step of recipeDetails.steps">
                     {{ step }}
                   </mat-list-option>
                 </ng-container>
-
-                <ng-template #noStepsFound>
-                  No se han encontrado pasos
-                </ng-template>
-
               </mat-selection-list>
             </mat-expansion-panel>
           </mat-accordion>
