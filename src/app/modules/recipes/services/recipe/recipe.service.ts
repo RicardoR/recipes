@@ -34,7 +34,7 @@ export class RecipeService {
   getOwnRecipes(): Observable<any> {
     const result = new Subject<Recipe[]>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
-    const userId = this.authService.currentUser.uid;
+    const userId = this.authService.currentUser?.uid;
 
     this.firestore
       .collection(privateRecipeNameCollection, (ref) =>

@@ -1,10 +1,7 @@
-<mat-toolbar color="primary">
-  Crear receta
-  <span class="horizontal-spacer"></span>
-  <button mat-icon-button (click)="goToList()">
-    <mat-icon>view_list</mat-icon>
-  </button>
-</mat-toolbar>
+<app-toolbar>
+  <h1 title>Crear receta</h1>
+</app-toolbar>
+
 
 <app-recipe-card-form (recipeChanged$)="createRecipe($event)">
   <h2 title>Nueva receta</h2>

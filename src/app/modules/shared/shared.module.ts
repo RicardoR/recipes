@@ -1,3 +1,4 @@
+import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -32,11 +33,13 @@ import { RecipeRibbonComponent } from './components/recipe-ribbon/recipe-ribbon.
     RecipeCardFormComponent,
     RecipeListComponent,
     RecipeRibbonComponent,
+    ToolbarComponent,
   ],
   declarations: [
     RecipeCardFormComponent,
     RecipeListComponent,
     RecipeRibbonComponent,
+    ToolbarComponent
   ],
 })
 export class SharedModule {}

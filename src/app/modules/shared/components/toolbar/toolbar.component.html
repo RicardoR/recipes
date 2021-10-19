@@ -1,0 +1,36 @@
+<mat-toolbar color="primary">
+  <ng-content select="[title]"></ng-content>
+  <span class="horizontal-spacer"></span>
+
+  <ng-container *ngIf="userId">
+    <button mat-icon-button
+            [matMenuTriggerFor]="menu"
+            aria-label="Example icon-button with a menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+      <button mat-menu-item (click)="goToCreate()">
+        <mat-icon>add_circle</mat-icon>
+        <span>Crear receta</span>
+      </button>
+      <button mat-menu-item (click)="goToPrivateList()">
+        <mat-icon>view_list</mat-icon>
+        <span>Mis recetas</span>
+      </button>
+      <button mat-menu-item (click)="goToPublicList()">
+        <mat-icon>list</mat-icon>
+        <span>Ver todas las recetas</span>
+      </button>
+    </mat-menu>
+  </ng-container>
+
+ <button mat-icon-button
+        *ngIf="!userId && displayListButton"
+        (click)="goToPublicList()">
+    <mat-icon>list</mat-icon>
+  </button>
+</mat-toolbar>
