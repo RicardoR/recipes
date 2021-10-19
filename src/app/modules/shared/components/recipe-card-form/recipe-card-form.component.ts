@@ -47,7 +47,7 @@ export class RecipeCardFormComponent implements OnInit {
 
   recipeImage: string | ArrayBuffer | undefined;
   pictureForm!: FormGroup;
-  user!: AuthData;
+  user?: AuthData;
   submitted = false;
   uploadProgress$!: Observable<number | undefined>;
   isOwnRecipe!: boolean;
@@ -208,7 +208,7 @@ export class RecipeCardFormComponent implements OnInit {
 
   private fillEditingData(): void {
     this.edittingMode = true;
-    this.isOwnRecipe = this._recipeDetails.ownerId === this.user.uid;
+    this.isOwnRecipe = this._recipeDetails.ownerId === this.user?.uid;
     this.recipeImage = this._recipeDetails.imgSrc;
   }
 

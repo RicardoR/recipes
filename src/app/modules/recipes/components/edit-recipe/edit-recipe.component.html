@@ -1,10 +1,6 @@
-<mat-toolbar color="primary">
-  Editar receta
-  <span class="horizontal-spacer"></span>
-  <button mat-icon-button (click)="goToList()">
-    <mat-icon>view_list</mat-icon>
-  </button>
-</mat-toolbar>
+<app-toolbar>
+  <h1 title>Editar receta</h1>
+</app-toolbar>
 
 <app-recipe-card-form
   (seeReceipt$)="goToReceipt()"

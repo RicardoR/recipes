@@ -1,10 +1,7 @@
-<mat-toolbar color="primary">
-  Detalles
-  <span class="horizontal-spacer"></span>
-  <button mat-icon-button (click)="goToList()">
-    <mat-icon>list</mat-icon>
-  </button>
-</mat-toolbar>
+<app-toolbar [displayListButton]=true>
+  <h1 title>Detalles</h1>
+</app-toolbar>
+
 
 <div class="mt-1" *ngIf="recipeDetails">
   <div fxFlex="60%" fxFlex.lt-md="70%" fxFlex.lt-sm="100%" class="margin-auto p-2" >

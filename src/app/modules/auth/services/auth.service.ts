@@ -12,15 +12,15 @@ import { RecipesRoutingNames } from '../../recipes/recipes-routing.module';
   providedIn: 'root',
 })
 export class AuthService {
-  private _currentUser!: AuthData;
+  private _currentUser?: AuthData;
 
   constructor(private auth: AngularFireAuth, private router: Router) {}
 
-  get currentUser(): AuthData {
+  get currentUser(): AuthData | undefined {
     return this._currentUser;
   }
 
-  set currentUser(user: AuthData) {
+  set currentUser(user: AuthData | undefined) {
     this._currentUser = user;
   }
 
@@ -32,6 +32,13 @@ export class AuthService {
           `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
         ])
       );
+  }
+
+  logout(): void {
+    this.auth.signOut().then(() => {
+      this._currentUser = undefined;
+      this.router.navigate([''])
+    })
   }
 
   initAuthListener(): Observable<boolean> {

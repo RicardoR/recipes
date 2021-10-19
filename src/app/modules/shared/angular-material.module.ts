@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -25,6 +26,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatMenuModule,
     MatProgressBarModule,
     MatSlideToggleModule,
     MatSnackBarModule,
@@ -41,6 +43,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatMenuModule,
     MatProgressBarModule,
     MatSlideToggleModule,
     MatSnackBarModule,
