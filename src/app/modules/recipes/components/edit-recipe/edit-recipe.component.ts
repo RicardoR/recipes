@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
+
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { Recipe } from '../../models/recipes.model';
@@ -67,15 +68,8 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   }
 
   private getRecipeDetails(): void {
-    this.activatedRoute.params
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap((param) =>
-          this.recipesService.getPrivateRecipeDetail(param.id)
-        )
-      )
-      .subscribe((data: Recipe) => {
-        this.recipeDetails = data;
-      });
+    this.activatedRoute.data
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => this.recipeDetails = data.recipe);
   }
 }

@@ -121,7 +121,11 @@ export class RecipeService {
     return result;
   }
 
-  getPrivateRecipeDetail(id: string): Observable<Recipe> {
+  getRecipeDetail(id: string | null): Observable<Recipe> {
+    if (id === null) {
+      throw new Error("RecipeId is mandatory");
+  }
+
     const result = new Subject<Recipe>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
 

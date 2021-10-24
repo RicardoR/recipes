@@ -12,6 +12,8 @@ import { SharedModule } from './../shared/shared.module';
 import { DeleteRecipeDialogComponent } from './components/delete-recipe-dialog/delete-recipe-dialog.component';
 import { MyRecipesComponent } from './components/my-recipes/my-recipes.component';
 import { PrivateRecipeGuard } from './guards/private-recipe.guard';
+import { RecipeDetailsResolve } from './services/resolvers/recipe-details.resolver';
+
 @NgModule({
   imports: [CommonModule, SharedModule, RecipesRoutingModule],
   declarations: [
@@ -22,6 +24,11 @@ import { PrivateRecipeGuard } from './guards/private-recipe.guard';
     DeleteRecipeDialogComponent,
     MyRecipesComponent,
   ],
-  providers: [RecipeService, UtilService, PrivateRecipeGuard],
+  providers: [
+    RecipeService,
+    UtilService,
+    PrivateRecipeGuard,
+    RecipeDetailsResolve,
+  ],
 })
 export class RecipesModule {}
