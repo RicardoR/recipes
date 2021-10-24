@@ -37,7 +37,6 @@ export class RecipeCardFormComponent implements OnInit {
   @Input() set recipeDetails(value: Recipe) {
     if (value) {
       this._recipeDetails = value;
-
       this.fillEditingData();
       this.fillForm();
     }
@@ -74,10 +73,11 @@ export class RecipeCardFormComponent implements OnInit {
     private cdf: ChangeDetectorRef,
     private utilService: UtilService,
     private messageService: MessagesService
-  ) {}
+  ) {
+    this.initForm();
+  }
 
   ngOnInit(): void {
-    this.initForm();
     this.listenPicturesForm();
   }
 

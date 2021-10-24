@@ -74,16 +74,11 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   }
 
   private getRecipeDetails(): void {
-    this.activatedRoute.params
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap((param) =>
-          this.recipesService.getPrivateRecipeDetail(param.id)
-        )
-      )
-      .subscribe((data: Recipe) => {
-        this.recipeDetails = data;
-        this.isOwnReceip = data.ownerId === this.authService.currentUser?.uid;
+    this.activatedRoute.data
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        this.recipeDetails = data.recipe;
+        this.isOwnReceip = data.recipe.ownerId === this.authService.currentUser?.uid;
       });
   }
 }

@@ -21,9 +21,8 @@ export class PrivateRecipeGuard implements CanActivate {
     const recipeId = route.params['id'];
     const userId = this.authService.currentUser?.uid;
     const canActivate = new Subject<boolean>();
-
     this.recipesService
-      .getPrivateRecipeDetail(recipeId)
+      .getRecipeDetail(recipeId)
       .pipe(take(1))
       .subscribe((recipe: Recipe) => {
         if (recipe.private === false) {
