@@ -4,17 +4,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
 import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
+import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 
+@NgLog()
 @Component({
   selector: 'app-public-recipe-list',
   templateUrl: './public-recipe-list.component.html',
   styleUrls: ['./public-recipe-list.component.scss'],
 })
-export class RecipeListComponent implements OnInit, OnDestroy {
+export class PublicRecipeListComponent implements OnInit, OnDestroy {
   recipes: Recipe[] = [];
   userId?: string;
 

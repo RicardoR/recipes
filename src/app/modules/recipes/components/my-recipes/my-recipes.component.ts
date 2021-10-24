@@ -9,7 +9,9 @@ import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
+import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 
+@NgLog()
 @Component({
   selector: 'app-my-recipes',
   templateUrl: './my-recipes.component.html',
@@ -39,12 +41,17 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
   }
 
   goToCreate(): void {
-    this.router.navigate([`${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`]);
+    this.router.navigate([
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`,
+    ]);
   }
 
   goToRecipe(recipe: Recipe): void {
     if (recipe.id) {
-      this.router.navigate([`${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`, recipe.id]);
+      this.router.navigate([
+        `${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
+        recipe.id,
+      ]);
     }
   }
 
