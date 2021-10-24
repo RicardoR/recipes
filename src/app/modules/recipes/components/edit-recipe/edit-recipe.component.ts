@@ -5,10 +5,12 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
+import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 
+@NgLog()
 @Component({
   selector: 'app-edit-recipe',
   templateUrl: './edit-recipe.component.html',
@@ -37,7 +39,8 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   goToList(): void {
     this.router.navigate([
       `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
-    ]);  }
+    ]);
+  }
 
   goToReceipt(): void {
     this.router.navigate([
@@ -70,6 +73,6 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   private getRecipeDetails(): void {
     this.activatedRoute.data
       .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => this.recipeDetails = data.recipe);
+      .subscribe((data) => (this.recipeDetails = data.recipe));
   }
 }

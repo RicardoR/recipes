@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgLog } from '../../utils/decorators/log-decorator';
 
 import { Recipe } from './../../../recipes/models/recipes.model';
-
+@NgLog()
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',

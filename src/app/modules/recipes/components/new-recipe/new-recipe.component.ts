@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
+import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { Recipe } from './../../models/recipes.model';
 
+@NgLog()
 @Component({
   selector: 'app-new-recipe',
   templateUrl: './new-recipe.component.html',
@@ -15,10 +17,7 @@ import { Recipe } from './../../models/recipes.model';
 export class NewRecipeComponent implements OnDestroy {
   private destroy$: Subject<null> = new Subject();
 
-  constructor(
-    private recipeService: RecipeService,
-    private router: Router
-  ) { }
+  constructor(private recipeService: RecipeService, private router: Router) {}
 
   ngOnDestroy(): void {
     this.destroy$.next(null);

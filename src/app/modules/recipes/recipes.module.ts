@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { RecipesRoutingModule } from './recipes-routing.module';
 import { NewRecipeComponent } from './components/new-recipe/new-recipe.component';
-import { RecipeListComponent } from './components/public-recipe-list/public-recipe-list.component';
+import { PublicRecipeListComponent } from './components/public-recipe-list/public-recipe-list.component';
 import { RecipeService } from './services/recipe/recipe.service';
 import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
 import { EditRecipeComponent } from './components/edit-recipe/edit-recipe.component';
@@ -17,18 +17,18 @@ import { RecipeDetailsResolve } from './services/resolvers/recipe-details.resolv
 @NgModule({
   imports: [CommonModule, SharedModule, RecipesRoutingModule],
   declarations: [
-    RecipeListComponent,
-    NewRecipeComponent,
-    RecipeDetailsComponent,
     EditRecipeComponent,
     DeleteRecipeDialogComponent,
     MyRecipesComponent,
+    NewRecipeComponent,
+    PublicRecipeListComponent,
+    RecipeDetailsComponent,
   ],
   providers: [
-    RecipeService,
-    UtilService,
     PrivateRecipeGuard,
     RecipeDetailsResolve,
+    RecipeService,
+    UtilService,
   ],
 })
 export class RecipesModule {}

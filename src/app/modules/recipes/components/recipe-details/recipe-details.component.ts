@@ -4,12 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
 import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
+import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { AuthService } from './../../../auth/services/auth.service';
 import { Recipe } from './../../models/recipes.model';
 import { RecipeService } from './../../services/recipe/recipe.service';
-
+@NgLog()
 @Component({
   selector: 'app-recipe-details',
   templateUrl: './recipe-details.component.html',
@@ -78,7 +79,8 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         this.recipeDetails = data.recipe;
-        this.isOwnReceip = data.recipe.ownerId === this.authService.currentUser?.uid;
+        this.isOwnReceip =
+          data.recipe.ownerId === this.authService.currentUser?.uid;
       });
   }
 }
