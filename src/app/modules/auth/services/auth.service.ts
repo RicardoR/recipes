@@ -29,7 +29,7 @@ export class AuthService {
       .signInWithEmailAndPassword(authData.email, authData.password)
       .then(() =>
         this.router.navigate([
-          `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+          `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
         ])
       );
   }
@@ -37,7 +37,8 @@ export class AuthService {
   logout(): void {
     this.auth.signOut().then(() => {
       this._currentUser = undefined;
-      this.router.navigate([''])
+      this.router.navigate([`${AppRoutingNames.recipes}`]);
+      window.location.reload();
     })
   }
 
