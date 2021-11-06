@@ -10,6 +10,7 @@ describe('DeleteRecipeDialogComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ DeleteRecipeDialogComponent ]
     })
+    .overrideTemplate(DeleteRecipeDialogComponent, '')
     .compileComponents();
   });
 

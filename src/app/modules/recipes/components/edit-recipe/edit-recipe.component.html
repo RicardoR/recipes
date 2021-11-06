@@ -3,8 +3,9 @@
 </app-toolbar>
 
 <app-recipe-card-form
-  (seeReceipt$)="goToReceipt()"
-  (recipeChanged$)="editRecipe($event)"
+  (seeReceipt$)="goToRecipe()"
+  (recipeChanged$)="updateRecipe($event)"
+  [isFormSending] = "isSending"
   [recipeDetails]="recipeDetails"
 >
   <h2 title>Editar receta</h2>

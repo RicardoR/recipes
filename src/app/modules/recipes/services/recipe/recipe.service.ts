@@ -108,7 +108,7 @@ export class RecipeService {
     return result;
   }
 
-  editRecipe(recipe: Recipe): Observable<void> {
+  updateRecipe(recipe: Recipe): Observable<void> {
     const result = new Subject<void>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
 

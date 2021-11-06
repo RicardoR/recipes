@@ -18,6 +18,7 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 })
 export class EditRecipeComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;
+  isSending = false;
   private destroy$: Subject<null> = new Subject();
 
   constructor(
@@ -42,16 +43,17 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
     ]);
   }
 
-  goToReceipt(): void {
+  goToRecipe(): void {
     this.router.navigate([
       `${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
       this.recipeDetails.id,
     ]);
   }
 
-  editRecipe(recipe: Recipe): void {
+  updateRecipe(recipe: Recipe): void {
+    this.isSending = true;
     this.recipesService
-      .editRecipe(recipe)
+      .updateRecipe(recipe)
       .pipe(
         takeUntil(this.destroy$),
         switchMap(() => {
@@ -63,10 +65,7 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.messagesService.showSnackBar('Receta actualizada');
-        setTimeout(() => {
-          // todo: try to avoid this!!
-          window.location.reload();
-        }, 700);
+        this.isSending = false;
       });
   }
 

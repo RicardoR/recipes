@@ -44,6 +44,10 @@ export class RecipeCardFormComponent implements OnInit {
     }
   }
 
+  @Input() set isFormSending(value: boolean) {
+    this.isSending = value;
+  }
+
   form!: FormGroup;
 
   recipeImage: string | ArrayBuffer | undefined;
