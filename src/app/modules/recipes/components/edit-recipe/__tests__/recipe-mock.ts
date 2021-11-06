@@ -1,9 +1,11 @@
+import { Recipe } from "../../../models/recipes.model";
+
 export const recipeMock = {
-  "date": "2021-09-14T17:00:33.684Z",
+  "date": new Date(),
   "title": "Pisto",
   "description": "Pisto de calabacín, 30 minutos 2 raciones",
-  "id": "eInMS6zyFscLDbUV6kkx",
-  "ownerId": "btDLD9TWeNREey0EdCVlWE0wY6x1",
+  "id": "1",
+  "ownerId": "1",
   "steps": [
     "Colocamos las cuchillas en su posición. Introducimos las verduras cortadas a grosso modo en la jarra de la mambo, programamos la velocidad 6 durante 7 segundos.\n",
     "Vertemos el aceite, salpimentamos y sofreímos a 120ºC, potencia de calor 10, velocidad 1 durante 6 minutos.\n",
@@ -23,6 +25,6 @@ export const recipeMock = {
     "Sal",
     "Pimienta"
   ],
-  "imgSrc": "https://firebasestorage.googleapis.com/v0/b/recipes-4b9e9.appspot.com/o/recipes%2Fimages%2F1631642432765_huevos-pisto-manchego.jpeg?alt=media&token=5a8098de-3036-4c5a-ac2c-2dac37310ad3",
+  "imgSrc": "image-url-mocked.jpg",
   "private": false
-}
+} as Recipe;

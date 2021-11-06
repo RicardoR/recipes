@@ -11,7 +11,7 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 
-@NgLog()
+//@NgLog()
 @Component({
   selector: 'app-my-recipes',
   templateUrl: './my-recipes.component.html',
@@ -77,6 +77,6 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
     this.recipeService
       .getOwnRecipes()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((data: Recipe[]) => (this.recipes = data));
+      .subscribe((data: Recipe[]) => this.recipes = data);
   }
 }

@@ -1,9 +1,9 @@
-import { Recipe } from './../../../models/recipes.model';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 
+import { Recipe } from './../../../models/recipes.model';
+import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { EditRecipeComponent } from '../edit-recipe.component';
 import { recipeMock } from './recipe-mock';
@@ -40,14 +40,14 @@ describe('EditRecipeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EditRecipeComponent);
     component = fixture.componentInstance;
-        recipeServiceSpy.updateRecipe.and.returnValue(of({}));
-        recipeServiceSpy.deleteImage.and.returnValue(of({}));
+    recipeServiceSpy.updateRecipe.and.returnValue(of({}));
+    recipeServiceSpy.deleteImage.and.returnValue(of({}));
 
     fixture.detectChanges();
   });
 
   it('should get the recipe details when loading', () => {
-    expect(component.recipeDetails).toEqual(recipeMock as unknown as Recipe);
+    expect(component.recipeDetails).toEqual(recipeMock);
   });
 
   it('goToList should allow to navigate to private list', () => {
@@ -70,7 +70,7 @@ describe('EditRecipeComponent', () => {
   });
 
   it('should delete the old image when is changed', () => {
-    const newRecipe = { ...recipeMock } as unknown as Recipe;
+    const newRecipe = { ...recipeMock };
     newRecipe.imgSrc = 'new-image';
     component.updateRecipe(newRecipe);
     expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(component.recipeDetails.imgSrc);
