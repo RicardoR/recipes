@@ -7,7 +7,7 @@
     "build": "ng build",
     "deploy": "ng build && firebase deploy",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test --code-coverage=true"
   },
   "private": true,
   "dependencies": {

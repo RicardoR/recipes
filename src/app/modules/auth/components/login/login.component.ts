@@ -33,6 +33,10 @@ export class LoginComponent implements OnInit {
   }
 
   login(): void {
+    if (!this.form.valid) {
+      return;
+    }
+
     if (this.form.valid) {
       const user: AuthData = {
         email: this.form.controls.email.value,
