@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
-import { Recipe } from './../../../models/recipes.model';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { EditRecipeComponent } from '../edit-recipe.component';

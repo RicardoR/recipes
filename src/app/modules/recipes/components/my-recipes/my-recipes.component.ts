@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject, EMPTY } from 'rxjs';
-import { takeUntil, concatMap, switchMap } from 'rxjs/operators';
+import { takeUntil, concatMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
@@ -38,12 +38,6 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next(null);
     this.destroy$.complete();
-  }
-
-  goToCreate(): void {
-    this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`,
-    ]);
   }
 
   goToRecipe(recipe: Recipe): void {
