@@ -23,16 +23,16 @@ export class NewRecipeComponent implements OnDestroy {
     this.destroy$.next(null);
   }
 
-  goToList(): void {
-    this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
-    ]);
-  }
-
   createRecipe(recipe: Recipe): void {
     this.recipeService
       .createRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.goToList());
+  }
+
+  private goToList(): void {
+    this.router.navigate([
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+    ]);
   }
 }
