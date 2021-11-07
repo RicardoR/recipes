@@ -1,20 +1,17 @@
-/* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RecipeRibbonComponent } from './recipe-ribbon.component';
+import { RecipeRibbonComponent } from '../recipe-ribbon.component';
 
 describe('RecipeRibbonComponent', () => {
   let component: RecipeRibbonComponent;
   let fixture: ComponentFixture<RecipeRibbonComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ RecipeRibbonComponent ]
+      declarations: [RecipeRibbonComponent]
     })
-    .compileComponents();
-  }));
+      .overrideTemplate(RecipeRibbonComponent, '');
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipeRibbonComponent);

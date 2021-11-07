@@ -191,7 +191,7 @@ describe('RecipeCardFormComponent', () => {
     expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 1');
   });
 
-  it('isFormSending', () => {
+  it('isFormSending should update the isSending status', () => {
     expect(component.isSending).toBeFalsy();
     component.isFormSending = true;
     expect(component.isSending).toBeTruthy();

@@ -1,20 +1,18 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ToolbarComponent } from './toolbar.component';
+import { ToolbarComponent } from '../toolbar.component';
 
-describe('ToolbarComponent', () => {
+fdescribe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ ToolbarComponent ]
+      declarations: [ToolbarComponent]
     })
-    .compileComponents();
-  }));
+      .overrideTemplate(ToolbarComponent, '');
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ToolbarComponent);
