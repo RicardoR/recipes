@@ -26,7 +26,7 @@ import { NgLog } from '../../utils/decorators/log-decorator';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
 
-@NgLog()
+//@NgLog()
 @Component({
   selector: 'app-recipe-card-form',
   templateUrl: './recipe-card-form.component.html',
@@ -91,14 +91,14 @@ export class RecipeCardFormComponent implements OnInit {
     this.destroy$.next(null);
   }
 
-  sendReceip(): void {
+  sendRecipe(): void {
     if (this.form.valid) {
       this.isSending = true;
-      const steps = this.steps.controls.map(
-        (control: any) => control.value.data
+      const steps = this.steps.value.map(
+        (value: any) => value.data
       );
-      const ingredients = this.ingredients.controls.map(
-        (control: any) => control.value.data
+      const ingredients = this.ingredients.value.map(
+        (value: any) => value.data
       );
 
       const imageRoute = this.imageRoute
