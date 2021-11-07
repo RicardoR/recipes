@@ -26,7 +26,7 @@ import { NgLog } from '../../utils/decorators/log-decorator';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
 
-//@NgLog()
+@NgLog()
 @Component({
   selector: 'app-recipe-card-form',
   templateUrl: './recipe-card-form.component.html',

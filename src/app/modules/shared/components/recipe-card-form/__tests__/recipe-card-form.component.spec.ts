@@ -1,17 +1,18 @@
-import { Recipe } from 'src/app/modules/recipes/models/recipes.model';
-import { recipeMock } from './../../../../recipes/components/recipe-details/__test__/recipe-mock';
 import { FormBuilder } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { userMocked } from './recipe-mock';
 import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { RecipeCardFormComponent } from '../recipe-card-form.component';
+import { MEDIA_STORAGE_PATH, RecipeCardFormComponent } from '../recipe-card-form.component';
 import { UtilService } from '../../../services/utils/utils.service';
 import { MessagesService } from '../../../services/messages/messages.service';
+import { recipeMock } from './../../../../recipes/components/recipe-details/__test__/recipe-mock';
 
-fdescribe('RecipeCardFormComponent', () => {
+describe('RecipeCardFormComponent', () => {
   let component: RecipeCardFormComponent;
   let fixture: ComponentFixture<RecipeCardFormComponent>;
   let recipeChangeSpy: jasmine.Spy;
@@ -157,9 +158,42 @@ fdescribe('RecipeCardFormComponent', () => {
     expect(seeReceiptSpy).toHaveBeenCalled();
   });
 
-  // todo:
-  // postImage
-  // uploadFileAndGetMetadata
-  // postImage
-  // handleFileChange
+  it('should upload the image and get the metadata', () => {
+    const file = new File([], 'test.jpg');
+    recipeServiceSpy.uploadFileAndGetMetadata.and.returnValue({
+      uploadProgress$: of(100),
+      downloadUrl$: of('url'),
+    });
+
+    component.pictureForm.get('photo')?.setValue({files: [file]});
+    component.postImage();
+    expect(recipeServiceSpy.uploadFileAndGetMetadata).toHaveBeenCalledWith(
+      MEDIA_STORAGE_PATH,
+      file
+    );
+  });
+
+  it('dropElement should allow to reorder the list', () => {
+    const event = new Event('click');
+    const cdkDragDropEvent = {
+      previousIndex: 1,
+      currentIndex: 0,
+    } as CdkDragDrop<string[]>;
+
+    component.addControl(component.steps, event);
+    component.addControl(component.steps, event);
+
+    component.form.get('steps')?.get('0')?.patchValue({ data: 'step 0' });
+    component.form.get('steps')?.get('1')?.patchValue({ data: 'step 1' });
+
+    expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 0');
+    component.dropElement(cdkDragDropEvent, component.steps.controls);
+    expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 1');
+  });
+
+  it('isFormSending', () => {
+    expect(component.isSending).toBeFalsy();
+    component.isFormSending = true;
+    expect(component.isSending).toBeTruthy();
+  });
 });
