@@ -44,6 +44,10 @@ export class RecipeCardFormComponent implements OnInit {
     }
   }
 
+  @Input() set isFormSending(value: boolean) {
+    this.isSending = value;
+  }
+
   form!: FormGroup;
 
   recipeImage: string | ArrayBuffer | undefined;
@@ -87,14 +91,14 @@ export class RecipeCardFormComponent implements OnInit {
     this.destroy$.next(null);
   }
 
-  sendReceip(): void {
+  sendRecipe(): void {
     if (this.form.valid) {
       this.isSending = true;
-      const steps = this.steps.controls.map(
-        (control: any) => control.value.data
+      const steps = this.steps.value.map(
+        (value: any) => value.data
       );
-      const ingredients = this.ingredients.controls.map(
-        (control: any) => control.value.data
+      const ingredients = this.ingredients.value.map(
+        (value: any) => value.data
       );
 
       const imageRoute = this.imageRoute

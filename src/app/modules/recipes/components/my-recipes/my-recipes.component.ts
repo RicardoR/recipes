@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject, EMPTY } from 'rxjs';
-import { takeUntil, concatMap, switchMap } from 'rxjs/operators';
+import { takeUntil, concatMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
@@ -40,12 +40,6 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  goToCreate(): void {
-    this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`,
-    ]);
-  }
-
   goToRecipe(recipe: Recipe): void {
     if (recipe.id) {
       this.router.navigate([
@@ -66,7 +60,7 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
           concatMap((data) =>
             data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
           ),
-          switchMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
+          concatMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
           concatMap(() => this.recipeService.getOwnRecipes())
         )
         .subscribe((data: Recipe[]) => (this.recipes = data));
@@ -74,9 +68,10 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
   }
 
   private getRecipes(): void {
+    // todo add resolver for this
     this.recipeService
       .getOwnRecipes()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((data: Recipe[]) => (this.recipes = data));
+      .subscribe((data: Recipe[]) => this.recipes = data);
   }
 }
