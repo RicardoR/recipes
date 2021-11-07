@@ -6,12 +6,11 @@ describe('DeleteRecipeDialogComponent', () => {
   let component: DeleteRecipeDialogComponent;
   let fixture: ComponentFixture<DeleteRecipeDialogComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       declarations: [ DeleteRecipeDialogComponent ]
     })
     .overrideTemplate(DeleteRecipeDialogComponent, '')
-    .compileComponents();
   });
 
   beforeEach(() => {

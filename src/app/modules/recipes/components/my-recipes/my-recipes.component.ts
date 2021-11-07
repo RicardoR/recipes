@@ -11,7 +11,7 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 
-//@NgLog()
+@NgLog()
 @Component({
   selector: 'app-my-recipes',
   templateUrl: './my-recipes.component.html',
@@ -66,7 +66,7 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
           concatMap((data) =>
             data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
           ),
-          switchMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
+          concatMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
           concatMap(() => this.recipeService.getOwnRecipes())
         )
         .subscribe((data: Recipe[]) => (this.recipes = data));

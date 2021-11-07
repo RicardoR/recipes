@@ -22,8 +22,8 @@ describe('EditRecipeComponent', () => {
 
   const windowSpy = jasmine.createSpyObj('window', ['location']);
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       declarations: [EditRecipeComponent],
       providers: [
         { provide: Router, useValue: routeSpy },
@@ -33,8 +33,7 @@ describe('EditRecipeComponent', () => {
         { provide: Window, useValue: windowSpy }
       ],
     })
-      .overrideTemplate(EditRecipeComponent, '')
-      .compileComponents();
+      .overrideTemplate(EditRecipeComponent, '');
   });
 
   beforeEach(() => {

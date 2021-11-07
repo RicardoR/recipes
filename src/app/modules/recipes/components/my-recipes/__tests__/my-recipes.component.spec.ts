@@ -8,7 +8,7 @@ import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { MyRecipesComponent } from '../my-recipes.component';
 
-fdescribe('MyRecipesComponent', () => {
+describe('MyRecipesComponent', () => {
   let component: MyRecipesComponent;
   let fixture: ComponentFixture<MyRecipesComponent>;
 
@@ -21,8 +21,8 @@ fdescribe('MyRecipesComponent', () => {
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       declarations: [MyRecipesComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
@@ -31,8 +31,7 @@ fdescribe('MyRecipesComponent', () => {
         { provide: MatDialog, useValue: matDialogSpy },
       ]
     })
-    .overrideTemplate(MyRecipesComponent, '')
-    .compileComponents();
+      .overrideTemplate(MyRecipesComponent, '');
   });
 
   beforeEach(() => {
@@ -65,15 +64,34 @@ fdescribe('MyRecipesComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/details', '1']);
   });
 
-  it('deleteRecipe should delete the recipe', () => {
-    matDialogSpy.open.and.returnValue({ afterClosed: () => of(true) });
-    recipeServiceSpy.deleteRecipe.and.returnValue(of(true));
-    recipeServiceSpy.deleteImage.and.returnValue(of(true));
+  describe('deleteRecipe', () => {
+    it('should delete the recipe when user confirm the dialog', () => {
+      matDialogSpy.open.and.returnValue({ afterClosed: () => of(true) });
+      recipeServiceSpy.deleteRecipe.and.returnValue(of(true));
+      recipeServiceSpy.deleteImage.and.returnValue(of(true));
 
-    component.deleteRecipe(recipesListMocked[0]);
-    expect(matDialogSpy.open).toHaveBeenCalled();
-    expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(recipesListMocked[0].id);
-    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(recipesListMocked[0].imgSrc);
-    expect(recipeServiceSpy.getOwnRecipes).toHaveBeenCalled();
+      component.deleteRecipe(recipesListMocked[0]);
+      expect(matDialogSpy.open).toHaveBeenCalled();
+      expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(recipesListMocked[0].id);
+      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(recipesListMocked[0].imgSrc);
+      expect(recipeServiceSpy.getOwnRecipes).toHaveBeenCalled();
+    });
+
+    it('should not delete the recipe when user cancel the dialog', () => {
+      matDialogSpy.open.and.returnValue({ afterClosed: () => of(false) });
+      recipeServiceSpy.deleteRecipe.and.returnValue(of(true));
+      recipeServiceSpy.deleteImage.and.returnValue(of(true));
+
+      recipeServiceSpy.deleteRecipe.calls.reset();
+      recipeServiceSpy.deleteImage.calls.reset();
+      recipeServiceSpy.getOwnRecipes.calls.reset();
+
+      component.deleteRecipe(recipesListMocked[0]);
+      expect(matDialogSpy.open).toHaveBeenCalled();
+
+      expect(recipeServiceSpy.deleteRecipe).not.toHaveBeenCalled();
+      expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
+      expect(recipeServiceSpy.getOwnRecipes).not.toHaveBeenCalled();
+    });
   });
 });
