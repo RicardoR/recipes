@@ -69,6 +69,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   }
 
   private getRecipes(): void {
+    // todo: add resolver for this
     this.recipeService
       .getPublicRecipes()
       .pipe(takeUntil(this.destroy$))

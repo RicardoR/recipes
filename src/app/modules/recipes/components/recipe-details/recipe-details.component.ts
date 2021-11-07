@@ -2,7 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
-import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
+import { concatMap, takeUntil } from 'rxjs/operators';
+
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
@@ -38,14 +39,6 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  goToList(): void {
-    const route = this.authService.currentUser?.uid
-      ? `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
-      : AppRoutingNames.recipes;
-
-    this.router.navigate([route]);
-  }
-
   deleteRecipe(): void {
     const dialogRef = this.dialog.open(DeleteRecipeDialogComponent);
 
@@ -58,7 +51,7 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
             ? this.recipesService.deleteRecipe(this.recipeDetails.id)
             : EMPTY
         ),
-        switchMap(() =>
+        concatMap(() =>
           this.recipesService.deleteImage(this.recipeDetails.imgSrc)
         )
       )

@@ -19,8 +19,6 @@ describe('EditRecipeComponent', () => {
   const messagesServiceSpy = jasmine.createSpyObj('MessagesService', ['showSnackBar']);
   const activatedRouteStub = { data: of({ recipe: recipeMock }) };
 
-  const windowSpy = jasmine.createSpyObj('window', ['location']);
-
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [EditRecipeComponent],
@@ -29,7 +27,6 @@ describe('EditRecipeComponent', () => {
         { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: MessagesService, useValue: messagesServiceSpy },
-        { provide: Window, useValue: windowSpy }
       ],
     })
       .overrideTemplate(EditRecipeComponent, '');
