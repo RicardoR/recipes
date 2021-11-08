@@ -5,8 +5,9 @@ import { of } from 'rxjs';
 
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { RecipeDetailsComponent } from '../recipe-details.component';
-import { recipeMock, userMocked } from './recipe-mock';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
+import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
+import { userMock } from 'src/app/__tests__/mocks/user-mock';
 
 describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;
@@ -37,7 +38,7 @@ describe('RecipeDetailsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipeDetailsComponent);
     component = fixture.componentInstance;
-    authServiceSpy.currentUser = userMocked;
+    authServiceSpy.currentUser = userMock;
     fixture.detectChanges();
   });
 
@@ -84,6 +85,7 @@ describe('RecipeDetailsComponent', () => {
 
     describe('editRecipe', () => {
       it('should navigate to edit recipe page when recipe has an id', () => {
+        component.recipeDetails.id = '2';
         component.editRecipe();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/edit', recipeMock.id]);
       });

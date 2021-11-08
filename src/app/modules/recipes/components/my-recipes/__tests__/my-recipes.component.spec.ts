@@ -3,8 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
-import { recipesListMocked, userMocked } from './recipes-list-mocked';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
+import { recipesListMock } from 'src/app/__tests__/mocks/recipes-list-mock';
+import { userMock } from 'src/app/__tests__/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { MyRecipesComponent } from '../my-recipes.component';
 
@@ -38,24 +39,24 @@ describe('MyRecipesComponent', () => {
     fixture = TestBed.createComponent(MyRecipesComponent);
     component = fixture.componentInstance;
 
-    recipeServiceSpy.getOwnRecipes.and.returnValue(of(recipesListMocked));
-    authServiceSpy.currentUser = userMocked;
+    recipeServiceSpy.getOwnRecipes.and.returnValue(of(recipesListMock));
+    authServiceSpy.currentUser = userMock;
     fixture.detectChanges();
   });
 
   describe('ngOnInit', () => {
     it('should get recipes', () => {
       expect(recipeServiceSpy.getOwnRecipes).toHaveBeenCalled();
-      expect(component.recipes).toEqual(recipesListMocked);
+      expect(component.recipes).toEqual(recipesListMock);
     });
 
     it('should get the current userId', () => {
-      expect(component.userId).toEqual(userMocked.uid);
+      expect(component.userId).toEqual(userMock.uid);
     });
   });
 
   it('goToRecipe should navigate to the desired recipe', () => {
-    component.goToRecipe(recipesListMocked[0]);
+    component.goToRecipe(recipesListMock[0]);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/details', '1']);
   });
 
@@ -72,17 +73,17 @@ describe('MyRecipesComponent', () => {
       recipeServiceSpy.deleteRecipe.and.returnValue(of(true));
       recipeServiceSpy.deleteImage.and.returnValue(of(true));
 
-      component.deleteRecipe(recipesListMocked[0]);
+      component.deleteRecipe(recipesListMock[0]);
       expect(matDialogSpy.open).toHaveBeenCalled();
-      expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(recipesListMocked[0].id);
-      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(recipesListMocked[0].imgSrc);
+      expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(recipesListMock[0].id);
+      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(recipesListMock[0].imgSrc);
       expect(recipeServiceSpy.getOwnRecipes).toHaveBeenCalled();
     });
 
     it('should not delete the recipe when user cancel the dialog', () => {
       matDialogSpy.open.and.returnValue({ afterClosed: () => of(false) });
 
-      component.deleteRecipe(recipesListMocked[0]);
+      component.deleteRecipe(recipesListMock[0]);
       expect(matDialogSpy.open).toHaveBeenCalled();
 
       expect(recipeServiceSpy.deleteRecipe).not.toHaveBeenCalled();
@@ -91,7 +92,7 @@ describe('MyRecipesComponent', () => {
     });
 
     it('should not call to back end if a recipe doesnt have a recipe id', () => {
-      const recipe = { ...recipesListMocked[0] };
+      const recipe = { ...recipesListMock[0] };
       recipe.id = '';
       component.deleteRecipe(recipe);
       expect(matDialogSpy.open).not.toHaveBeenCalled();

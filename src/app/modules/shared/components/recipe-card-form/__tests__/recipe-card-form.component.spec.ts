@@ -4,13 +4,13 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
-import { userMocked } from './recipe-mock';
 import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { MEDIA_STORAGE_PATH, RecipeCardFormComponent } from '../recipe-card-form.component';
 import { UtilService } from '../../../services/utils/utils.service';
 import { MessagesService } from '../../../services/messages/messages.service';
-import { recipeMock } from './../../../../recipes/components/recipe-details/__test__/recipe-mock';
+import { userMock } from 'src/app/__tests__/mocks/user-mock';
+import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
 
 describe('RecipeCardFormComponent', () => {
   let component: RecipeCardFormComponent;
@@ -41,7 +41,7 @@ describe('RecipeCardFormComponent', () => {
   });
 
   beforeEach(() => {
-    authServiceSpy.currentUser = userMocked;
+    authServiceSpy.currentUser = userMock;
 
     fixture = TestBed.createComponent(RecipeCardFormComponent);
     component = fixture.componentInstance;
@@ -60,7 +60,7 @@ describe('RecipeCardFormComponent', () => {
     expect(component.pictureForm).toBeTruthy();
     expect(component.pictureForm.get('picture')?.value).toBe(undefined);
 
-    expect(component.user).toEqual(userMocked);
+    expect(component.user).toEqual(userMock);
   });
 
   it('should be creation data at first', () => {
@@ -75,8 +75,10 @@ describe('RecipeCardFormComponent', () => {
     });
 
     it('should put in editing mode', () => {
+      const isOwnRecipe = recipeMock.ownerId === userMock.uid;
+
       expect(component.edittingMode).toBeTruthy();
-      expect(component.isOwnRecipe).toBeTruthy();
+      expect(component.isOwnRecipe).toBe(isOwnRecipe);
       expect(component.recipeImage).toBe(recipeMock.imgSrc);
     });
 

@@ -1,7 +1,7 @@
-import { AuthData } from './../../../../auth/auth-data.model';
-import { Recipe } from "../../../models/recipes.model";
+import { Recipe } from "src/app/modules/recipes/models/recipes.model";
 
-export const recipesListMocked = [
+
+export const recipesListMock = [
   {
     date: new Date(),
     title: 'test',
@@ -35,9 +35,3 @@ export const recipesListMocked = [
     private: true,
   }
 ] as Recipe[];
-
-export const userMocked: AuthData = {
-  uid: '2',
-  email: 'email@domain.com',
-  password: '123',
-}
