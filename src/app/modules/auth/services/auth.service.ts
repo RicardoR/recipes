@@ -34,11 +34,13 @@ export class AuthService {
       );
   }
 
-  logout(): void {
+  logout(needsReload = true): void {
     this.auth.signOut().then(() => {
       this._currentUser = undefined;
       this.router.navigate([`${AppRoutingNames.recipes}`]);
-      window.location.reload();
+      if(needsReload) {
+        window.location.reload();
+      }
     })
   }
 

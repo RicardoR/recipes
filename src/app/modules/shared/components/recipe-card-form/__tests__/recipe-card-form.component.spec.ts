@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { MEDIA_STORAGE_PATH, RecipeCardFormComponent } from '../recipe-card-form.component';
-import { UtilService } from '../../../services/utils/utils.service';
+import { UtilService } from '../../../utils/utils.service';
 import { MessagesService } from '../../../services/messages/messages.service';
 import { userMock } from 'src/app/__tests__/mocks/user-mock';
 import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
