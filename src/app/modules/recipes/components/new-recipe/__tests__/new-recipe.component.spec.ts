@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
+import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { NewRecipeComponent } from '../new-recipe.component';
-import { recipeMock } from './recipe-mock';
 
 describe('NewRecipeComponent', () => {
   let component: NewRecipeComponent;

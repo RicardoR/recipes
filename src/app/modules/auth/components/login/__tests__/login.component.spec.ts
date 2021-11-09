@@ -34,6 +34,7 @@ describe('LoginComponent', () => {
 
   describe('#login', () => {
     it('should not call the login method of the auth service if the form is not valid', () => {
+      authServiceSpy.login.calls.reset();
       component.form.get('email')?.setValue('not-valid-email');
       component.login();
       expect(authServiceSpy.login).not.toHaveBeenCalled();

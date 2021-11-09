@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { EditRecipeComponent } from '../edit-recipe.component';
-import { recipeMock } from './recipe-mock';
+import { recipeMock } from '../../../../../__tests__/mocks/recipe-mock';
 
 describe('EditRecipeComponent', () => {
   let component: EditRecipeComponent;

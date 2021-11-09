@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
+import { userMock } from 'src/app/__tests__/mocks/user-mock';
 import { ToolbarComponent } from '../toolbar.component';
-import { userMocked } from './user-mocked';
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -27,12 +27,12 @@ describe('ToolbarComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
-    authServiceSpy.currentUser = userMocked;
+    authServiceSpy.currentUser = userMock;
     fixture.detectChanges();
   });
 
   it('should get the userId from authService', () => {
-    expect(component.userId).toEqual(userMocked.uid);
+    expect(component.userId).toEqual(userMock.uid);
   });
 
   it('goToCreate should navigate to recipes/new', () => {

@@ -1,5 +1,4 @@
-import { AuthData } from "src/app/modules/auth/auth-data.model";
-import { Recipe } from "../../../models/recipes.model";
+import { Recipe } from "../../modules/recipes/models/recipes.model";
 
 export const recipeMock = {
   "date": new Date(),
@@ -29,9 +28,3 @@ export const recipeMock = {
   "imgSrc": "image-url-mocked.jpg",
   "private": false
 } as Recipe;
-
-export const userMocked: AuthData = {
-  uid: '2',
-  email: 'email@domain.com',
-  password: '123',
-};

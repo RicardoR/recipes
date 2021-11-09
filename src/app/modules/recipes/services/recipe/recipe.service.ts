@@ -32,7 +32,7 @@ export class RecipeService {
   ) {}
 
   getOwnRecipes(): Observable<any> {
-    const result = new Subject<Recipe[]>();
+    const result = new BehaviorSubject<Recipe[]>([]);
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     const userId = this.authService.currentUser?.uid;
 
@@ -58,7 +58,7 @@ export class RecipeService {
   getPublicRecipes(): Observable<any> {
     const userId = this.authService.currentUser?.uid ? this.authService.currentUser?.uid : '-1';
 
-    const result = new Subject<Recipe[]>();
+    const result = new BehaviorSubject<Recipe[]>([]);
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
     const queryOne = this.firestore
@@ -89,7 +89,7 @@ export class RecipeService {
         })
       )
       .subscribe((recipes: Recipe[]) => {
-        recipes.sort((recipeOne, recipeTwo) => recipeTwo.date.getTime() - recipeOne.date.getTime());
+        recipes.sort((recipeOne, recipeTwo) => recipeTwo.date?.getTime() - recipeOne.date?.getTime());
         result.next(recipes)
       });
 
@@ -189,7 +189,7 @@ export class RecipeService {
     }
 
     return {
-      date: docData.date.toDate(),
+      date: docData.date?.toDate(),
       title: docData.title,
       description: docData.description,
       id: id,

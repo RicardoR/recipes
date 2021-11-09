@@ -21,7 +21,7 @@ import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { Recipe } from 'src/app/modules/recipes/models/recipes.model';
 import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
 import { MessagesService } from '../../services/messages/messages.service';
-import { UtilService } from '../../services/utils/utils.service';
+import { UtilService } from '../../utils/utils.service';
 import { NgLog } from '../../utils/decorators/log-decorator';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
