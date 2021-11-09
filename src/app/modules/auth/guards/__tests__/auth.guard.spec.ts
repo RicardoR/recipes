@@ -1,7 +1,7 @@
-import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { TestBed, waitForAsync } from '@angular/core/testing';
-
 import { BehaviorSubject } from 'rxjs';
+
+import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { AuthGuard } from '../auth.guard';
 
 describe('AuthGuard', () => {
