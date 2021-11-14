@@ -3,20 +3,20 @@ import { BehaviorSubject } from 'rxjs';
 
 import { AuthReadyGuard } from '../auth-ready.guard';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
+import { AuthTestingModule } from '../../auth-testing.module';
 
 describe('AuthReadyGuard', () => {
   let service: AuthReadyGuard;
-  const authServiceSpy = jasmine.createSpyObj('AuthService', [
-    'authServiceReady',
-  ]);
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
+
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        providers: [
-          { provide: AuthService, useValue: authServiceSpy },
-        ],
+        imports: [AuthTestingModule],
       });
+
+      authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       service = TestBed.inject(AuthReadyGuard);
     })
   );

@@ -3,18 +3,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AuthService } from '../../../services/auth.service';
 import { LoginComponent } from '../login.component';
+import { AuthTestingModule } from './../../../auth-testing.module';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['login',]);
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
-      imports: [ReactiveFormsModule],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      imports: [ReactiveFormsModule, AuthTestingModule],
     })
       .overrideTemplate(LoginComponent, '')
       .compileComponents();
@@ -23,6 +22,7 @@ describe('LoginComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
+    authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     fixture.detectChanges();
   });
 

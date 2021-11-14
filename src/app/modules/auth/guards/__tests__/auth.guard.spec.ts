@@ -2,19 +2,20 @@ import { TestBed, waitForAsync } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
 
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
+import { AuthTestingModule } from '../../auth-testing.module';
 import { AuthGuard } from '../auth.guard';
 
 describe('AuthGuard', () => {
   let service: AuthGuard;
-  const authServiceSpy = jasmine.createSpyObj('AuthService', [
-    'initAuthListener',
-  ]);
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        providers: [{ provide: AuthService, useValue: authServiceSpy }],
+        imports: [AuthTestingModule],
       });
+
+      authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       service = TestBed.inject(AuthGuard);
     })
   );
