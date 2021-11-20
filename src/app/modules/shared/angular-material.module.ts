@@ -12,7 +12,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
+import { NgxMatFileInputModule } from '@angular-material-components/file-input';
 
 
 @NgModule({
@@ -31,7 +31,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     MatSlideToggleModule,
     MatSnackBarModule,
     MatToolbarModule,
-    MaterialFileInputModule,
+    NgxMatFileInputModule,
   ],
   exports: [
     // Material
@@ -48,7 +48,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     MatSlideToggleModule,
     MatSnackBarModule,
     MatToolbarModule,
-    MaterialFileInputModule,
+    NgxMatFileInputModule,
   ],
 })
 export class AngularMaterialModule {}

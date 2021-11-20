@@ -189,7 +189,8 @@ export class RecipeCardFormComponent implements OnInit {
     photoControl: AbstractControl
   ): { [key: string]: boolean } | null | void {
     if (photoControl.value) {
-      const [recipeImage] = photoControl.value.files;
+      const recipeImage = photoControl.value;
+      console.log(this.utilService.validateFile(recipeImage));
       return this.utilService.validateFile(recipeImage)
         ? null
         : { image: true };
@@ -201,10 +202,10 @@ export class RecipeCardFormComponent implements OnInit {
     this.pictureForm
       ?.get('photo')
       ?.valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe((newValue) => this.handleFileChange(newValue.files));
+      .subscribe((file: File) => this.handleFileChange(file));
   }
 
-  private handleFileChange([recipeImage]: any): void {
+  private handleFileChange(recipeImage: File): void {
     this.fileToUpload = recipeImage;
     const reader = new FileReader();
     reader.onload = (loadEvent) =>
