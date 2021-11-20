@@ -167,7 +167,7 @@ describe('RecipeCardFormComponent', () => {
       downloadUrl$: of('url'),
     });
 
-    component.pictureForm.get('photo')?.setValue({files: [file]});
+    component.pictureForm.get('photo')?.setValue(file);
     component.postImage();
     expect(recipeServiceSpy.uploadFileAndGetMetadata).toHaveBeenCalledWith(
       MEDIA_STORAGE_PATH,

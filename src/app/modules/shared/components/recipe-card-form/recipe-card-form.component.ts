@@ -190,7 +190,6 @@ export class RecipeCardFormComponent implements OnInit {
   ): { [key: string]: boolean } | null | void {
     if (photoControl.value) {
       const recipeImage = photoControl.value;
-      console.log(this.utilService.validateFile(recipeImage));
       return this.utilService.validateFile(recipeImage)
         ? null
         : { image: true };
