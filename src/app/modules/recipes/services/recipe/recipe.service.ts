@@ -24,12 +24,15 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 
 @Injectable()
 export class RecipeService {
+  private isDemoUser: boolean;
 
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
     private storage: AngularFireStorage
-  ) {}
+  ) {
+    this.isDemoUser = this.authService.isDemoUser;
+  }
 
   getOwnRecipes(): Observable<any> {
     const result = new BehaviorSubject<Recipe[]>([]);
@@ -56,7 +59,9 @@ export class RecipeService {
   }
 
   getPublicRecipes(): Observable<any> {
-    const userId = this.authService.currentUser?.uid ? this.authService.currentUser?.uid : '-1';
+    const userId = this.authService.currentUser?.uid
+      ? this.authService.currentUser?.uid
+      : '-1';
 
     const result = new BehaviorSubject<Recipe[]>([]);
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
@@ -89,14 +94,20 @@ export class RecipeService {
         })
       )
       .subscribe((recipes: Recipe[]) => {
-        recipes.sort((recipeOne, recipeTwo) => recipeTwo.date?.getTime() - recipeOne.date?.getTime());
-        result.next(recipes)
+        recipes.sort(
+          (recipeOne, recipeTwo) =>
+            recipeTwo.date?.getTime() - recipeOne.date?.getTime()
+        );
+        result.next(recipes);
       });
 
     return result;
   }
 
   createRecipe(recipe: Recipe): Observable<void> {
+    if (this.authService.isDemoUser) {
+      throw new Error('You can not create a recipe with demo user');
+    }
     const result = new Subject<void>();
     const recipeNameCollection = DatabaseCollectionsNames.recipes;
 
@@ -109,6 +120,10 @@ export class RecipeService {
   }
 
   updateRecipe(recipe: Recipe): Observable<void> {
+    if (this.authService.isDemoUser) {
+      throw new Error('You can not update a recipe with demo user');
+    }
+
     const result = new Subject<void>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
@@ -123,8 +138,8 @@ export class RecipeService {
 
   getRecipeDetail(id: string | null): Observable<Recipe> {
     if (id === null) {
-      throw new Error("RecipeId is mandatory");
-  }
+      throw new Error('RecipeId is mandatory');
+    }
 
     const result = new Subject<Recipe>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
@@ -146,6 +161,10 @@ export class RecipeService {
   }
 
   deleteRecipe(id: string): Observable<boolean> {
+    if (this.authService.isDemoUser) {
+      throw new Error('You can not delete a recipe with demo user');
+    }
+
     const result = new Subject<boolean>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     this.firestore
@@ -163,6 +182,9 @@ export class RecipeService {
     mediaFolderPath: string,
     fileToUpload: File
   ): FilesUploadMetadata {
+    if (this.authService.isDemoUser) {
+      throw new Error('You can not upload a picture with demo user');
+    }
     const { name } = fileToUpload;
     const filePath = `${mediaFolderPath}/${new Date().getTime()}_${name}`;
     const uploadTask: AngularFireUploadTask = this.storage.upload(
@@ -177,6 +199,10 @@ export class RecipeService {
   }
 
   deleteImage(ref: string): Observable<any> {
+    if (this.authService.isDemoUser) {
+      throw new Error('You can not do this with demo user');
+    }
+
     if (ref === DEFAULT_IMAGE) {
       return new BehaviorSubject<any>(true);
     }
@@ -197,7 +223,7 @@ export class RecipeService {
       steps: docData.steps,
       ingredients: docData.ingredients,
       imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
-      private: docData.private
+      private: docData.private,
     };
   }
 

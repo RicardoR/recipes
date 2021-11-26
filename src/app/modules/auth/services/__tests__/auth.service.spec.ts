@@ -51,12 +51,11 @@ describe('AuthService', () => {
 
   it('should allow to logout', fakeAsync(() => {
     service.currentUser = userMock;
-    const needsReload = false;
-    service.logout(needsReload);
+    service.logout();
     flushMicrotasks();
     expect(angularFireAuthSpy.signOut).toHaveBeenCalled();
     expect(service.currentUser).toBeUndefined();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/recipes']);
   }));
 
   it('should allow to get current user', () => {

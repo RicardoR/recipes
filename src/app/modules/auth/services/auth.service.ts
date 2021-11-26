@@ -8,11 +8,15 @@ import { AuthData } from '../auth-data.model';
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { RecipesRoutingNames } from '../../recipes/recipes-routing.module';
 
+export const FAKE_USER_EMAIL = 'test@mail.com';
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private _currentUser?: AuthData;
+  private _isDemoUser?: boolean;
+
 
   constructor(private auth: AngularFireAuth, private router: Router) {}
 
@@ -22,6 +26,10 @@ export class AuthService {
 
   set currentUser(user: AuthData | undefined) {
     this._currentUser = user;
+  }
+
+  get isDemoUser(): boolean {
+    return this._isDemoUser ?? false;
   }
 
   login(authData: AuthData): void {
@@ -34,13 +42,10 @@ export class AuthService {
       );
   }
 
-  logout(needsReload = true): void {
+  logout(): void {
     this.auth.signOut().then(() => {
       this._currentUser = undefined;
-      this.router.navigate([`${AppRoutingNames.recipes}`]);
-      if(needsReload) {
-        window.location.reload();
-      }
+      this.router.navigate([`/${AppRoutingNames.recipes}`]);
     })
   }
 
@@ -58,6 +63,7 @@ export class AuthService {
             };
 
             this.currentUser = userData;
+            this._isDemoUser = user.email === FAKE_USER_EMAIL;
             userLogged.next(true);
           } else {
             userLogged.next(false);

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 
 import { AuthData } from '../../auth-data.model';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, FAKE_USER_EMAIL } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -49,8 +49,11 @@ export class LoginComponent implements OnInit {
 
   private buildLoginForm(): void {
     this.form = this.fb.group({
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required]),
+      email: new FormControl(FAKE_USER_EMAIL, [
+        Validators.required,
+        Validators.email,
+      ]),
+      password: new FormControl('123456', [Validators.required]),
     });
   }
 }
