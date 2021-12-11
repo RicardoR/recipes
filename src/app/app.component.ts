@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { AngularFireAnalytics } from '@angular/fire/analytics';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
-  constructor() { }
-
-  ngOnInit(): void {}
-
+export class AppComponent {
+  constructor(analytics: AngularFireAnalytics) {
+      analytics.logEvent('custom_event');
+  }
 }

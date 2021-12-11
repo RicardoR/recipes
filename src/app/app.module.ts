@@ -1,11 +1,12 @@
 import { LOCALE_ID, ErrorHandler, NgModule } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
 
 import localeEs from '@angular/common/locales/es';
-import { registerLocaleData } from '@angular/common';
 registerLocaleData(localeEs, 'es');
 
 import { AppRoutingModule } from './app-routing.module';
@@ -25,6 +26,7 @@ import { SharedModule } from './modules/shared/shared.module';
     // Firebase
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
+    AngularFireAnalyticsModule,
 
     SharedModule,
     AuthModule,
