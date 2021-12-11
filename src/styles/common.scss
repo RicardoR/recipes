@@ -13,3 +13,7 @@ input:-webkit-autofill:active
   -webkit-box-shadow: 0 0 0 50px #555555 inset;
   box-shadow: 0 0 0 50px #555555 inset;
 }
+
+.mat-input-element {
+  caret-color: #fff;
+}
