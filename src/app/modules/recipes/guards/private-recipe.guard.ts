@@ -9,6 +9,7 @@ import {
 } from '@angular/router';
 import { Observable, ReplaySubject } from 'rxjs';
 import { AuthService } from '../../auth/services/auth.service';
+import { MessagesService } from '../../shared/services/messages/messages.service';
 
 
 @Injectable()
@@ -16,7 +17,8 @@ export class PrivateRecipeGuard implements CanActivate {
   constructor(
     private recipesService: RecipeService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private messagesService: MessagesService
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
@@ -32,7 +34,7 @@ export class PrivateRecipeGuard implements CanActivate {
         } else {
           this.router.navigate(['/recipes']);
           canActivate.next(false);
-          throw new Error('You are not authorized to view this recipe');
+          this.messagesService.showSnackBar('No estás autorizado para ver esta receta');
         }
       });
 

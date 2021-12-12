@@ -70,14 +70,30 @@ describe('AuthService', () => {
     expect(initAuthListenerSpy).toHaveBeenCalled();
   });
 
-  xit('initAuthListener', () => {
-    // todo reactivate ut when resolve this issue:
-    // this.auth.authState.pipe is not a function ???
-    //angularFireAuthSpy.authState.and.returnValue(of(userMock));
-
+  it('initAuthListener should return true if user exists', () => {
+    // @ts-ignore
+    angularFireAuthSpy.authState = of(userMock);
     service.initAuthListener().subscribe((isuser) => {
       expect(isuser).toBeTruthy();
     });
-    expect(angularFireAuthSpy.authState).toHaveBeenCalled();
+  });
+
+  it('initAuthListener should return false if user not exists', () => {
+    // @ts-ignore
+    angularFireAuthSpy.authState = of(undefined);
+    service.initAuthListener().subscribe((isuser) => {
+      expect(isuser).toBeFalsy();
+    });
+  });
+
+  it('isDemoUser should return true with user has the demo email', () => {
+    const user = { ...userMock, email: 'test@mail.com' };
+    service.currentUser = user;
+    expect(service.isDemoUser).toBeTruthy();
+  });
+
+  it('isDemoUser should return false if is not a demo user', () => {
+    service.currentUser = userMock;
+    expect(service.isDemoUser).toBeFalsy();
   });
 });

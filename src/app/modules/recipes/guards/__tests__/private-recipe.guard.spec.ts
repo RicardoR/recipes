@@ -1,3 +1,4 @@
+import { MessagesService } from './../../../shared/services/messages/messages.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRouteSnapshot } from '@angular/router';
@@ -15,6 +16,10 @@ describe('PrivateRecipeGuard', () => {
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
     'getRecipeDetail',
   ]);
+  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
+      'showSnackBar',
+  ]);
+
   const route = {
     params: {},
   } as ActivatedRouteSnapshot;
@@ -29,6 +34,7 @@ describe('PrivateRecipeGuard', () => {
         ],
         providers: [
           PrivateRecipeGuard,
+          { provide: MessagesService, useValue: messagesServiceSpy },
           { provide: AuthService, useValue: authServiceSpy },
           { provide: RecipeService, useValue: recipeServiceSpy },
         ],

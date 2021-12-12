@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, ReplaySubject } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
 import { AuthData } from '../auth-data.model';
@@ -15,8 +15,6 @@ export const FAKE_USER_EMAIL = 'test@mail.com';
 })
 export class AuthService {
   private _currentUser?: AuthData;
-  private _isDemoUser?: boolean;
-
 
   constructor(private auth: AngularFireAuth, private router: Router) {}
 
@@ -29,7 +27,7 @@ export class AuthService {
   }
 
   get isDemoUser(): boolean {
-    return this._isDemoUser ?? false;
+    return this._currentUser?.email === FAKE_USER_EMAIL;
   }
 
   login(authData: AuthData): void {
@@ -50,7 +48,7 @@ export class AuthService {
   }
 
   initAuthListener(): Observable<boolean> {
-    const userLogged = new Subject<boolean>();
+    const userLogged = new ReplaySubject<boolean>();
     this.auth.authState
       .pipe(
         take(1),
@@ -63,7 +61,6 @@ export class AuthService {
             };
 
             this.currentUser = userData;
-            this._isDemoUser = user.email === FAKE_USER_EMAIL;
             userLogged.next(true);
           } else {
             userLogged.next(false);
