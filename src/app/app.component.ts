@@ -8,6 +8,6 @@ import { AngularFireAnalytics } from '@angular/fire/analytics';
 })
 export class AppComponent {
   constructor(analytics: AngularFireAnalytics) {
-      analytics.logEvent('custom_event');
+      analytics.logEvent('app_started');
   }
 }
