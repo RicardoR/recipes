@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { MessagesService } from '../messages.service';
+import { MessagesService } from '../messages/messages.service';
 
 describe('MessagesService', () => {
   let service: MessagesService;
