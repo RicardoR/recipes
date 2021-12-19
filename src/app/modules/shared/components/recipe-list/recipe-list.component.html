@@ -29,7 +29,11 @@
           <p> {{ recipe.date | date }} </p>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-button (click)=goToRecipe(recipe)>Ver </button>
+          <button mat-raised-button
+                  color="primary"
+                  (click)=goToRecipe(recipe)>
+              Ver
+          </button>
           <button mat-button
                   *ngIf="recipe.ownerId === userId"
                   color="warn"
