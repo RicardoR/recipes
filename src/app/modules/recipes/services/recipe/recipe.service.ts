@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { DocumentChangeAction } from '@angular/fire/firestore/interfaces';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { DocumentChangeAction } from '@angular/fire/compat/firestore/interfaces';
 import {
   AngularFireStorage,
   AngularFireUploadTask,
-} from '@angular/fire/storage';
+} from '@angular/fire/compat/storage';
 import { BehaviorSubject, combineLatest, from, Observable, Subject } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 

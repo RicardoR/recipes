@@ -2,7 +2,6 @@
   <h1 title>Detalles</h1>
 </app-toolbar>
 
-
 <div class="mt-1" *ngIf="recipeDetails">
   <div fxFlex="60%" fxFlex.lt-md="70%" fxFlex.lt-sm="100%" class="margin-auto p-2" >
     <mat-card class="mat-elevation-z4">
@@ -51,8 +50,16 @@
 
         </mat-card-content>
         <mat-card-actions *ngIf="isOwnReceip">
-          <button mat-button (click)="editRecipe()">Editar </button>
-          <button mat-button color="warn" (click)="deleteRecipe()">Borrar</button>
+          <button mat-raised-button
+                  color="primary"
+                  (click)="editRecipe()">
+                  Editar
+          </button>
+          <button mat-button
+                  color="warn"
+                  (click)="deleteRecipe()">
+                  Borrar
+          </button>
         </mat-card-actions>
     </mat-card>
   </div>

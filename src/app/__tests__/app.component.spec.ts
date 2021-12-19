@@ -1,21 +1,33 @@
-import { TestBed } from '@angular/core/testing';
-import { FirebaseApp } from '@angular/fire';
-import { AngularFireAnalytics } from '@angular/fire/analytics';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from '../app.component';
 
 describe('AppComponent', () => {
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+
+  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', ['logEvent']);
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [RouterTestingModule],
-      providers: [AngularFireAnalytics, FirebaseApp],
+      providers: [
+        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
+      ],
       declarations: [AppComponent],
     }).overrideTemplate(AppComponent, '');
   });
 
+  beforeEach(() => {
+      fixture = TestBed.createComponent(AppComponent);
+      component = fixture.componentInstance;
+  });
+
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(component).toBeTruthy();
+  });
+
+  it('should log app_started event in analytics', () => {
+    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('app_started');
   });
 });
