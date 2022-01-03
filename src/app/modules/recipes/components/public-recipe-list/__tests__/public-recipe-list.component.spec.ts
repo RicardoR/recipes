@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -21,6 +22,9 @@ describe('PublicRecipeListComponent', () => {
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
+    'logEvent',
+  ]);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -30,6 +34,7 @@ describe('PublicRecipeListComponent', () => {
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
+        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
       ],
     }).overrideTemplate(PublicRecipeListComponent, '');
   });
@@ -104,5 +109,9 @@ describe('PublicRecipeListComponent', () => {
       expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
       expect(recipeServiceSpy.getPublicRecipes).not.toHaveBeenCalled();
      });
+  });
+
+  it('should log the event when component is started', () => {
+    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('public_recipes_component_opened');
   });
 });

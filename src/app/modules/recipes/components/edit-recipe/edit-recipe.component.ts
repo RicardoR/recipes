@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
@@ -25,8 +26,11 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private recipesService: RecipeService,
-    private messagesService: MessagesService
-  ) {}
+    private messagesService: MessagesService,
+    private analytics: AngularFireAnalytics
+  ) {
+    this.analytics.logEvent('edit_recipe_component_opened');
+  }
 
   ngOnInit(): void {
     this.getRecipeDetails();
@@ -51,6 +55,8 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   }
 
   updateRecipe(recipe: Recipe): void {
+    this.analytics.logEvent('update_recipe_button_clicked');
+
     this.isSending = true;
     this.recipesService
       .updateRecipe(recipe)

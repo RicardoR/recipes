@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -12,7 +13,10 @@ describe('NewRecipeComponent', () => {
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
     'createRecipe',
   ]);
-    const routeSpy = jasmine.createSpyObj('Router', ['navigate']);
+  const routeSpy = jasmine.createSpyObj('Router', ['navigate']);
+  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
+    'logEvent',
+  ]);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -20,9 +24,9 @@ describe('NewRecipeComponent', () => {
       providers: [
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: Router, useValue: routeSpy },
-      ]
-    })
-    .overrideTemplate(NewRecipeComponent, '');
+        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
+      ],
+    }).overrideTemplate(NewRecipeComponent, '');
   });
 
   beforeEach(() => {
@@ -34,7 +38,13 @@ describe('NewRecipeComponent', () => {
   it('create recipe should create the recipe and then redirect to list', () => {
     recipeServiceSpy.createRecipe.and.returnValue(of({}));
     component.createRecipe(recipeMock);
+    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('create_recipe_button_clicked');
+
     expect(recipeServiceSpy.createRecipe).toHaveBeenCalledWith(recipeMock);
     expect(routeSpy.navigate).toHaveBeenCalledWith(['recipes/my-recipes']);
+  });
+
+  it('should log new_recipe_component_opened event', () => {
+    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('new_recipe_component_opened');
   });
 });

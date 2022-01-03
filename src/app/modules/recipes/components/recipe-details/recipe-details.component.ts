@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
@@ -27,8 +28,12 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    public dialog: MatDialog
-  ) {}
+    public dialog: MatDialog,
+    private analytics: AngularFireAnalytics
+  ) {
+    this.analytics.logEvent('edit_recipe_component_opened');
+  }
+
 
   ngOnInit(): void {
     this.getRecipeDetails();
@@ -40,6 +45,8 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   }
 
   deleteRecipe(): void {
+    this.analytics.logEvent('delete_recipe_button_clicked');
+
     const dialogRef = this.dialog.open(DeleteRecipeDialogComponent);
 
     dialogRef
@@ -59,6 +66,7 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   }
 
   editRecipe(): void {
+    this.analytics.logEvent('edit_recipe_button_clicked');
     if (this.recipeDetails.id) {
       this.router.navigate([
         `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,

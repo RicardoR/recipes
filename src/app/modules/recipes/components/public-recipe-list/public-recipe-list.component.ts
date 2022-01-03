@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
@@ -28,8 +29,11 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     private router: Router,
     private recipeService: RecipeService,
     private authService: AuthService,
-    public dialog: MatDialog
-  ) {}
+    public dialog: MatDialog,
+    private analytics: AngularFireAnalytics
+  ) {
+    this.analytics.logEvent('public_recipes_component_opened');
+  }
 
   ngOnInit(): void {
     this.getRecipes();

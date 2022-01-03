@@ -24,12 +24,11 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 
 @Injectable()
 export class RecipeService {
-
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
     private storage: AngularFireStorage
-  ) {  }
+  ) { }
 
   getOwnRecipes(): Observable<any> {
     const result = new BehaviorSubject<Recipe[]>([]);

@@ -10,6 +10,7 @@ import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 
 @NgLog()
 @Component({
@@ -27,8 +28,12 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
     private router: Router,
     private recipeService: RecipeService,
     private authService: AuthService,
-    public dialog: MatDialog
-  ) {}
+    public dialog: MatDialog,
+    private analytics: AngularFireAnalytics
+  ) {
+    this.analytics.logEvent('my_recipes_component_opened');
+  }
+
 
   ngOnInit(): void {
     this.getRecipes();

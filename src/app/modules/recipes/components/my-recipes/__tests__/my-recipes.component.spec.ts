@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -21,6 +22,9 @@ describe('MyRecipesComponent', () => {
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
+    'logEvent',
+  ]);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -30,9 +34,9 @@ describe('MyRecipesComponent', () => {
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
-      ]
-    })
-      .overrideTemplate(MyRecipesComponent, '');
+        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
+      ],
+    }).overrideTemplate(MyRecipesComponent, '');
   });
 
   beforeEach(() => {
@@ -100,5 +104,9 @@ describe('MyRecipesComponent', () => {
       expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
       expect(recipeServiceSpy.getOwnRecipes).not.toHaveBeenCalled();
     });
+  });
+
+  it('should send my_recipes_component_opened event to analytics', () => {
+    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('my_recipes_component_opened');
   });
 });

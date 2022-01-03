@@ -7,7 +7,7 @@ import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  constructor(analytics: AngularFireAnalytics) {
-      analytics.logEvent('app_started');
+  constructor(private analytics: AngularFireAnalytics) {
+      this.analytics.logEvent('app_started');
   }
 }

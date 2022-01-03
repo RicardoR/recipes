@@ -1,4 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
+import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -17,13 +18,20 @@ import { Recipe } from './../../models/recipes.model';
 export class NewRecipeComponent implements OnDestroy {
   private destroy$: Subject<null> = new Subject();
 
-  constructor(private recipeService: RecipeService, private router: Router) {}
+  constructor(
+    private recipeService: RecipeService,
+    private router: Router,
+    private analytics: AngularFireAnalytics
+  ) {
+    this.analytics.logEvent('new_recipe_component_opened');
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next(null);
   }
 
   createRecipe(recipe: Recipe): void {
+    this.analytics.logEvent('create_recipe_button_clicked');
     this.recipeService
       .createRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
