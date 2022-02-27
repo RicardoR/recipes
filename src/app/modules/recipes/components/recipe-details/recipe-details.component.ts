@@ -31,7 +31,7 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private analytics: AngularFireAnalytics
   ) {
-    this.analytics.logEvent('edit_recipe_component_opened');
+    this.analytics.logEvent('recipe_detail_component_opened');
   }
 
 
