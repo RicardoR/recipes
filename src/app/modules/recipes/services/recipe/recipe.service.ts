@@ -205,6 +205,14 @@ export class RecipeService {
     return this.storage.refFromURL(ref).delete();
   }
 
+  filterRecipes(recipesList: Recipe[], filter: string): Recipe[] {
+    filter = filter?.trim().toLowerCase();
+    return recipesList.filter((recipe) =>
+      recipe.title.toLowerCase().includes(filter.toLowerCase()) ||
+      recipe.description.toLowerCase().includes(filter.toLowerCase())
+    );
+  }
+
   private recipesConverter(docData: any, id: string): Recipe {
     if (docData === undefined) {
       throw new Error('Recipe does not exists');

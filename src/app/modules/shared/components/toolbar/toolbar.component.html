@@ -1,6 +1,23 @@
 <mat-toolbar color="primary">
-  <ng-content select="[title]"></ng-content>
+  <ng-content *ngIf="!displaySearchControl"
+              select="[title]">
+  </ng-content>
   <span class="horizontal-spacer"></span>
+  <mat-icon *ngIf="displaySearchButton"
+            (click)="switchSearchControl()"
+            class="search-icon cursor-pointer mr-1"
+            aria-hidden="false"
+            aria-label="Search">search
+  </mat-icon>
+  <div class="w-100" *ngIf="displaySearchControl">
+    <mat-form-field class="w-50">
+      <input #search
+             matInput
+             type="search"
+             autofocus
+             [formControl]="searchFormControl">
+    </mat-form-field>
+  </div>
 
   <ng-container *ngIf="userId">
     <button mat-icon-button

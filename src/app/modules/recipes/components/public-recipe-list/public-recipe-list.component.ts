@@ -3,7 +3,7 @@ import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
-import { concatMap, takeUntil } from 'rxjs/operators';
+import { concatMap, takeUntil, switchMap, tap } from 'rxjs/operators';
 
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
@@ -20,10 +20,11 @@ import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-reci
   styleUrls: ['./public-recipe-list.component.scss'],
 })
 export class PublicRecipeListComponent implements OnInit, OnDestroy {
-  recipes: Recipe[] = [];
+  recipesFiltered: Recipe[] = [];
   userId?: string;
 
   private destroy$: Subject<null> = new Subject();
+  private recipesRetrieved: Recipe[] = [];
 
   constructor(
     private router: Router,
@@ -37,6 +38,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getRecipes();
+    this.listenToLogoutChanges();
     this.userId = this.authService.currentUser?.uid;
   }
 
@@ -47,10 +49,10 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
 
   goToRecipe(recipe: Recipe): void {
     if (recipe.id) {
-     this.router.navigate([
-       `/${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
-       recipe.id,
-     ]);
+      this.router.navigate([
+        `/${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
+        recipe.id,
+      ]);
     }
   }
 
@@ -68,15 +70,43 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
           concatMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
           concatMap(() => this.recipeService.getPublicRecipes())
         )
-        .subscribe((data: Recipe[]) => (this.recipes = data));
+        .subscribe((data: Recipe[]) => {
+          this.recipesFiltered = data;
+          this.recipesRetrieved = [...data];
+        });
+    }
+  }
+
+  onSearchText(searchText: string): void {
+    if (searchText?.trim()) {
+      this.recipesFiltered = this.recipeService.filterRecipes(this.recipesRetrieved, searchText);
+    } else {
+      this.recipesFiltered = [...this.recipesRetrieved];
     }
   }
 
   private getRecipes(): void {
-    // todo: add resolver for this
     this.recipeService
       .getPublicRecipes()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((data: Recipe[]) => (this.recipes = data));
+      .pipe(
+        takeUntil(this.destroy$),
+         tap((data: Recipe[]) => {
+          this.recipesFiltered = data;
+          this.recipesRetrieved = [...data];
+        }))
+      .subscribe();
+  }
+
+  private listenToLogoutChanges(): void {
+    this.authService.logoutSuccess$
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(() => this.userId = undefined),
+        switchMap(() => this.recipeService.getPublicRecipes()),
+        tap((data: Recipe[]) => {
+          this.recipesFiltered = data;
+          this.recipesRetrieved = [...data];
+        }))
+      .subscribe();
   }
 }

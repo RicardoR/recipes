@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { recipesListMock } from 'src/app/__tests__/mocks/recipes-list-mock';
@@ -20,7 +20,10 @@ describe('PublicRecipeListComponent', () => {
     'deleteImage',
     'getPublicRecipes',
   ]);
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
+  const authServiceSpy = jasmine.createSpyObj('AuthService', [
+    'currentUser',
+    'logoutSuccess$',
+  ]);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
   const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
     'logEvent',
@@ -45,13 +48,14 @@ describe('PublicRecipeListComponent', () => {
 
     recipeServiceSpy.getPublicRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
+    authServiceSpy.logoutSuccess$ = new BehaviorSubject<void>(undefined);
     fixture.detectChanges();
   });
 
   describe('ngOnInit', () => {
     it('should get recipes', () => {
       expect(recipeServiceSpy.getPublicRecipes).toHaveBeenCalled();
-      expect(component.recipes).toEqual(recipesListMock);
+      expect(component.recipesFiltered).toEqual(recipesListMock);
     });
 
     it('should get the current userId', () => {

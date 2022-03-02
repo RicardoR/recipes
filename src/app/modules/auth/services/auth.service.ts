@@ -15,6 +15,7 @@ export const FAKE_USER_EMAIL = 'test@mail.com';
 })
 export class AuthService {
   private _currentUser?: AuthData;
+  logoutSuccess$ = new Subject<void>();
 
   constructor(private auth: AngularFireAuth, private router: Router) {}
 
@@ -44,7 +45,8 @@ export class AuthService {
     this.auth.signOut().then(() => {
       this._currentUser = undefined;
       this.router.navigate([`/${AppRoutingNames.recipes}`]);
-    })
+      this.logoutSuccess$.next();
+    });
   }
 
   initAuthListener(): Observable<boolean> {
