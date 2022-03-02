@@ -10,7 +10,7 @@
                placeholder="pat@example.com"
                type="text"
                formControlName="email"
-               required autocomplete="nope">
+               required>
         <mat-icon class="email__icon" matSuffix>sentiment_very_satisfied</mat-icon>
         <mat-error *ngIf="form.controls.email.invalid">{{getErrorMessage()}}</mat-error>
       </mat-form-field>
@@ -19,8 +19,7 @@
         <mat-label>Enter your password</mat-label>
         <input matInput
                formControlName="password"
-               [type]="passWordHidden ? 'password' : 'text'"
-               autocomplete="nope">
+               [type]="passWordHidden ? 'password' : 'text'">
         <button mat-icon-button
                 matSuffix
                 (click)="passWordHidden = !passWordHidden"
