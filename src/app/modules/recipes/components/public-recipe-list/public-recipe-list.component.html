@@ -1,9 +1,9 @@
-<app-toolbar>
+<app-toolbar (searchText$)="onSearchText($event)">
   <h1 title> Listado de recetas</h1>
 </app-toolbar>
 
 <div class="p-2">
-   <app-recipe-list [recipes]="recipes"
+   <app-recipe-list [recipes]="recipesFiltered"
                     [userId]="userId"
                     [ribbonTitle]="'Propia'"
                     [publicList]= "true"

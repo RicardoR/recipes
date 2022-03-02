@@ -109,7 +109,9 @@ describe('RecipeDetailsComponent', () => {
     });
   });
 
-  it('should log edit_recipe_component_opened event at start', () => {
-    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('edit_recipe_component_opened');
+  it('should log recipe_detail_component_opened event at start', () => {
+    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith(
+      'recipe_detail_component_opened'
+    );
   });
 });
