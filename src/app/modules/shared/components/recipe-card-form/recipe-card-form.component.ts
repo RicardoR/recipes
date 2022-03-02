@@ -4,6 +4,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
@@ -32,7 +33,7 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
   templateUrl: './recipe-card-form.component.html',
   styleUrls: ['./recipe-card-form.component.scss'],
 })
-export class RecipeCardFormComponent implements OnInit {
+export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
   @Output() seeReceipt$: EventEmitter<void> = new EventEmitter();
 
@@ -194,7 +195,6 @@ export class RecipeCardFormComponent implements OnInit {
         ? null
         : { image: true };
     }
-    return;
   }
 
   private listenPicturesForm(): void {

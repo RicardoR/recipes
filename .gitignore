@@ -49,3 +49,5 @@ Thumbs.db
 /.firebase
 /src/environments/
 .firebaserc
+yarn.lock
+package-lock.json
