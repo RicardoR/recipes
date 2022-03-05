@@ -9,6 +9,7 @@ import { AngularMaterialModule } from './angular-material.module';
 import { RecipeCardFormComponent } from './components/recipe-card-form/recipe-card-form.component';
 import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
 import { RecipeRibbonComponent } from './components/recipe-ribbon/recipe-ribbon.component';
+import { RecipesSelectComponent } from './components/recipes-select/recipes-select.component';
 
 @NgModule({
   imports: [
@@ -34,12 +35,14 @@ import { RecipeRibbonComponent } from './components/recipe-ribbon/recipe-ribbon.
     RecipeListComponent,
     RecipeRibbonComponent,
     ToolbarComponent,
+    RecipesSelectComponent
   ],
   declarations: [
     RecipeCardFormComponent,
     RecipeListComponent,
     RecipeRibbonComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    RecipesSelectComponent
   ],
 })
 export class SharedModule {}

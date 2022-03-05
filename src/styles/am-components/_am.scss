@@ -9,3 +9,7 @@
   height: auto!important;
   margin-bottom: $space-2x;
 }
+
+.mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
+  color: white;
+}

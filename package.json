@@ -15,7 +15,7 @@
   "dependencies": {
     "@angular-material-components/file-input": "^7.0.0",
     "@angular/animations": "~13.2.5",
-    "@angular/cdk": "13.0.2",
+    "@angular/cdk": "^13.0.2",
     "@angular/common": "~13.2.5",
     "@angular/compiler": "~13.2.5",
     "@angular/core": "~13.2.5",

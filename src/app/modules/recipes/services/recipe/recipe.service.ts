@@ -5,7 +5,14 @@ import {
   AngularFireStorage,
   AngularFireUploadTask,
 } from '@angular/fire/compat/storage';
-import { BehaviorSubject, combineLatest, from, Observable, Subject } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  Subject,
+  ReplaySubject,
+  from
+} from 'rxjs';
 import { map, switchMap, take, tap } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
@@ -35,7 +42,7 @@ export class RecipeService {
   ) { }
 
   getOwnRecipes(): Observable<Recipe[]> {
-    const result = new BehaviorSubject<Recipe[]>([]);
+    const result = new ReplaySubject<Recipe[]>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     const userId = this.authService.currentUser?.uid;
 
@@ -59,8 +66,7 @@ export class RecipeService {
   }
 
   getCategories(): Observable<ElementModel[]> {
-    const result = new BehaviorSubject<ElementModel[]>([]);
-
+    const result = new ReplaySubject<ElementModel[]>();
     if (this.categoryList) {
       result.next(this.categoryList);
       return result;
@@ -91,7 +97,7 @@ export class RecipeService {
       ? this.authService.currentUser?.uid
       : '-1';
 
-    const result = new BehaviorSubject<Recipe[]>([]);
+    const result = new ReplaySubject<Recipe[]>();
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
     const queryOne = this.firestore
@@ -260,6 +266,7 @@ export class RecipeService {
       ingredients: docData.ingredients,
       imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
       private: docData.private,
+      categories: docData.categories
     };
   }
 

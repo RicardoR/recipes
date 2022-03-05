@@ -61,7 +61,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   isOwnRecipe!: boolean;
   edittingMode: boolean = false;
   isSending = false;
-  categories: ElementModel[] = [];
+  categories?: ElementModel[] = undefined;
 
   private fileToUpload!: File;
   private imageRoute: string = '';
@@ -118,7 +118,8 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
         ingredients: ingredients,
         id: this._recipeDetails ? this._recipeDetails.id : '',
         imgSrc: imageRoute ? imageRoute : '',
-        private: this.form.controls.isPrivate.value
+        private: this.form.controls.isPrivate.value,
+        categories: this.form.controls.categorySelect.value
       };
 
       this.recipeChanged$.emit(recipe);
@@ -181,7 +182,8 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
       description: this.formBuilder.control('', [Validators.required]),
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
-      isPrivate: this.formBuilder.control(false)
+      isPrivate: this.formBuilder.control(false),
+      categorySelect: this.formBuilder.control('')
     });
 
     this.pictureForm = this.formBuilder.group({
@@ -232,10 +234,10 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     });
 
     this._recipeDetails.ingredients.forEach(ingredient => {
-      (<FormArray>this.form.controls.ingredients).push(
-        this.createFormItem(ingredient)
-      );
+      (<FormArray>this.form.controls.ingredients).push(this.createFormItem(ingredient));
     });
+
+    this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);
   }
 
   private getCategories(): void {
