@@ -6,13 +6,15 @@ import {
   AngularFireUploadTask,
 } from '@angular/fire/compat/storage';
 import { BehaviorSubject, combineLatest, from, Observable, Subject } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
+import { ElementModel } from '../../models/element.model';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
+  categories = 'categories',
 }
 
 export interface FilesUploadMetadata {
@@ -24,13 +26,15 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 
 @Injectable()
 export class RecipeService {
+  private categoryList?: ElementModel[] = undefined;
+
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
     private storage: AngularFireStorage
   ) { }
 
-  getOwnRecipes(): Observable<any> {
+  getOwnRecipes(): Observable<Recipe[]> {
     const result = new BehaviorSubject<Recipe[]>([]);
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     const userId = this.authService.currentUser?.uid;
@@ -50,6 +54,34 @@ export class RecipeService {
         })
       )
       .subscribe((recipes: Recipe[]) => result.next(recipes));
+
+    return result;
+  }
+
+  getCategories(): Observable<ElementModel[]> {
+    const result = new BehaviorSubject<ElementModel[]>([]);
+
+    if (this.categoryList) {
+      result.next(this.categoryList);
+      return result;
+    }
+
+    this.firestore
+      .collection(DatabaseCollectionsNames.categories)
+      .stateChanges()
+      .pipe(
+        take(1),
+        map((docArray: DocumentChangeAction<any>[]) => {
+          return docArray.map((document: DocumentChangeAction<any>) => {
+            const docData = document.payload.doc.data();
+            return this.elementModelConverter(docData);
+          });
+        }),
+        tap((categories: ElementModel[]) => this.categoryList = categories)
+    )
+      .subscribe((categoriesList: ElementModel[]) => {
+        result.next(categoriesList);
+      });
 
     return result;
   }
@@ -228,6 +260,17 @@ export class RecipeService {
       ingredients: docData.ingredients,
       imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
       private: docData.private,
+    };
+  }
+
+  private elementModelConverter(docData: any): ElementModel {
+    if(docData === undefined) {
+      throw new Error('Element does not exists');
+    }
+
+    return {
+      id: docData.id,
+      detail: docData.detail,
     };
   }
 

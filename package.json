@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:debugMode": "ng serve --configuration=debugMode",
     "build": "ng build",
     "deploy": "ng build && firebase deploy",
     "watch": "ng build --watch --configuration development",

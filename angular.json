@@ -75,6 +75,20 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "debugMode": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.debugMode.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -87,6 +101,9 @@
             },
             "development": {
               "browserTarget": "recipes:build:development"
+            },
+            "debugMode": {
+              "browserTarget": "recipes:build:debugMode"
             }
           },
           "defaultConfiguration": "development"
