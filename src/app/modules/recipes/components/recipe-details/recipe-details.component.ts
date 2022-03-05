@@ -36,6 +36,7 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    console.log(this.recipesService.cosa);
     this.getRecipeDetails();
   }
 

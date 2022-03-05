@@ -24,12 +24,21 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 
 @Injectable()
 export class RecipeService {
+private _cosa = 'cosa';
+
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
     private storage: AngularFireStorage
   ) { }
 
+  set cosa(val: string) {
+    this._cosa = val;
+  }
+
+  get cosa() {
+    return this._cosa;
+  }
   getOwnRecipes(): Observable<any> {
     const result = new BehaviorSubject<Recipe[]>([]);
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;

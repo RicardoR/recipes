@@ -86,6 +86,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.listenPicturesForm();
+    console.log(this.recipeService.cosa);
   }
 
   ngOnDestroy(): void {

@@ -33,6 +33,7 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.recipesService.cosa = 'capasao';
     this.getRecipeDetails();
   }
 
