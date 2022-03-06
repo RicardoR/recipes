@@ -9,7 +9,7 @@ import { AngularMaterialModule } from './angular-material.module';
 import { RecipeCardFormComponent } from './components/recipe-card-form/recipe-card-form.component';
 import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
 import { RecipeRibbonComponent } from './components/recipe-ribbon/recipe-ribbon.component';
-import { RecipesSelectComponent } from './components/recipes-select/recipes-select.component';
+import { RecipesMultipleSelectComponent } from './components/recipes-multiple-select/recipes-multiple-select.component';
 
 @NgModule({
   imports: [
@@ -35,14 +35,14 @@ import { RecipesSelectComponent } from './components/recipes-select/recipes-sele
     RecipeListComponent,
     RecipeRibbonComponent,
     ToolbarComponent,
-    RecipesSelectComponent
+    RecipesMultipleSelectComponent
   ],
   declarations: [
     RecipeCardFormComponent,
     RecipeListComponent,
     RecipeRibbonComponent,
     ToolbarComponent,
-    RecipesSelectComponent
+    RecipesMultipleSelectComponent
   ],
 })
 export class SharedModule {}

@@ -11,6 +11,7 @@ import { UtilService } from '../../../utils/utils.service';
 import { MessagesService } from '../../../services/messages/messages.service';
 import { userMock } from 'src/app/__tests__/mocks/user-mock';
 import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
+import { categoriesMock } from 'src/app/__tests__/mocks/categories-mock';
 
 describe('RecipeCardFormComponent', () => {
   let component: RecipeCardFormComponent;
@@ -20,6 +21,7 @@ describe('RecipeCardFormComponent', () => {
 
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
     'uploadFileAndGetMetadata',
+    'getCategories'
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
@@ -47,6 +49,7 @@ describe('RecipeCardFormComponent', () => {
     component = fixture.componentInstance;
     recipeChangeSpy = spyOn(component.recipeChanged$, 'emit');
     seeReceiptSpy = spyOn(component.seeReceipt$, 'next');
+    recipeServiceSpy.getCategories.and.returnValue(of(categoriesMock));
     fixture.detectChanges();
   });
 
@@ -67,6 +70,11 @@ describe('RecipeCardFormComponent', () => {
     expect(component.edittingMode).toBeFalsy();
     expect(component.isOwnRecipe).toBeFalsy();
     expect(component.recipeImage).toBeUndefined();
+  });
+
+  it('should retrieve the categories', () => {
+    expect(recipeServiceSpy.getCategories).toHaveBeenCalled();
+    expect(component.categories).toEqual(categoriesMock);
   });
 
   describe('when retrieve data', () => {

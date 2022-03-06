@@ -2,21 +2,21 @@ import { takeUntil, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { ElementModel } from './../../../recipes/models/element.model';
+import { ElementModel } from '../../../recipes/models/element.model';
 
 @Component({
-  selector: 'app-recipes-select',
-  templateUrl: './recipes-select.component.html',
-  styleUrls: ['./recipes-select.component.scss'],
+  selector: 'app-recipes-multiple-select',
+  templateUrl: './recipes-multiple-select.component.html',
+  styleUrls: ['./recipes-multiple-select.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: RecipesSelectComponent
+      useExisting: RecipesMultipleSelectComponent
     }
   ]
 })
-export class RecipesSelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() label: string = 'Select';
   @Input() options: ElementModel[] = [];
 

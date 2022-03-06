@@ -143,10 +143,10 @@
           </mat-accordion>
           <div class="mt-1" *ngIf="categories && categories.length">
             <p>Categorías</p>
-            <app-recipes-select formControlName="categorySelect"
-                                [label]="'Categorías'"
-                                [options]="categories">
-            </app-recipes-select>
+            <app-recipes-multiple-select formControlName="categorySelect"
+                                         [label]="'Categorías'"
+                                         [options]="categories">
+            </app-recipes-multiple-select>
           </div>
           <mat-slide-toggle class="mt-1"
                             formControlName="isPrivate">
