@@ -8,5 +8,9 @@ export const categoriesMock: ElementModel[] = [
   {
     id: 2,
     detail: 'Categoría 2',
+  },
+  {
+    id: 3,
+    detail: 'Categoría 3',
   }
 ]
