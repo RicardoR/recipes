@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgLog } from '../../utils/decorators/log-decorator';
 
 import { Recipe } from './../../../recipes/models/recipes.model';
@@ -7,6 +7,7 @@ import { Recipe } from './../../../recipes/models/recipes.model';
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeListComponent {
   @Input() recipes: Recipe[] = [];

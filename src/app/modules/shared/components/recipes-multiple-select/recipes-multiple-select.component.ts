@@ -1,6 +1,6 @@
-import { takeUntil, tap } from 'rxjs/operators';
+import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ElementModel } from '../../../recipes/models/element.model';
 
@@ -8,6 +8,7 @@ import { ElementModel } from '../../../recipes/models/element.model';
   selector: 'app-recipes-multiple-select',
   templateUrl: './recipes-multiple-select.component.html',
   styleUrls: ['./recipes-multiple-select.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -76,8 +77,11 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
     this.elementSelectControl.valueChanges
       .pipe(
         takeUntil(this.destroy$),
-        tap(() => this.markAsTouched())
+        tap(() => this.markAsTouched()),
+        filter((value) => value !== this.value),
       )
-      .subscribe((value: ElementModel[]) => this.onChange(value));
+      .subscribe((value: ElementModel[]) => {
+        this.onChange(value)
+      });
   }
 }
