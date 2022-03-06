@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { DocumentChangeAction } from '@angular/fire/compat/firestore/interfaces';
+import { Router } from '@angular/router';
 import {
   AngularFireStorage,
   AngularFireUploadTask,
@@ -18,6 +19,7 @@ import { map, switchMap, take, tap } from 'rxjs/operators';
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
 import { ElementModel } from '../../models/element.model';
+import { AppRoutingNames } from 'src/app/app-routing.module';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
@@ -38,8 +40,9 @@ export class RecipeService {
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
-    private storage: AngularFireStorage
-  ) { }
+    private storage: AngularFireStorage,
+    private router: Router
+  ) {}
 
   getOwnRecipes(): Observable<Recipe[]> {
     const result = new ReplaySubject<Recipe[]>();
@@ -47,7 +50,7 @@ export class RecipeService {
     const userId = this.authService.currentUser?.uid;
 
     this.firestore
-      .collection(privateRecipeNameCollection, (ref) =>
+      .collection(privateRecipeNameCollection, ref =>
         ref.where('ownerId', '==', userId).orderBy('date', 'desc')
       )
       .stateChanges()
@@ -83,8 +86,8 @@ export class RecipeService {
             return this.elementModelConverter(docData);
           });
         }),
-        tap((categories: ElementModel[]) => this.categoryList = categories)
-    )
+        tap((categories: ElementModel[]) => (this.categoryList = categories))
+      )
       .subscribe((categoriesList: ElementModel[]) => {
         result.next(categoriesList);
       });
@@ -101,13 +104,13 @@ export class RecipeService {
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
     const queryOne = this.firestore
-      .collection(publicRecipeNameCollection, (ref) =>
+      .collection(publicRecipeNameCollection, ref =>
         ref.where('private', '==', false).orderBy('date', 'desc')
       )
       .stateChanges();
 
     const queryTwo = this.firestore
-      .collection(publicRecipeNameCollection, (ref) =>
+      .collection(publicRecipeNameCollection, ref =>
         ref
           .where('private', '==', true)
           .where('ownerId', '==', userId)
@@ -184,9 +187,9 @@ export class RecipeService {
       .get()
       .pipe(
         take(1),
-        map((doc) => this.recipesConverter(doc.data(), doc.id))
+        map(doc => this.recipesConverter(doc.data(), doc.id))
       )
-      .subscribe((data) => {
+      .subscribe((data: Recipe) => {
         result.next(data);
         result.complete();
       });
@@ -228,7 +231,7 @@ export class RecipeService {
 
     return {
       uploadProgress$: uploadTask.percentageChanges(),
-      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath),
+      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath)
     };
   }
 
@@ -245,7 +248,7 @@ export class RecipeService {
 
   filterRecipes(recipesList: Recipe[], filter: string): Recipe[] {
     filter = filter?.trim().toLowerCase();
-    return recipesList.filter((recipe) =>
+    return recipesList.filter(recipe =>
       recipe.title.toLowerCase().includes(filter.toLowerCase()) ||
       recipe.description.toLowerCase().includes(filter.toLowerCase())
     );
@@ -253,6 +256,7 @@ export class RecipeService {
 
   private recipesConverter(docData: any, id: string): Recipe {
     if (docData === undefined) {
+      this.router.navigate([AppRoutingNames.recipes]);
       throw new Error('Recipe does not exists');
     }
 
@@ -271,13 +275,13 @@ export class RecipeService {
   }
 
   private elementModelConverter(docData: any): ElementModel {
-    if(docData === undefined) {
+    if (docData === undefined) {
       throw new Error('Element does not exists');
     }
 
     return {
       id: docData.id,
-      detail: docData.detail,
+      detail: docData.detail
     };
   }
 
@@ -286,7 +290,7 @@ export class RecipeService {
     path: string
   ): Observable<string> {
     return from(uploadTask).pipe(
-      switchMap((_) => this.storage.ref(path).getDownloadURL())
+      switchMap(_ => this.storage.ref(path).getDownloadURL())
     );
   }
 }
