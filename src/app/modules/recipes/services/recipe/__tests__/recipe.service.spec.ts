@@ -1,3 +1,4 @@
+import { RouterTestingModule } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import {
   AngularFirestore,
@@ -31,6 +32,7 @@ describe('RecipeService', () => {
       ]);
 
     TestBed.configureTestingModule({
+      imports: [RouterTestingModule],
       providers: [
         RecipeService,
         { provide: AngularFirestore, useValue: angularFirestoreSpy },

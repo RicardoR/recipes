@@ -51,8 +51,12 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.isSending = value;
   }
 
-  form!: FormGroup;
+  private fileToUpload!: File;
+  private imageRoute: string = '';
+  private destroy$: Subject<null> = new Subject();
+  private _recipeDetails!: Recipe;
 
+  form!: FormGroup;
   recipeImage: string | ArrayBuffer | undefined;
   pictureForm!: FormGroup;
   user?: AuthData;
@@ -62,11 +66,6 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   edittingMode: boolean = false;
   isSending = false;
   categories?: ElementModel[] = undefined;
-
-  private fileToUpload!: File;
-  private imageRoute: string = '';
-  private destroy$: Subject<null> = new Subject();
-  private _recipeDetails!: Recipe;
 
   get steps(): FormArray {
     return this.form.get('steps') as FormArray;
@@ -234,15 +233,20 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     });
 
     this._recipeDetails.ingredients.forEach(ingredient => {
-      (<FormArray>this.form.controls.ingredients).push(this.createFormItem(ingredient));
+      (<FormArray>this.form.controls.ingredients).push(
+        this.createFormItem(ingredient)
+      );
     });
 
-    this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);
+    this.form.controls.categorySelect.patchValue(
+      this._recipeDetails.categories
+    );
   }
 
   private getCategories(): void {
-    this.recipeService.getCategories()
+    this.recipeService
+      .getCategories()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(categories => this.categories = categories);
+      .subscribe(categories => (this.categories = categories));
   }
 }
