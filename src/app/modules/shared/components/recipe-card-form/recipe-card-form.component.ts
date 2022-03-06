@@ -100,9 +100,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isSending = true;
       const steps = this.steps.value.map((value: any) => value.data);
-      const ingredients = this.ingredients.value.map(
-        (value: any) => value.data
-      );
+      const ingredients = this.ingredients.value.map((value: any) => value.data);
 
       const imageRoute = this.imageRoute
         ? this.imageRoute
@@ -233,20 +231,16 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     });
 
     this._recipeDetails.ingredients.forEach(ingredient => {
-      (<FormArray>this.form.controls.ingredients).push(
-        this.createFormItem(ingredient)
-      );
+      (<FormArray>this.form.controls.ingredients).push(this.createFormItem(ingredient));
     });
 
-    this.form.controls.categorySelect.patchValue(
-      this._recipeDetails.categories
-    );
+    this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);
   }
 
   private getCategories(): void {
     this.recipeService
       .getCategories()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(categories => (this.categories = categories));
+      .subscribe(categories => this.categories = categories);
   }
 }
