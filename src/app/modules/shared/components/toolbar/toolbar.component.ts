@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
