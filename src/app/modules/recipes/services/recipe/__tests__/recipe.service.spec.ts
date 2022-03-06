@@ -60,7 +60,7 @@ describe('RecipeService', () => {
       const expectedRecipe = documentList[0].payload.doc.data();
       expect(recipeRetrieved.title).toEqual(expectedRecipe.title);
       expect(recipeRetrieved.description).toEqual(expectedRecipe.description);
-      expect(recipeRetrieved.id).toEqual(documentList[0].payload.doc.id);
+      expect(recipeRetrieved.id).toEqual(expectedRecipe.id);
       expect(recipeRetrieved.ownerId).toEqual(expectedRecipe.ownerId);
       expect(recipeRetrieved.imgSrc).toEqual(expectedRecipe.imgSrc);
       expect(recipeRetrieved.private).toEqual(expectedRecipe.private);

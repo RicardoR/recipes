@@ -5,14 +5,23 @@ import {
   AngularFireStorage,
   AngularFireUploadTask,
 } from '@angular/fire/compat/storage';
-import { BehaviorSubject, combineLatest, from, Observable, Subject } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  Subject,
+  ReplaySubject,
+  from
+} from 'rxjs';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
+import { ElementModel } from '../../models/element.model';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
+  categories = 'categories',
 }
 
 export interface FilesUploadMetadata {
@@ -24,14 +33,16 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 
 @Injectable()
 export class RecipeService {
+  private categoryList?: ElementModel[] = undefined;
+
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
     private storage: AngularFireStorage
   ) { }
 
-  getOwnRecipes(): Observable<any> {
-    const result = new BehaviorSubject<Recipe[]>([]);
+  getOwnRecipes(): Observable<Recipe[]> {
+    const result = new ReplaySubject<Recipe[]>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     const userId = this.authService.currentUser?.uid;
 
@@ -54,12 +65,39 @@ export class RecipeService {
     return result;
   }
 
+  getCategories(): Observable<ElementModel[]> {
+    const result = new ReplaySubject<ElementModel[]>();
+    if (this.categoryList) {
+      result.next(this.categoryList);
+      return result;
+    }
+
+    this.firestore
+      .collection(DatabaseCollectionsNames.categories)
+      .stateChanges()
+      .pipe(
+        take(1),
+        map((docArray: DocumentChangeAction<any>[]) => {
+          return docArray.map((document: DocumentChangeAction<any>) => {
+            const docData = document.payload.doc.data();
+            return this.elementModelConverter(docData);
+          });
+        }),
+        tap((categories: ElementModel[]) => this.categoryList = categories)
+    )
+      .subscribe((categoriesList: ElementModel[]) => {
+        result.next(categoriesList);
+      });
+
+    return result;
+  }
+
   getPublicRecipes(): Observable<any> {
     const userId = this.authService.currentUser?.uid
       ? this.authService.currentUser?.uid
       : '-1';
 
-    const result = new BehaviorSubject<Recipe[]>([]);
+    const result = new ReplaySubject<Recipe[]>();
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
     const queryOne = this.firestore
@@ -228,6 +266,18 @@ export class RecipeService {
       ingredients: docData.ingredients,
       imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
       private: docData.private,
+      categories: docData.categories
+    };
+  }
+
+  private elementModelConverter(docData: any): ElementModel {
+    if(docData === undefined) {
+      throw new Error('Element does not exists');
+    }
+
+    return {
+      id: docData.id,
+      detail: docData.detail,
     };
   }
 
