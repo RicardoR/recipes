@@ -141,19 +141,32 @@ export class RecipeService {
     return result;
   }
 
-  createRecipe(recipe: Recipe): Observable<void> {
+  createRecipe(recipe: Recipe): Observable<string> {
     if (this.authService.isDemoUser) {
       throw new Error('You can not create a recipe with demo user');
     }
-    const result = new Subject<void>();
+    const result = new Subject<string>();
     const recipeNameCollection = DatabaseCollectionsNames.recipes;
 
     this.firestore
       .collection(recipeNameCollection)
       .add(recipe)
-      .then(() => result.next());
+      .then((data) => result.next(data.id));
 
     return result;
+  }
+
+  cloneRecipe(recipe: Recipe): Observable<string> {
+      const userId = this.authService.currentUser?.uid;
+
+      const recipeCloned = { ...recipe };
+      recipeCloned.id = '';
+      recipeCloned.imgSrc = '';
+      recipeCloned.ownerId = userId;
+      recipeCloned.date = new Date();
+      recipeCloned.categories = recipe.categories ?? [];
+
+      return this.createRecipe(recipeCloned);
   }
 
   updateRecipe(recipe: Recipe): Observable<void> {

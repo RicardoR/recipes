@@ -37,13 +37,21 @@
         <mat-card-actions>
           <button mat-raised-button
                   color="primary"
-                  (click)=goToRecipe(recipe)>
+                  (click)="goToRecipe(recipe)">
               Ver
           </button>
           <button mat-button
                   *ngIf="recipe.ownerId === userId"
                   color="warn"
-                  (click)="deleteRecipe(recipe)">Borrar</button>
+                  (click)="deleteRecipe(recipe)">
+              Borrar
+          </button>
+          <button mat-button
+                  *ngIf="userId && recipe.ownerId !== userId"
+                  color="accent"
+                  (click)="cloneRecipe(recipe)">
+              Copiar receta
+          </button>
         </mat-card-actions>
       </mat-card>
     </div>

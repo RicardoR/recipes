@@ -7,6 +7,7 @@
                     [userId]="userId"
                     [ribbonTitle]="'Propia'"
                     [publicList]= "true"
+                    (cloneRecipe$)="cloneRecipe($event)"
                     (goToRecipe$)="goToRecipe($event)"
                     (deleteRecipe$)="deleteRecipe($event)">
   </app-recipe-list>
