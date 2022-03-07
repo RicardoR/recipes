@@ -88,7 +88,7 @@ describe('RecipeService', () => {
 
   it('createRecipe should call to add method', () => {
     const collectionStub = {
-      add: jasmine.createSpy('add').and.returnValue(Promise.resolve()),
+      add: jasmine.createSpy('add').and.returnValue(Promise.resolve({data: '123er56'})),
     } as unknown as AngularFirestoreCollection<unknown>;
 
     angularFirestore.collection.and.returnValue(collectionStub);
