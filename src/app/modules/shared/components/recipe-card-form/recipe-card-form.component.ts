@@ -116,7 +116,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
         id: this._recipeDetails ? this._recipeDetails.id : '',
         imgSrc: imageRoute ? imageRoute : '',
         private: this.form.controls.isPrivate.value,
-        categories: this.form.controls.categorySelect.value
+        categories: this.form.controls.categorySelect.value ?? []
       };
 
       this.recipeChanged$.emit(recipe);

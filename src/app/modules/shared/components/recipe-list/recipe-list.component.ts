@@ -23,6 +23,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   @Input() publicList = true;
   @Output() goToRecipe$: EventEmitter<Recipe> = new EventEmitter();
   @Output() deleteRecipe$: EventEmitter<Recipe> = new EventEmitter();
+  @Output() cloneRecipe$: EventEmitter<Recipe> = new EventEmitter();
 
   private destroy$ = new Subject<void>();
   private _recipes: Recipe[] = [];
@@ -43,12 +44,16 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  goToRecipe(recipe: Recipe) {
+  goToRecipe(recipe: Recipe): void {
     this.goToRecipe$.emit(recipe);
   }
 
-  deleteRecipe(recipe: Recipe) {
+  deleteRecipe(recipe: Recipe): void {
     this.deleteRecipe$.emit(recipe);
+  }
+
+  cloneRecipe(recipe: Recipe): void {
+    this.cloneRecipe$.emit(recipe);
   }
 
   private getCategories(): void {
@@ -74,12 +79,18 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     }
 
     this.recipesFiltered = this._recipes.filter(recipe => {
-      return recipe.categories?.some(category => this.filterCategories(categoriesSelected, category));
+      return recipe.categories?.some(category =>
+        this.filterCategories(categoriesSelected, category)
+      );
     });
   }
 
-  private filterCategories(categoriesSelected: ElementModel[], category: ElementModel): boolean {
-    return categoriesSelected?.some(categorySelected => categorySelected.id === category.id);
+  private filterCategories(
+    categoriesSelected: ElementModel[],
+    category: ElementModel
+  ): boolean {
+    return categoriesSelected?.some(
+      categorySelected => categorySelected.id === category.id
+    );
   }
-
 }
