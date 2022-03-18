@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -11,6 +21,7 @@ import { RecipesRoutingNames } from 'src/app/modules/recipes/recipes-routing.mod
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   @Input() displayListButton = false;

@@ -17,7 +17,7 @@ import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-reci
 @Component({
   selector: 'app-public-recipe-list',
   templateUrl: './public-recipe-list.component.html',
-  styleUrls: ['./public-recipe-list.component.scss'],
+  styleUrls: ['./public-recipe-list.component.scss']
 })
 export class PublicRecipeListComponent implements OnInit, OnDestroy {
   recipesFiltered: Recipe[] = [];
@@ -51,7 +51,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     if (recipe.id) {
       this.router.navigate([
         `/${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
-        recipe.id,
+        recipe.id
       ]);
     }
   }
@@ -64,7 +64,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
         .afterClosed()
         .pipe(
           takeUntil(this.destroy$),
-          concatMap((data) =>
+          concatMap(data =>
             data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
           ),
           concatMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
@@ -79,10 +79,24 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
 
   onSearchText(searchText: string): void {
     if (searchText?.trim()) {
-      this.recipesFiltered = this.recipeService.filterRecipes(this.recipesRetrieved, searchText);
+      this.recipesFiltered = this.recipeService.filterRecipes(
+        this.recipesRetrieved,
+        searchText
+      );
     } else {
       this.recipesFiltered = [...this.recipesRetrieved];
     }
+  }
+
+  cloneRecipe(recipe: Recipe): void {
+    this.analytics.logEvent('public_recipe_cloned', {
+      recipeId: recipe.id
+    });
+
+    this.recipeService
+      .cloneRecipe(recipe)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(recipeId => this.goToEditRecipe(recipeId));
   }
 
   private getRecipes(): void {
@@ -90,10 +104,11 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
       .getPublicRecipes()
       .pipe(
         takeUntil(this.destroy$),
-         tap((data: Recipe[]) => {
+        tap((data: Recipe[]) => {
           this.recipesFiltered = data;
           this.recipesRetrieved = [...data];
-        }))
+        })
+      )
       .subscribe();
   }
 
@@ -101,12 +116,20 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     this.authService.logoutSuccess$
       .pipe(
         takeUntil(this.destroy$),
-        tap(() => this.userId = undefined),
+        tap(() => (this.userId = undefined)),
         switchMap(() => this.recipeService.getPublicRecipes()),
         tap((data: Recipe[]) => {
           this.recipesFiltered = data;
           this.recipesRetrieved = [...data];
-        }))
+        })
+      )
       .subscribe();
+  }
+
+  private goToEditRecipe(recipeId: string): void {
+    this.router.navigate([
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,
+      recipeId
+    ]);
   }
 }

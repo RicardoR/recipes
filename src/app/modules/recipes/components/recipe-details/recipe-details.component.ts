@@ -16,11 +16,12 @@ import { RecipeService } from './../../services/recipe/recipe.service';
 @Component({
   selector: 'app-recipe-details',
   templateUrl: './recipe-details.component.html',
-  styleUrls: ['./recipe-details.component.scss'],
+  styleUrls: ['./recipe-details.component.scss']
 })
 export class RecipeDetailsComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;
   isOwnReceip = false;
+  currentUserId?: string;
   private destroy$: Subject<null> = new Subject();
 
   constructor(
@@ -34,9 +35,9 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     this.analytics.logEvent('recipe_detail_component_opened');
   }
 
-
   ngOnInit(): void {
     console.log(this.recipesService.cosa);
+    this.currentUserId = this.authService.currentUser?.uid;
     this.getRecipeDetails();
   }
 
@@ -54,7 +55,7 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
       .afterClosed()
       .pipe(
         takeUntil(this.destroy$),
-        concatMap((data) =>
+        concatMap(data =>
           data === true
             ? this.recipesService.deleteRecipe(this.recipeDetails.id)
             : EMPTY
@@ -69,20 +70,29 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   editRecipe(): void {
     this.analytics.logEvent('edit_recipe_button_clicked');
     if (this.recipeDetails.id) {
-      this.router.navigate([
-        `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,
-        this.recipeDetails.id,
-      ]);
+      this.goToEditRecipe(this.recipeDetails.id);
     }
   }
 
-  private getRecipeDetails(): void {
-    this.activatedRoute.data
+  cloneRecipe(recipe: Recipe): void {
+    this.analytics.logEvent('clone_recipe_button_clicked');
+
+    this.recipesService
+      .cloneRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => {
-        this.recipeDetails = data.recipe;
-        this.isOwnReceip =
-          data.recipe.ownerId === this.authService.currentUser?.uid;
-      });
+      .subscribe((recipeId) => this.goToEditRecipe(recipeId));
+  }
+
+  private getRecipeDetails(): void {
+    this.activatedRoute.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
+      this.recipeDetails = data.recipe;
+      this.isOwnReceip = data.recipe.ownerId === this.currentUserId;
+    });
+  }
+
+  private goToEditRecipe(recipeId: string): void {
+    this.router.navigate([
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`, recipeId
+    ]);
   }
 }

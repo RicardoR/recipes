@@ -49,16 +49,22 @@
           </mat-accordion>
 
         </mat-card-content>
-        <mat-card-actions *ngIf="isOwnReceip">
-          <button mat-raised-button
+        <mat-card-actions>
+          <button *ngIf="isOwnReceip" mat-raised-button
                   color="primary"
                   (click)="editRecipe()">
                   Editar
           </button>
-          <button mat-button
+          <button *ngIf="isOwnReceip" mat-button
                   color="warn"
                   (click)="deleteRecipe()">
                   Borrar
+          </button>
+          <button mat-button
+                  *ngIf="currentUserId && recipeDetails.ownerId !== currentUserId"
+                  color="accent"
+                  (click)="cloneRecipe(recipeDetails)">
+              Copiar receta
           </button>
         </mat-card-actions>
     </mat-card>

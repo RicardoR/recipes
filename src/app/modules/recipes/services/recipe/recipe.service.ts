@@ -1,18 +1,29 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { DocumentChangeAction } from '@angular/fire/compat/firestore/interfaces';
+import { Router } from '@angular/router';
 import {
   AngularFireStorage,
   AngularFireUploadTask,
 } from '@angular/fire/compat/storage';
-import { BehaviorSubject, combineLatest, from, Observable, Subject } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  Subject,
+  ReplaySubject,
+  from
+} from 'rxjs';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 
 import { Recipe } from './../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
+import { ElementModel } from '../../models/element.model';
+import { AppRoutingNames } from 'src/app/app-routing.module';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
+  categories = 'categories',
 }
 
 export interface FilesUploadMetadata {
@@ -25,12 +36,14 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
 @Injectable()
 export class RecipeService {
 private _cosa = 'cosa';
+private categoryList?: ElementModel[] = undefined;
 
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
-    private storage: AngularFireStorage
-  ) { }
+    private storage: AngularFireStorage,
+    private router: Router
+  ) {}
 
   set cosa(val: string) {
     this._cosa = val;
@@ -39,13 +52,14 @@ private _cosa = 'cosa';
   get cosa() {
     return this._cosa;
   }
-  getOwnRecipes(): Observable<any> {
-    const result = new BehaviorSubject<Recipe[]>([]);
+
+  getOwnRecipes(): Observable<Recipe[]> {
+    const result = new ReplaySubject<Recipe[]>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     const userId = this.authService.currentUser?.uid;
 
     this.firestore
-      .collection(privateRecipeNameCollection, (ref) =>
+      .collection(privateRecipeNameCollection, ref =>
         ref.where('ownerId', '==', userId).orderBy('date', 'desc')
       )
       .stateChanges()
@@ -63,22 +77,49 @@ private _cosa = 'cosa';
     return result;
   }
 
+  getCategories(): Observable<ElementModel[]> {
+    const result = new ReplaySubject<ElementModel[]>();
+    if (this.categoryList) {
+      result.next(this.categoryList);
+      return result;
+    }
+
+    this.firestore
+      .collection(DatabaseCollectionsNames.categories)
+      .stateChanges()
+      .pipe(
+        take(1),
+        map((docArray: DocumentChangeAction<any>[]) => {
+          return docArray.map((document: DocumentChangeAction<any>) => {
+            const docData = document.payload.doc.data();
+            return this.elementModelConverter(docData);
+          });
+        }),
+        tap((categories: ElementModel[]) => (this.categoryList = categories))
+      )
+      .subscribe((categoriesList: ElementModel[]) => {
+        result.next(categoriesList);
+      });
+
+    return result;
+  }
+
   getPublicRecipes(): Observable<any> {
     const userId = this.authService.currentUser?.uid
       ? this.authService.currentUser?.uid
       : '-1';
 
-    const result = new BehaviorSubject<Recipe[]>([]);
+    const result = new ReplaySubject<Recipe[]>();
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
     const queryOne = this.firestore
-      .collection(publicRecipeNameCollection, (ref) =>
+      .collection(publicRecipeNameCollection, ref =>
         ref.where('private', '==', false).orderBy('date', 'desc')
       )
       .stateChanges();
 
     const queryTwo = this.firestore
-      .collection(publicRecipeNameCollection, (ref) =>
+      .collection(publicRecipeNameCollection, ref =>
         ref
           .where('private', '==', true)
           .where('ownerId', '==', userId)
@@ -109,19 +150,32 @@ private _cosa = 'cosa';
     return result;
   }
 
-  createRecipe(recipe: Recipe): Observable<void> {
+  createRecipe(recipe: Recipe): Observable<string> {
     if (this.authService.isDemoUser) {
       throw new Error('You can not create a recipe with demo user');
     }
-    const result = new Subject<void>();
+    const result = new Subject<string>();
     const recipeNameCollection = DatabaseCollectionsNames.recipes;
 
     this.firestore
       .collection(recipeNameCollection)
       .add(recipe)
-      .then(() => result.next());
+      .then((data) => result.next(data.id));
 
     return result;
+  }
+
+  cloneRecipe(recipe: Recipe): Observable<string> {
+      const userId = this.authService.currentUser?.uid;
+
+      const recipeCloned = { ...recipe };
+      recipeCloned.id = '';
+      recipeCloned.imgSrc = '';
+      recipeCloned.ownerId = userId;
+      recipeCloned.date = new Date();
+      recipeCloned.categories = recipe.categories ?? [];
+
+      return this.createRecipe(recipeCloned);
   }
 
   updateRecipe(recipe: Recipe): Observable<void> {
@@ -155,9 +209,9 @@ private _cosa = 'cosa';
       .get()
       .pipe(
         take(1),
-        map((doc) => this.recipesConverter(doc.data(), doc.id))
+        map(doc => this.recipesConverter(doc.data(), doc.id))
       )
-      .subscribe((data) => {
+      .subscribe((data: Recipe) => {
         result.next(data);
         result.complete();
       });
@@ -199,7 +253,7 @@ private _cosa = 'cosa';
 
     return {
       uploadProgress$: uploadTask.percentageChanges(),
-      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath),
+      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath)
     };
   }
 
@@ -216,7 +270,7 @@ private _cosa = 'cosa';
 
   filterRecipes(recipesList: Recipe[], filter: string): Recipe[] {
     filter = filter?.trim().toLowerCase();
-    return recipesList.filter((recipe) =>
+    return recipesList.filter(recipe =>
       recipe.title.toLowerCase().includes(filter.toLowerCase()) ||
       recipe.description.toLowerCase().includes(filter.toLowerCase())
     );
@@ -224,6 +278,7 @@ private _cosa = 'cosa';
 
   private recipesConverter(docData: any, id: string): Recipe {
     if (docData === undefined) {
+      this.router.navigate([AppRoutingNames.recipes]);
       throw new Error('Recipe does not exists');
     }
 
@@ -237,6 +292,18 @@ private _cosa = 'cosa';
       ingredients: docData.ingredients,
       imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
       private: docData.private,
+      categories: docData.categories
+    };
+  }
+
+  private elementModelConverter(docData: any): ElementModel {
+    if (docData === undefined) {
+      throw new Error('Element does not exists');
+    }
+
+    return {
+      id: docData.id,
+      detail: docData.detail
     };
   }
 
@@ -245,7 +312,7 @@ private _cosa = 'cosa';
     path: string
   ): Observable<string> {
     return from(uploadTask).pipe(
-      switchMap((_) => this.storage.ref(path).getDownloadURL())
+      switchMap(_ => this.storage.ref(path).getDownloadURL())
     );
   }
 }

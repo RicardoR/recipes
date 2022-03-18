@@ -2,7 +2,7 @@ import { environment } from "src/environments/environment";
 
 export function NgLog(): ClassDecorator {
   return function (constructor: any) {
-    if (!environment.production || environment.unitTest) {
+    if (environment.debugMode) {
       const LIFECYCLE_HOOKS = ['ngOnInit', 'ngOnChanges', 'ngOnDestroy'];
       const component = constructor.name;
 

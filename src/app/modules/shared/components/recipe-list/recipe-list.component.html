@@ -1,7 +1,13 @@
 <div class="p-2">
+  <div class="mt-1" *ngIf="categories && categories.length">
+      <app-recipes-multiple-select [formControl]="categoryFilter"
+                                   label='Filtrar por categoría(s)'
+                                   [options]="categories">
+      </app-recipes-multiple-select>
+  </div>
   <div fxLayout="row wrap" fxLayoutGap="16px grid">
     <div fxFlex="25%" fxFlex.xs="100%" fxFlex.sm="50%"
-         *ngFor="let recipe of recipes">
+         *ngFor="let recipe of recipesFiltered">
       <mat-card class="mat-elevation-z4">
         <ng-container *ngIf="publicList === true; else privateListRibbon">
           <app-recipe-ribbon *ngIf="recipe.ownerId === userId">
@@ -31,13 +37,21 @@
         <mat-card-actions>
           <button mat-raised-button
                   color="primary"
-                  (click)=goToRecipe(recipe)>
+                  (click)="goToRecipe(recipe)">
               Ver
           </button>
           <button mat-button
                   *ngIf="recipe.ownerId === userId"
                   color="warn"
-                  (click)="deleteRecipe(recipe)">Borrar</button>
+                  (click)="deleteRecipe(recipe)">
+              Borrar
+          </button>
+          <button mat-button
+                  *ngIf="userId && recipe.ownerId !== userId"
+                  color="accent"
+                  (click)="cloneRecipe(recipe)">
+              Copiar receta
+          </button>
         </mat-card-actions>
       </mat-card>
     </div>

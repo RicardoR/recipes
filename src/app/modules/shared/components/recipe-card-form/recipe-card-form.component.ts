@@ -17,6 +17,7 @@ import {
 } from '@angular/forms';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
+
 import { AuthData } from 'src/app/modules/auth/auth-data.model';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { Recipe } from 'src/app/modules/recipes/models/recipes.model';
@@ -24,6 +25,7 @@ import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.se
 import { MessagesService } from '../../services/messages/messages.service';
 import { UtilService } from '../../utils/utils.service';
 import { NgLog } from '../../utils/decorators/log-decorator';
+import { ElementModel } from './../../../recipes/models/element.model';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
 
@@ -31,7 +33,7 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
 @Component({
   selector: 'app-recipe-card-form',
   templateUrl: './recipe-card-form.component.html',
-  styleUrls: ['./recipe-card-form.component.scss'],
+  styleUrls: ['./recipe-card-form.component.scss']
 })
 export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
@@ -49,8 +51,12 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.isSending = value;
   }
 
-  form!: FormGroup;
+  private fileToUpload!: File;
+  private imageRoute: string = '';
+  private destroy$: Subject<null> = new Subject();
+  private _recipeDetails!: Recipe;
 
+  form!: FormGroup;
   recipeImage: string | ArrayBuffer | undefined;
   pictureForm!: FormGroup;
   user?: AuthData;
@@ -59,11 +65,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   isOwnRecipe!: boolean;
   edittingMode: boolean = false;
   isSending = false;
-
-  private fileToUpload!: File;
-  private imageRoute: string = '';
-  private destroy$: Subject<null> = new Subject();
-  private _recipeDetails!: Recipe;
+  categories?: ElementModel[] = undefined;
 
   get steps(): FormArray {
     return this.form.get('steps') as FormArray;
@@ -87,21 +89,19 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.listenPicturesForm();
     console.log(this.recipeService.cosa);
+    this.getCategories();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next(null);
+    this.destroy$.complete();
   }
 
   sendRecipe(): void {
     if (this.form.valid) {
       this.isSending = true;
-      const steps = this.steps.value.map(
-        (value: any) => value.data
-      );
-      const ingredients = this.ingredients.value.map(
-        (value: any) => value.data
-      );
+      const steps = this.steps.value.map((value: any) => value.data);
+      const ingredients = this.ingredients.value.map((value: any) => value.data);
 
       const imageRoute = this.imageRoute
         ? this.imageRoute
@@ -117,6 +117,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
         id: this._recipeDetails ? this._recipeDetails.id : '',
         imgSrc: imageRoute ? imageRoute : '',
         private: this.form.controls.isPrivate.value,
+        categories: this.form.controls.categorySelect.value ?? []
       };
 
       this.recipeChanged$.emit(recipe);
@@ -142,22 +143,24 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   postImage(): void {
     this.submitted = true;
 
-    const { downloadUrl$, uploadProgress$ } =
-      this.recipeService.uploadFileAndGetMetadata(
-        MEDIA_STORAGE_PATH,
-        this.fileToUpload
-      );
+    const {
+      downloadUrl$,
+      uploadProgress$
+    } = this.recipeService.uploadFileAndGetMetadata(
+      MEDIA_STORAGE_PATH,
+      this.fileToUpload
+    );
     this.uploadProgress$ = uploadProgress$;
 
     downloadUrl$
       .pipe(
         takeUntil(this.destroy$),
-        catchError((error) => {
+        catchError(error => {
           this.messageService.showSnackBar(`${error.message}`);
           return EMPTY;
         })
       )
-      .subscribe((downloadUrl) => {
+      .subscribe(downloadUrl => {
         this.submitted = false;
         this.imageRoute = downloadUrl;
       });
@@ -178,10 +181,11 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
       isPrivate: this.formBuilder.control(false),
+      categorySelect: this.formBuilder.control('')
     });
 
     this.pictureForm = this.formBuilder.group({
-      photo: [null, [Validators.required, this.imageValidator.bind(this)]],
+      photo: [null, [Validators.required, this.imageValidator.bind(this)]]
     });
 
     this.user = this.authService.currentUser;
@@ -208,7 +212,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   private handleFileChange(recipeImage: File): void {
     this.fileToUpload = recipeImage;
     const reader = new FileReader();
-    reader.onload = (loadEvent) =>
+    reader.onload = loadEvent =>
       (this.recipeImage = loadEvent.target?.result || undefined);
     reader.readAsDataURL(recipeImage);
   }
@@ -223,14 +227,21 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.form.controls.title.patchValue(this._recipeDetails.title);
     this.form.controls.description.patchValue(this._recipeDetails.description);
     this.form.controls.isPrivate.patchValue(this._recipeDetails.private);
-    this._recipeDetails.steps.forEach((step) => {
+    this._recipeDetails.steps.forEach(step => {
       (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
     });
 
-    this._recipeDetails.ingredients.forEach((ingredient) => {
-      (<FormArray>this.form.controls.ingredients).push(
-        this.createFormItem(ingredient)
-      );
+    this._recipeDetails.ingredients.forEach(ingredient => {
+      (<FormArray>this.form.controls.ingredients).push(this.createFormItem(ingredient));
     });
+
+    this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);
+  }
+
+  private getCategories(): void {
+    this.recipeService
+      .getCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(categories => this.categories = categories);
   }
 }

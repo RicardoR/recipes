@@ -1,3 +1,4 @@
+import { RouterTestingModule } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import {
   AngularFirestore,
@@ -31,6 +32,7 @@ describe('RecipeService', () => {
       ]);
 
     TestBed.configureTestingModule({
+      imports: [RouterTestingModule],
       providers: [
         RecipeService,
         { provide: AngularFirestore, useValue: angularFirestoreSpy },
@@ -60,7 +62,7 @@ describe('RecipeService', () => {
       const expectedRecipe = documentList[0].payload.doc.data();
       expect(recipeRetrieved.title).toEqual(expectedRecipe.title);
       expect(recipeRetrieved.description).toEqual(expectedRecipe.description);
-      expect(recipeRetrieved.id).toEqual(documentList[0].payload.doc.id);
+      expect(recipeRetrieved.id).toEqual(expectedRecipe.id);
       expect(recipeRetrieved.ownerId).toEqual(expectedRecipe.ownerId);
       expect(recipeRetrieved.imgSrc).toEqual(expectedRecipe.imgSrc);
       expect(recipeRetrieved.private).toEqual(expectedRecipe.private);
@@ -86,7 +88,7 @@ describe('RecipeService', () => {
 
   it('createRecipe should call to add method', () => {
     const collectionStub = {
-      add: jasmine.createSpy('add').and.returnValue(Promise.resolve()),
+      add: jasmine.createSpy('add').and.returnValue(Promise.resolve({data: '123er56'})),
     } as unknown as AngularFirestoreCollection<unknown>;
 
     angularFirestore.collection.and.returnValue(collectionStub);

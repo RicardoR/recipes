@@ -1,3 +1,4 @@
+import { ElementModel } from './element.model';
 export interface Recipe {
   date: Date,
   description: string,
@@ -8,4 +9,5 @@ export interface Recipe {
   ownerId?: string;
   imgSrc: string;
   private: boolean;
+  categories: ElementModel[];
 }
