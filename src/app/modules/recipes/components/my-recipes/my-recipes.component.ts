@@ -37,6 +37,7 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log(this.recipeService.cosa);
     this.getRecipes();
     this.userId = this.authService.currentUser?.uid;
   }

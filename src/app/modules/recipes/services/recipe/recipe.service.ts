@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Inject, Injectable, InjectionToken } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { DocumentChangeAction } from '@angular/fire/compat/firestore/interfaces';
 import { Router } from '@angular/router';
@@ -32,18 +32,26 @@ export interface FilesUploadMetadata {
 }
 
 const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
+export const INJECTION_TOKEN_TEST = new InjectionToken<string>(
+  'TestInjectionToken'
+);
 
 @Injectable()
 export class RecipeService {
-private _cosa = 'cosa';
-private categoryList?: ElementModel[] = undefined;
+  private _cosa = 'cosa';
+  private categoryList?: ElementModel[] = undefined;
+  static readonly NEW_RECIPE_DATA = 'new_recipe';
+  static readonly EDIT_RECIPE_DATA = 'edit_recipe';
+  static readonly COMMON_RECIPE_DATA = 'common_data';
 
   constructor(
     private firestore: AngularFirestore,
     private authService: AuthService,
     private storage: AngularFireStorage,
-    private router: Router
-  ) {}
+    private router: Router,
+  ) {
+    this.cosa = inject(INJECTION_TOKEN_TEST);
+  }
 
   set cosa(val: string) {
     this._cosa = val;

@@ -37,6 +37,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log(this.recipeService.cosa);
     this.getRecipes();
     this.listenToLogoutChanges();
     this.userId = this.authService.currentUser?.uid;

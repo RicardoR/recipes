@@ -6,7 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
-import { RecipeService } from '../../services/recipe/recipe.service';
+import { INJECTION_TOKEN_TEST, RecipeService } from '../../services/recipe/recipe.service';
 import { Recipe } from './../../models/recipes.model';
 
 @NgLog()
@@ -14,6 +14,13 @@ import { Recipe } from './../../models/recipes.model';
   selector: 'app-new-recipe',
   templateUrl: './new-recipe.component.html',
   styleUrls: ['./new-recipe.component.scss'],
+  providers: [
+    RecipeService,
+    {
+      provide: INJECTION_TOKEN_TEST,
+      useValue: RecipeService.NEW_RECIPE_DATA
+    }
+  ]
 })
 export class NewRecipeComponent implements OnDestroy {
   private destroy$: Subject<null> = new Subject();
@@ -40,7 +47,7 @@ export class NewRecipeComponent implements OnDestroy {
 
   private goToList(): void {
     this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
     ]);
   }
 }

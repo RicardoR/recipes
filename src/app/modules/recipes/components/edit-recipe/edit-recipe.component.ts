@@ -9,13 +9,20 @@ import { MessagesService } from 'src/app/modules/shared/services/messages/messag
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
-import { RecipeService } from '../../services/recipe/recipe.service';
+import { INJECTION_TOKEN_TEST, RecipeService } from '../../services/recipe/recipe.service';
 
 @NgLog()
 @Component({
   selector: 'app-edit-recipe',
   templateUrl: './edit-recipe.component.html',
   styleUrls: ['./edit-recipe.component.scss'],
+  providers: [
+    RecipeService,
+    {
+      provide: INJECTION_TOKEN_TEST,
+      useValue: RecipeService.EDIT_RECIPE_DATA
+    }
+  ]
 })
 export class EditRecipeComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;
@@ -33,7 +40,6 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.recipesService.cosa = 'capasao';
     this.getRecipeDetails();
   }
 
@@ -44,14 +50,14 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
 
   goToList(): void {
     this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
     ]);
   }
 
   goToRecipe(): void {
     this.router.navigate([
       `${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
-      this.recipeDetails.id,
+      this.recipeDetails.id
     ]);
   }
 
@@ -79,6 +85,6 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   private getRecipeDetails(): void {
     this.activatedRoute.data
       .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => (this.recipeDetails = data.recipe));
+      .subscribe(data => (this.recipeDetails = data.recipe));
   }
 }
