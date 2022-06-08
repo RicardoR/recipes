@@ -10,9 +10,9 @@ import {
 } from '@angular/core';
 import {
   AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
   Validators,
 } from '@angular/forms';
 import { EMPTY, Observable, Subject } from 'rxjs';
@@ -56,9 +56,9 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   private destroy$: Subject<null> = new Subject();
   private _recipeDetails!: Recipe;
 
-  form!: FormGroup;
+  form!: UntypedFormGroup;
   recipeImage: string | ArrayBuffer | undefined;
-  pictureForm!: FormGroup;
+  pictureForm!: UntypedFormGroup;
   user?: AuthData;
   submitted = false;
   uploadProgress$!: Observable<number | undefined>;
@@ -67,17 +67,17 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   isSending = false;
   categories?: ElementModel[] = undefined;
 
-  get steps(): FormArray {
-    return this.form.get('steps') as FormArray;
+  get steps(): UntypedFormArray {
+    return this.form.get('steps') as UntypedFormArray;
   }
 
-  get ingredients(): FormArray {
-    return this.form.get('ingredients') as FormArray;
+  get ingredients(): UntypedFormArray {
+    return this.form.get('ingredients') as UntypedFormArray;
   }
 
   constructor(
     private recipeService: RecipeService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private authService: AuthService,
     private cdf: ChangeDetectorRef,
     private utilService: UtilService,
@@ -123,16 +123,16 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  createFormItem(data?: string): FormGroup {
+  createFormItem(data?: string): UntypedFormGroup {
     return this.formBuilder.group({ data: data });
   }
 
-  deleteControl(control: FormArray, index: number): void {
+  deleteControl(control: UntypedFormArray, index: number): void {
     control.removeAt(index);
     this.cdf.detectChanges();
   }
 
-  addControl(control: FormArray, $event: any): void {
+  addControl(control: UntypedFormArray, $event: any): void {
     control.push(this.createFormItem());
     this.cdf.detectChanges();
 
@@ -227,11 +227,11 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.form.controls.description.patchValue(this._recipeDetails.description);
     this.form.controls.isPrivate.patchValue(this._recipeDetails.private);
     this._recipeDetails.steps.forEach(step => {
-      (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
+      (<UntypedFormArray>this.form.controls.steps).push(this.createFormItem(step));
     });
 
     this._recipeDetails.ingredients.forEach(ingredient => {
-      (<FormArray>this.form.controls.ingredients).push(this.createFormItem(ingredient));
+      (<UntypedFormArray>this.form.controls.ingredients).push(this.createFormItem(ingredient));
     });
 
     this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);

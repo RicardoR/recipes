@@ -9,7 +9,7 @@ import {
   ElementRef,
   ChangeDetectionStrategy
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -34,7 +34,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   userId?: string;
   displaySearchControl = false;
-  searchFormControl = new FormControl('', []);
+  searchFormControl = new UntypedFormControl('', []);
 
   constructor(private router: Router, private authService: AuthService) {}
 

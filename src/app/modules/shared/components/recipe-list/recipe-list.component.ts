@@ -1,4 +1,4 @@
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, tap, filter, takeWhile } from 'rxjs/operators';
@@ -29,7 +29,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   private _recipes: Recipe[] = [];
 
   categories?: ElementModel[] = undefined;
-  categoryFilter = new FormControl();
+  categoryFilter = new UntypedFormControl();
   recipesFiltered: Recipe[] = [];
 
   constructor(private recipeService: RecipeService) {}
