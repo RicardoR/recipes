@@ -1,4 +1,4 @@
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -32,7 +32,7 @@ describe('RecipeCardFormComponent', () => {
     TestBed.configureTestingModule({
       declarations: [RecipeCardFormComponent],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         ChangeDetectorRef,
         UtilService,
         { provide: RecipeService, useValue: recipeServiceSpy },

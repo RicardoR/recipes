@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormBuilder } from '@angular/forms';
 
 import { AuthData } from '../../auth-data.model';
 import { AuthService, FAKE_USER_EMAIL } from '../../services/auth.service';
@@ -10,12 +10,12 @@ import { AuthService, FAKE_USER_EMAIL } from '../../services/auth.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  form!: FormGroup;
+  form!: UntypedFormGroup;
   passWordHidden = true;
 
   constructor(
     private authService: AuthService,
-    private fb: FormBuilder
+    private fb: UntypedFormBuilder
   ) { }
 
   ngOnInit() {
@@ -49,11 +49,11 @@ export class LoginComponent implements OnInit {
 
   private buildLoginForm(): void {
     this.form = this.fb.group({
-      email: new FormControl(FAKE_USER_EMAIL, [
+      email: new UntypedFormControl(FAKE_USER_EMAIL, [
         Validators.required,
         Validators.email,
       ]),
-      password: new FormControl('123456', [Validators.required]),
+      password: new UntypedFormControl('123456', [Validators.required]),
     });
   }
 }

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { RecipeDetailsComponent } from '../recipe-details.component';
@@ -9,6 +9,7 @@ import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
 import { userMock } from 'src/app/__tests__/mocks/user-mock';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
+import { Recipe } from '../../../models/recipes.model';
 
 describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;
@@ -18,7 +19,9 @@ describe('RecipeDetailsComponent', () => {
     'deleteRecipe',
     'deleteImage',
   ]);
-  const activatedRouteStub = { data: of({ recipe: recipeMock }) };
+
+  const recipeStub = new BehaviorSubject<any>({ recipe: recipeMock });
+  const activatedRouteStub = { data: recipeStub };
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -33,9 +36,12 @@ describe('RecipeDetailsComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
-        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-      ],
-    }).overrideTemplate(RecipeDetailsComponent, '');
+        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy }
+      ]
+    }).overrideTemplate(
+      RecipeDetailsComponent,
+      '<div class="mt-1" *ngIf="recipeDetails$ | async as recipeDetails"></div>'
+    );
   });
 
   beforeEach(() => {
@@ -50,7 +56,7 @@ describe('RecipeDetailsComponent', () => {
   });
 
   it('getRecipeDetails should get the recipe details and determine if is the owner', () => {
-    expect(component.recipeDetails).toEqual(recipeMock);
+    component.recipeDetails$.subscribe((recipe) => expect(recipe).toEqual(recipeMock));
     expect(component.isOwnReceip).toBeFalsy();
   });
 
@@ -92,7 +98,6 @@ describe('RecipeDetailsComponent', () => {
 
   describe('editRecipe', () => {
     it('should navigate to edit recipe page when recipe has an id', () => {
-      component.recipeDetails.id = '2';
       component.editRecipe();
 
       expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/edit', recipeMock.id]);
@@ -103,9 +108,16 @@ describe('RecipeDetailsComponent', () => {
 
     it('should no navigate to edit page if recipe id is not present', () => {
       routerSpy.navigate.calls.reset();
-      component.recipeDetails.id = '';
+      const recipeFake = {} as Recipe;
+      recipeStub.next({ recipe: recipeFake });
+
       component.editRecipe();
-      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(routerSpy.navigate).not.toHaveBeenCalledWith([
+        'recipes/edit',
+        recipeMock.id
+      ]);
+      recipeStub.next({ recipe: recipeMock });
+
     });
   });
 

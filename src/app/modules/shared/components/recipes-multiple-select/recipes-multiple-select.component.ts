@@ -1,7 +1,7 @@
 import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ElementModel } from '../../../recipes/models/element.model';
 
 @Component({
@@ -23,7 +23,7 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
 
   private destroy$: Subject<null> = new Subject();
 
-  elementSelectControl = new FormControl();
+  elementSelectControl = new UntypedFormControl();
   value: ElementModel[] = [];
   touched = false;
   disabled = false;

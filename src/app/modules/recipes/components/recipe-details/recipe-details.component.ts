@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EMPTY, Subject } from 'rxjs';
-import { concatMap, takeUntil } from 'rxjs/operators';
+import { EMPTY, Observable, Subject } from 'rxjs';
+import { concatMap, map, takeUntil, tap } from 'rxjs/operators';
 
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
@@ -19,10 +19,12 @@ import { RecipeService } from './../../services/recipe/recipe.service';
   styleUrls: ['./recipe-details.component.scss']
 })
 export class RecipeDetailsComponent implements OnInit, OnDestroy {
-  recipeDetails!: Recipe;
+  recipeDetails$!: Observable<Recipe>;
   isOwnReceip = false;
   currentUserId?: string;
+
   private destroy$: Subject<null> = new Subject();
+  private recipeDetails!: Recipe;
 
   constructor(
     private recipesService: RecipeService,
@@ -79,19 +81,23 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     this.recipesService
       .cloneRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((recipeId) => this.goToEditRecipe(recipeId));
+      .subscribe(recipeId => this.goToEditRecipe(recipeId));
   }
 
   private getRecipeDetails(): void {
-    this.activatedRoute.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
-      this.recipeDetails = data.recipe;
-      this.isOwnReceip = data.recipe.ownerId === this.currentUserId;
-    });
+    this.recipeDetails$ = this.activatedRoute.data.pipe(
+      tap(data => {
+        this.isOwnReceip = data.recipe.ownerId === this.currentUserId;
+        this.recipeDetails = data.recipe;
+      }),
+      map(data => data.recipe)
+    );
   }
 
   private goToEditRecipe(recipeId: string): void {
     this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`, recipeId
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,
+      recipeId
     ]);
   }
 }
