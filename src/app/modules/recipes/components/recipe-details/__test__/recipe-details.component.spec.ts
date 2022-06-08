@@ -105,20 +105,6 @@ describe('RecipeDetailsComponent', () => {
         'edit_recipe_button_clicked'
       );
     });
-
-    it('should no navigate to edit page if recipe id is not present', () => {
-      routerSpy.navigate.calls.reset();
-      const recipeFake = {} as Recipe;
-      recipeStub.next({ recipe: recipeFake });
-
-      component.editRecipe();
-      expect(routerSpy.navigate).not.toHaveBeenCalledWith([
-        'recipes/edit',
-        recipeMock.id
-      ]);
-      recipeStub.next({ recipe: recipeMock });
-
-    });
   });
 
   it('should log recipe_detail_component_opened event at start', () => {
