@@ -93,15 +93,11 @@ describe('RecipeCardFormComponent', () => {
     it('fill the controls', () => {
       expect(component.form.get('title')?.value).toBe(recipeMock.title);
 
-      const ingredientsInForm = component.form.get('ingredients')?.value;
-      ingredientsInForm?.forEach((ingredient: any, index: number) => {
-        expect(ingredient.data).toBe(recipeMock.ingredients[index]);
-      });
+      const ingredientsInForm = component.form.get('ingredients')?.getRawValue();
+      expect(ingredientsInForm).toEqual(recipeMock.ingredients);
 
-      const stepsInForm = component.form.get('steps')?.value;
-      stepsInForm?.forEach((step: any, index: number) => {
-        expect(step.data).toBe(recipeMock.steps[index]);
-      });
+      const stepsInForm = component.form.get('steps')?.getRawValue();
+      expect(stepsInForm).toEqual(recipeMock.steps);
 
       expect(component.form.get('description')?.value).toBe(
         recipeMock.description
@@ -146,7 +142,7 @@ describe('RecipeCardFormComponent', () => {
 
   it('createFormItem should return a form group with the desired data', () => {
     const formItem = component.createFormItem('title');
-    expect(formItem.value).toEqual({ data: 'title' });
+    expect(formItem.value).toEqual( 'title');
   });
 
   it('addControl should add a new control to the form', () => {

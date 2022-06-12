@@ -66,11 +66,11 @@
                    cdkDropList
                    (cdkDropListDropped)="dropElement($event, ingredients.controls)">
                 <ng-container *ngFor="let ingredientControl of ingredients.controls; let idx = index">
-                  <div cdkDrag [formGroupName]="idx">
+                  <div cdkDrag>
                     <mat-form-field appearance="fill" class="w-100">
                       <mat-label>Ingrediente {{ idx + 1 }}</mat-label>
                       <textarea matInput
-                                formControlName="data"
+                                [formControlName]="idx"
                                 required
                                 placeholder="Ingrediente"
                                 cdkTextareaAutosize>
@@ -108,11 +108,11 @@
                    cdkDropList
                    (cdkDropListDropped)="dropElement($event, steps.controls)">
                 <ng-container *ngFor="let stepControl of steps.controls; let idx = index">
-                  <div cdkDrag [formGroupName]="idx">
+                  <div cdkDrag >
                     <mat-form-field appearance="fill" class="w-100">
                       <mat-label>Paso {{ idx + 1 }}</mat-label>
                       <textarea matInput
-                                formControlName="data"
+                                [formControlName]="idx"
                                 required
                                 placeholder="Paso"
                                 cdkTextareaAutosize>
