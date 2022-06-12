@@ -10,9 +10,10 @@ import {
 } from '@angular/core';
 import {
   AbstractControl,
-  UntypedFormArray,
-  UntypedFormBuilder,
-  UntypedFormGroup,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
   Validators,
 } from '@angular/forms';
 import { EMPTY, Observable, Subject } from 'rxjs';
@@ -56,9 +57,9 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   private destroy$: Subject<null> = new Subject();
   private _recipeDetails!: Recipe;
 
-  form!: UntypedFormGroup;
+  form!: FormGroup;
   recipeImage: string | ArrayBuffer | undefined;
-  pictureForm!: UntypedFormGroup;
+  pictureForm!: FormGroup;
   user?: AuthData;
   submitted = false;
   uploadProgress$!: Observable<number | undefined>;
@@ -67,17 +68,17 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   isSending = false;
   categories?: ElementModel[] = undefined;
 
-  get steps(): UntypedFormArray {
-    return this.form.get('steps') as UntypedFormArray;
+  get steps(): FormArray {
+    return this.form.get('steps') as FormArray;
   }
 
-  get ingredients(): UntypedFormArray {
-    return this.form.get('ingredients') as UntypedFormArray;
+  get ingredients(): FormArray {
+    return this.form.get('ingredients') as FormArray;
   }
 
   constructor(
     private recipeService: RecipeService,
-    private formBuilder: UntypedFormBuilder,
+    private formBuilder: FormBuilder,
     private authService: AuthService,
     private cdf: ChangeDetectorRef,
     private utilService: UtilService,
@@ -99,40 +100,38 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   sendRecipe(): void {
     if (this.form.valid) {
       this.isSending = true;
-      const steps = this.steps.value.map((value: any) => value.data);
-      const ingredients = this.ingredients.value.map((value: any) => value.data);
 
       const imageRoute = this.imageRoute
         ? this.imageRoute
         : this._recipeDetails?.imgSrc;
 
       const recipe: Recipe = {
-        title: this.form.controls.title.value,
-        description: this.form.controls.description.value,
+        title: this.form.controls.title.getRawValue(),
+        description: this.form.controls.description.getRawValue(),
         date: this._recipeDetails ? this._recipeDetails.date : new Date(),
         ownerId: this.authService.currentUser?.uid,
-        steps: steps,
-        ingredients: ingredients,
+        steps: this.steps.getRawValue(),
+        ingredients: this.ingredients.getRawValue(),
         id: this._recipeDetails ? this._recipeDetails.id : '',
         imgSrc: imageRoute ? imageRoute : '',
-        private: this.form.controls.isPrivate.value,
-        categories: this.form.controls.categorySelect.value ?? []
+        private: this.form.controls.isPrivate.getRawValue(),
+        categories: this.form.controls.categorySelect.getRawValue() ?? []
       };
 
       this.recipeChanged$.emit(recipe);
     }
   }
 
-  createFormItem(data?: string): UntypedFormGroup {
-    return this.formBuilder.group({ data: data });
+  createFormItem(data?: string): FormControl {
+    return this.formBuilder.control(data);
   }
 
-  deleteControl(control: UntypedFormArray, index: number): void {
+  deleteControl(control: FormArray, index: number): void {
     control.removeAt(index);
     this.cdf.detectChanges();
   }
 
-  addControl(control: UntypedFormArray, $event: any): void {
+  addControl(control: FormArray, $event: any): void {
     control.push(this.createFormItem());
     this.cdf.detectChanges();
 
@@ -227,11 +226,13 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.form.controls.description.patchValue(this._recipeDetails.description);
     this.form.controls.isPrivate.patchValue(this._recipeDetails.private);
     this._recipeDetails.steps.forEach(step => {
-      (<UntypedFormArray>this.form.controls.steps).push(this.createFormItem(step));
+      (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
     });
 
     this._recipeDetails.ingredients.forEach(ingredient => {
-      (<UntypedFormArray>this.form.controls.ingredients).push(this.createFormItem(ingredient));
+      (<FormArray>this.form.controls.ingredients).push(
+        this.createFormItem(ingredient)
+      );
     });
 
     this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);
