@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { of, BehaviorSubject } from 'rxjs';
 
 import { RecipeService } from '../../../services/recipe/recipe.service';
@@ -9,7 +9,6 @@ import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
 import { userMock } from 'src/app/__tests__/mocks/user-mock';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
-import { Recipe } from '../../../models/recipes.model';
 
 describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;

@@ -5,7 +5,7 @@
                                    [options]="categories">
       </app-recipes-multiple-select>
   </div>
-  <div>
+  <div class="recipe-list-wrapper">
     <div *ngFor="let recipe of recipesFiltered">
       <mat-card class="mat-elevation-z4">
         <ng-container *ngIf="publicList === true; else privateListRibbon">

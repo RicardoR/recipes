@@ -3,6 +3,13 @@
   color: white;
 }
 
+.recipe-list-wrapper {
+    display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+      grid-template-rows: repeat(2, 1fr);
+      gap: 15px;
+}
+
 .content > mat-card {
   width: 200px;
 }
