@@ -32,6 +32,7 @@
 .ribbon-top-right {
   top: -10px;
   right: -10px;
+  z-index: 1;
 }
 .ribbon-top-right::before,
 .ribbon-top-right::after {

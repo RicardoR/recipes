@@ -13,3 +13,16 @@
 .mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
   color: white;
 }
+
+.form-field__transparent {
+  .mdc-text-field.mdc-text-field, input {
+    background-color: transparent;
+  }
+  .mdc-line-ripple {
+    display: none;
+  }
+
+ /* &.mat-mdc-form-field:hover .mat-mdc-form-field-focus-overlay {
+    opacity: 0;
+  }*/
+}

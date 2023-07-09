@@ -24,12 +24,12 @@
           <mat-card-title> {{recipe.title}}</mat-card-title>
         </mat-card-header>
         <img (click)=goToRecipe(recipe)
-             class="cursor-pointer recipe-image"
+             class="cursor-pointer recipe-image mb-2"
              mat-card-image
              loading="lazy"
              alt="Imagen de la receta"
              [src]="recipe.imgSrc">
-        <mat-card-content (click)=goToRecipe(recipe) class="cursor-pointer">
+        <mat-card-content (click)=goToRecipe(recipe) class="cursor-pointer mb-2">
           <p class="recipe-description"> {{ recipe.description }} </p>
           <p> {{ recipe.date | date }} </p>
         </mat-card-content>
