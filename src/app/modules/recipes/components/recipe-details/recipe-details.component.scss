@@ -1,4 +1,19 @@
+.recipe-details__container {
+  width: 60%;
+  margin: auto;
+}
+
 .recipe-details__image {
   max-height: 250px;
   object-fit: cover;
+}
+
+
+@media only screen and (max-width: 576px) {
+  .recipe-details__container {
+    width: 90%;
+    &>.w-100 {
+      width: auto;
+    }
+  }
 }

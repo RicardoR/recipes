@@ -2,8 +2,8 @@
   <h1 title>Detalles</h1>
 </app-toolbar>
 
-<div class="mt-1" *ngIf="recipeDetails$ | async as recipeDetails">
-  <div class="margin-auto p-2" >
+<div class="mt-1 recipe-details__container" *ngIf="recipeDetails$ | async as recipeDetails">
+  <div class="p-2 w-100">
     <mat-card class="mat-elevation-z4">
         <mat-card-header>
           <mat-card-title> {{recipeDetails.title}}</mat-card-title>
