@@ -1,0 +1,19 @@
+@import "../variables";
+
+ngx-mat-file-input {
+  input.mat-input-element {
+    border: none;
+    background: none;
+    outline: none;
+    color: $white;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: Roboto;
+  }
+}
+mat-card-content {
+  .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
