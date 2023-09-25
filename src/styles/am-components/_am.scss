@@ -26,3 +26,15 @@
     opacity: 0;
   }*/
 }
+
+.mdc-card {
+  .mat-mdc-card-header {
+    .mat-mdc-card-title {
+      margin-bottom: $space-default;
+    }
+  }
+
+  .mdc-card__actions {
+    gap: $space-2x;
+  }
+}
