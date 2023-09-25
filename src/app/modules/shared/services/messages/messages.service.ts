@@ -5,10 +5,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class MessagesService {
-
-  constructor(private snackBar: MatSnackBar) { }
+  constructor(private snackBar: MatSnackBar) {}
 
   showSnackBar(message: string, action?: string, duration = 3000): void {
-      this.snackBar.open(message, action, { duration });
+    this.snackBar.open(message, action, { duration });
   }
 }

@@ -34,11 +34,11 @@
             alt="Imagen de la receta"/>
           <div *ngIf="user" [formGroup]="pictureForm">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Imagen de la receta</mat-label>
               <ngx-mat-file-input accept="image/*"
+                                  placeholder="Imagen de la receta"
                                   formControlName="photo">
+                <mat-icon ngxMatFileInputIcon>folder</mat-icon>
               </ngx-mat-file-input>
-              <mat-icon matSuffix>folder</mat-icon>
               <mat-error *ngIf="pictureForm.controls['photo'].hasError('image')">
                   Formato de archivo incorrecto
               </mat-error>

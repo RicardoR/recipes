@@ -41,7 +41,8 @@
               "src/styles.scss",
               "src/styles/spaces.scss",
               "src/styles/common.scss",
-              "src/styles/colors.scss"
+              "src/styles/colors.scss",
+              "./node_modules/@angular/material/prebuilt-themes/purple-green.css"
             ],
             "scripts": [],
             "serviceWorker": true,
@@ -151,6 +152,14 @@
           }
         }
       }
+    }
+  },
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
     }
   }
 }

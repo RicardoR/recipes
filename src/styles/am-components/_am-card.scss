@@ -1,0 +1,29 @@
+@import "../_variables";
+
+.mdc-card {
+  color: #fff;
+
+  .mat-mdc-card-header {
+    .mat-mdc-card-header-text {
+      margin-bottom: $space-2x;
+    }
+  }
+
+  .mat-mdc-card-content {
+    margin-bottom: $space-2x;
+  }
+
+  .mdc-card__actions {
+    gap: $space-2x;
+  }
+
+  .mdc-card__media {
+    width: 100%;
+  }
+}
+
+.recipe-details__container {
+  .mat-mdc-card-content {
+    margin-top: $space-2x;
+  }
+}

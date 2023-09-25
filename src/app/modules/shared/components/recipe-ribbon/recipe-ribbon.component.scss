@@ -1,5 +1,4 @@
-@import '~src/styles/colors.scss';
-
+ @import 'src/styles/colors.scss';
 /* common */
 .ribbon {
   width: 150px;
@@ -32,6 +31,7 @@
 .ribbon-top-right {
   top: -10px;
   right: -10px;
+  z-index: 1;
 }
 .ribbon-top-right::before,
 .ribbon-top-right::after {

@@ -9,7 +9,6 @@ import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
 import { userMock } from 'src/app/__tests__/mocks/user-mock';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
-import { Recipe } from '../../../models/recipes.model';
 
 describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;
