@@ -33,7 +33,7 @@
             [src]="recipeImage"
             alt="Imagen de la receta"/>
           <div *ngIf="user" [formGroup]="pictureForm">
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline" class="file-input__wrapper">
               <ngx-mat-file-input accept="image/*"
                                   placeholder="Imagen de la receta"
                                   formControlName="photo">
