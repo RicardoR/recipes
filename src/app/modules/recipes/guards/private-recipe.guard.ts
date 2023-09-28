@@ -2,18 +2,14 @@ import { take } from 'rxjs/operators';
 import { Recipe } from 'src/app/modules/recipes/models/recipes.model';
 import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
 import { Injectable } from '@angular/core';
-import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  Router,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Observable, ReplaySubject } from 'rxjs';
 import { AuthService } from '../../auth/services/auth.service';
 import { MessagesService } from '../../shared/services/messages/messages.service';
 
 
 @Injectable()
-export class PrivateRecipeGuard implements CanActivate {
+export class PrivateRecipeGuard  {
   constructor(
     private recipesService: RecipeService,
     private authService: AuthService,
