@@ -1,10 +1,14 @@
 import { Component } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-delete-recipe-dialog',
-  templateUrl: './delete-recipe-dialog.component.html',
-  styleUrls: ['./delete-recipe-dialog.component.scss'],
+    selector: 'app-delete-recipe-dialog',
+    templateUrl: './delete-recipe-dialog.component.html',
+    styleUrls: ['./delete-recipe-dialog.component.scss'],
+    standalone: true,
+    imports: [MatDialogModule, MatButtonModule],
 })
 export class DeleteRecipeDialogComponent {
   constructor(private analytics: AngularFireAnalytics) {

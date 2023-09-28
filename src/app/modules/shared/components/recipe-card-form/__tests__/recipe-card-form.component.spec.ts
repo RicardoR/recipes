@@ -30,16 +30,16 @@ describe('RecipeCardFormComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RecipeCardFormComponent],
-      providers: [
+    imports: [RecipeCardFormComponent],
+    providers: [
         FormBuilder,
         ChangeDetectorRef,
         UtilService,
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MessagesService, useValue: messagesServiceSpy },
-      ],
-    }).overrideTemplate(RecipeCardFormComponent, '');
+    ],
+}).overrideTemplate(RecipeCardFormComponent, '');
   });
 
   beforeEach(() => {

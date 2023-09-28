@@ -8,12 +8,16 @@ import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { Recipe } from './../../models/recipes.model';
+import { RecipeCardFormComponent } from '../../../shared/components/recipe-card-form/recipe-card-form.component';
+import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 
 @NgLog()
 @Component({
-  selector: 'app-new-recipe',
-  templateUrl: './new-recipe.component.html',
-  styleUrls: ['./new-recipe.component.scss'],
+    selector: 'app-new-recipe',
+    templateUrl: './new-recipe.component.html',
+    styleUrls: ['./new-recipe.component.scss'],
+    standalone: true,
+    imports: [ToolbarComponent, RecipeCardFormComponent],
 })
 export class NewRecipeComponent implements OnDestroy {
   private destroy$: Subject<null> = new Subject();

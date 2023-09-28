@@ -15,20 +15,17 @@ import { PrivateRecipeGuard } from './guards/private-recipe.guard';
 import { RecipeDetailsResolve } from './services/resolvers/recipe-details.resolver';
 
 @NgModule({
-  imports: [CommonModule, SharedModule, RecipesRoutingModule],
-  declarations: [
-    EditRecipeComponent,
-    DeleteRecipeDialogComponent,
-    MyRecipesComponent,
-    NewRecipeComponent,
-    PublicRecipeListComponent,
-    RecipeDetailsComponent,
-  ],
-  providers: [
-    PrivateRecipeGuard,
-    RecipeDetailsResolve,
-    RecipeService,
-    UtilService,
-  ],
+    imports: [CommonModule, SharedModule, RecipesRoutingModule, EditRecipeComponent,
+        DeleteRecipeDialogComponent,
+        MyRecipesComponent,
+        NewRecipeComponent,
+        PublicRecipeListComponent,
+        RecipeDetailsComponent],
+    providers: [
+        PrivateRecipeGuard,
+        RecipeDetailsResolve,
+        RecipeService,
+        UtilService,
+    ],
 })
 export class RecipesModule {}

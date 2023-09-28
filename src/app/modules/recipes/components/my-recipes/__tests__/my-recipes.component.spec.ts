@@ -28,15 +28,15 @@ describe('MyRecipesComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [MyRecipesComponent],
-      providers: [
+    imports: [MyRecipesComponent],
+    providers: [
         { provide: Router, useValue: routerSpy },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-      ],
-    }).overrideTemplate(MyRecipesComponent, '');
+    ],
+}).overrideTemplate(MyRecipesComponent, '');
   });
 
   beforeEach(() => {

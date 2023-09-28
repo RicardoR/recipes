@@ -8,13 +8,11 @@ import { AuthRoutingModule } from './auth-routing.module';
 
 
 @NgModule({
-  declarations: [
-    LoginComponent
-  ],
-  imports: [
-    CommonModule,
-    SharedModule,
-    AuthRoutingModule
-  ],
+    imports: [
+        CommonModule,
+        SharedModule,
+        AuthRoutingModule,
+        LoginComponent
+    ],
 })
 export class AuthModule {}

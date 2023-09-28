@@ -10,12 +10,12 @@ describe('AppComponent', () => {
   const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', ['logEvent']);
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
-      providers: [
+    imports: [RouterTestingModule],
+    providers: [
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-      ],
-      declarations: [AppComponent],
-    }).overrideTemplate(AppComponent, '');
+    ],
+    declarations: [AppComponent],
+}).overrideTemplate(AppComponent, '');
   });
 
   beforeEach(() => {

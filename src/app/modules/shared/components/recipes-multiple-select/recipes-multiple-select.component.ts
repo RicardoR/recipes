@@ -1,21 +1,27 @@
 import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { ElementModel } from '../../../recipes/models/element.model';
+import { MatOptionModule } from '@angular/material/core';
+import { NgIf, NgFor } from '@angular/common';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-recipes-multiple-select',
-  templateUrl: './recipes-multiple-select.component.html',
-  styleUrls: ['./recipes-multiple-select.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      multi: true,
-      useExisting: RecipesMultipleSelectComponent
-    }
-  ]
+    selector: 'app-recipes-multiple-select',
+    templateUrl: './recipes-multiple-select.component.html',
+    styleUrls: ['./recipes-multiple-select.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            multi: true,
+            useExisting: RecipesMultipleSelectComponent
+        }
+    ],
+    standalone: true,
+    imports: [MatFormFieldModule, MatSelectModule, ReactiveFormsModule, NgIf, NgFor, MatOptionModule]
 })
 export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() label: string = 'Select';

@@ -28,16 +28,16 @@ describe('RecipeDetailsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RecipeDetailsComponent],
-      providers: [
+    imports: [RecipeDetailsComponent],
+    providers: [
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy }
-      ]
-    }).overrideTemplate(
+    ]
+}).overrideTemplate(
       RecipeDetailsComponent,
       '<div class="mt-1" *ngIf="recipeDetails$ | async as recipeDetails"></div>'
     );

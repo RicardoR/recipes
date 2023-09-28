@@ -12,11 +12,19 @@ import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-reci
 import { AuthService } from './../../../auth/services/auth.service';
 import { Recipe } from './../../models/recipes.model';
 import { RecipeService } from './../../services/recipe/recipe.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCardModule } from '@angular/material/card';
+import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
+import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 @NgLog()
 @Component({
-  selector: 'app-recipe-details',
-  templateUrl: './recipe-details.component.html',
-  styleUrls: ['./recipe-details.component.scss']
+    selector: 'app-recipe-details',
+    templateUrl: './recipe-details.component.html',
+    styleUrls: ['./recipe-details.component.scss'],
+    standalone: true,
+    imports: [ToolbarComponent, NgIf, MatCardModule, MatExpansionModule, MatListModule, NgFor, MatButtonModule, AsyncPipe, DatePipe]
 })
 export class RecipeDetailsComponent implements OnInit, OnDestroy {
   recipeDetails$!: Observable<Recipe>;

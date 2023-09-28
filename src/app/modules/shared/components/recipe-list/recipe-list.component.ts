@@ -1,4 +1,4 @@
-import { UntypedFormControl } from '@angular/forms';
+import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, tap, filter, takeWhile } from 'rxjs/operators';
@@ -7,11 +7,18 @@ import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.se
 import { NgLog } from '../../utils/decorators/log-decorator';
 
 import { Recipe } from './../../../recipes/models/recipes.model';
+import { MatButtonModule } from '@angular/material/button';
+import { RecipeRibbonComponent } from '../recipe-ribbon/recipe-ribbon.component';
+import { MatCardModule } from '@angular/material/card';
+import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recipes-multiple-select.component';
+import { NgIf, NgFor, DatePipe } from '@angular/common';
 @NgLog()
 @Component({
-  selector: 'app-recipe-list',
-  templateUrl: './recipe-list.component.html',
-  styleUrls: ['./recipe-list.component.scss']
+    selector: 'app-recipe-list',
+    templateUrl: './recipe-list.component.html',
+    styleUrls: ['./recipe-list.component.scss'],
+    standalone: true,
+    imports: [NgIf, RecipesMultipleSelectComponent, ReactiveFormsModule, NgFor, MatCardModule, RecipeRibbonComponent, MatButtonModule, DatePipe]
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   @Input() set recipes(recipeList: Recipe[]) {

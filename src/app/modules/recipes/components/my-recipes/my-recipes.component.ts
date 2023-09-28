@@ -12,12 +12,16 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { AppRoutingNames } from './../../../../app-routing.module';
+import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
+import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 
 @NgLog()
 @Component({
-  selector: 'app-my-recipes',
-  templateUrl: './my-recipes.component.html',
-  styleUrls: ['./my-recipes.component.scss'],
+    selector: 'app-my-recipes',
+    templateUrl: './my-recipes.component.html',
+    styleUrls: ['./my-recipes.component.scss'],
+    standalone: true,
+    imports: [ToolbarComponent, RecipeListComponent],
 })
 export class MyRecipesComponent implements OnInit, OnDestroy {
   recipesFiltered: Recipe[] = [];

@@ -23,15 +23,15 @@ describe('EditRecipeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [EditRecipeComponent],
-      providers: [
+    imports: [EditRecipeComponent],
+    providers: [
         { provide: Router, useValue: routeSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: MessagesService, useValue: messagesServiceSpy },
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-      ],
-    })
+    ],
+})
       .overrideTemplate(EditRecipeComponent, '');
   });
 

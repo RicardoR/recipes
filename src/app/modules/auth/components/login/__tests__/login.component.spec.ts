@@ -12,10 +12,9 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [LoginComponent],
-      imports: [ReactiveFormsModule],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
-    })
+    imports: [ReactiveFormsModule, LoginComponent],
+    providers: [{ provide: AuthService, useValue: authServiceSpy }],
+})
       .overrideTemplate(LoginComponent, '')
       .compileComponents();
   });

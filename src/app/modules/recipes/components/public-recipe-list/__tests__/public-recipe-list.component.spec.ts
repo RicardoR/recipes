@@ -31,15 +31,15 @@ describe('PublicRecipeListComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PublicRecipeListComponent],
-      providers: [
+    imports: [PublicRecipeListComponent],
+    providers: [
         { provide: Router, useValue: routerSpy },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-      ],
-    }).overrideTemplate(PublicRecipeListComponent, '');
+    ],
+}).overrideTemplate(PublicRecipeListComponent, '');
   });
 
   beforeEach(() => {

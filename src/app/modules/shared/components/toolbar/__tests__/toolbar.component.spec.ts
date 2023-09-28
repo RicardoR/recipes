@@ -15,12 +15,12 @@ describe('ToolbarComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ToolbarComponent],
-      providers: [
+    imports: [ToolbarComponent],
+    providers: [
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy }
-      ]
-    })
+    ]
+})
       .overrideTemplate(ToolbarComponent, '');
   });
 

@@ -20,13 +20,13 @@ describe('NewRecipeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [NewRecipeComponent],
-      providers: [
+    imports: [NewRecipeComponent],
+    providers: [
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: Router, useValue: routeSpy },
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-      ],
-    }).overrideTemplate(NewRecipeComponent, '');
+    ],
+}).overrideTemplate(NewRecipeComponent, '');
   });
 
   beforeEach(() => {

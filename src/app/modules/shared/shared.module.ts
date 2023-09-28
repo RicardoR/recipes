@@ -11,35 +11,30 @@ import { RecipeRibbonComponent } from './components/recipe-ribbon/recipe-ribbon.
 import { RecipesMultipleSelectComponent } from './components/recipes-multiple-select/recipes-multiple-select.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    DragDropModule,
-
-    // Own modules
-    AngularMaterialModule,
-  ],
-  exports: [
-    CommonModule,
-    ReactiveFormsModule,
-    DragDropModule,
-
-    // Own modules
-    AngularMaterialModule,
-
-    // Shared Components
-    RecipeCardFormComponent,
-    RecipeListComponent,
-    RecipeRibbonComponent,
-    ToolbarComponent,
-    RecipesMultipleSelectComponent
-  ],
-  declarations: [
-    RecipeCardFormComponent,
-    RecipeListComponent,
-    RecipeRibbonComponent,
-    ToolbarComponent,
-    RecipesMultipleSelectComponent
-  ],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        DragDropModule,
+        // Own modules
+        AngularMaterialModule,
+        RecipeCardFormComponent,
+        RecipeListComponent,
+        RecipeRibbonComponent,
+        ToolbarComponent,
+        RecipesMultipleSelectComponent,
+    ],
+    exports: [
+        CommonModule,
+        ReactiveFormsModule,
+        DragDropModule,
+        // Own modules
+        AngularMaterialModule,
+        // Shared Components
+        RecipeCardFormComponent,
+        RecipeListComponent,
+        RecipeRibbonComponent,
+        ToolbarComponent,
+        RecipesMultipleSelectComponent
+    ],
 })
 export class SharedModule {}

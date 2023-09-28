@@ -12,11 +12,11 @@ describe('DeleteRecipeDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [DeleteRecipeDialogComponent],
-      providers: [
+    imports: [DeleteRecipeDialogComponent],
+    providers: [
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-      ],
-    }).overrideTemplate(DeleteRecipeDialogComponent, '');
+    ],
+}).overrideTemplate(DeleteRecipeDialogComponent, '');
   });
 
   beforeEach(() => {

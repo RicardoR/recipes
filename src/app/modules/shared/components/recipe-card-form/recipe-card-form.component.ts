@@ -1,4 +1,4 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import {
   ChangeDetectorRef,
   Component,
@@ -8,14 +8,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
 
@@ -27,14 +20,28 @@ import { MessagesService } from '../../services/messages/messages.service';
 import { UtilService } from '../../utils/utils.service';
 import { NgLog } from '../../utils/decorators/log-decorator';
 import { ElementModel } from './../../../recipes/models/element.model';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recipes-multiple-select.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { NgxMatFileInputModule } from '@angular-material-components/file-input';
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
 
 @NgLog()
 @Component({
-  selector: 'app-recipe-card-form',
-  templateUrl: './recipe-card-form.component.html',
-  styleUrls: ['./recipe-card-form.component.scss']
+    selector: 'app-recipe-card-form',
+    templateUrl: './recipe-card-form.component.html',
+    styleUrls: ['./recipe-card-form.component.scss'],
+    standalone: true,
+    imports: [MatCardModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule, TextFieldModule, NgIf, NgxMatFileInputModule, MatProgressBarModule, MatButtonModule, MatExpansionModule, CdkDropList, NgFor, CdkDrag, CdkDragHandle, RecipesMultipleSelectComponent, MatSlideToggleModule, AsyncPipe]
 })
 export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
