@@ -25,21 +25,21 @@ import { NgIf } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
-    selector: 'app-toolbar',
-    templateUrl: './toolbar.component.html',
-    styleUrls: ['./toolbar.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
-    imports: [
-        MatToolbarModule,
-        NgIf,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatMenuModule,
-    ],
+  selector: 'app-toolbar',
+  templateUrl: './toolbar.component.html',
+  styleUrls: ['./toolbar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    MatToolbarModule,
+    NgIf,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatMenuModule
+  ]
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   @Input() displayListButton = false;
@@ -68,13 +68,13 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   goToCreate(): void {
     this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`,
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`
     ]);
   }
 
   goToPrivateList(): void {
     this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
     ]);
   }
 
@@ -101,6 +101,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   private listenSearchText(): void {
     this.searchFormControl.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => this.searchText$.emit(value));
+      .subscribe(value => this.searchText$.emit(value));
   }
 }

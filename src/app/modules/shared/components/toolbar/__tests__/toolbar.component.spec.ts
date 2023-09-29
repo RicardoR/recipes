@@ -10,18 +10,17 @@ describe('ToolbarComponent', () => {
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const authServiceSpy = jasmine.createSpyObj('AuthService', [
     'currentUser',
-    'logout',
+    'logout'
   ]);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [ToolbarComponent],
-    providers: [
+      imports: [ToolbarComponent],
+      providers: [
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy }
-    ]
-})
-      .overrideTemplate(ToolbarComponent, '');
+      ]
+    }).overrideTemplate(ToolbarComponent, '');
   });
 
   beforeEach(() => {
@@ -53,5 +52,5 @@ describe('ToolbarComponent', () => {
   it('logout should call to logout method from authService', () => {
     component.logout();
     expect(authServiceSpy.logout).toHaveBeenCalled();
-  })
+  });
 });

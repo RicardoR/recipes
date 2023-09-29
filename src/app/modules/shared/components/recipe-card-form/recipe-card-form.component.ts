@@ -1,4 +1,10 @@
-import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  moveItemInArray,
+  CdkDropList,
+  CdkDrag,
+  CdkDragHandle
+} from '@angular/cdk/drag-drop';
 import {
   ChangeDetectorRef,
   Component,
@@ -6,9 +12,17 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output,
+  Output
 } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
 
@@ -37,11 +51,30 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
 
 @NgLog()
 @Component({
-    selector: 'app-recipe-card-form',
-    templateUrl: './recipe-card-form.component.html',
-    styleUrls: ['./recipe-card-form.component.scss'],
-    standalone: true,
-    imports: [MatCardModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule, TextFieldModule, NgIf, NgxMatFileInputModule, MatProgressBarModule, MatButtonModule, MatExpansionModule, CdkDropList, NgFor, CdkDrag, CdkDragHandle, RecipesMultipleSelectComponent, MatSlideToggleModule, AsyncPipe]
+  selector: 'app-recipe-card-form',
+  templateUrl: './recipe-card-form.component.html',
+  styleUrls: ['./recipe-card-form.component.scss'],
+  standalone: true,
+  imports: [
+    MatCardModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    TextFieldModule,
+    NgIf,
+    NgxMatFileInputModule,
+    MatProgressBarModule,
+    MatButtonModule,
+    MatExpansionModule,
+    CdkDropList,
+    NgFor,
+    CdkDrag,
+    CdkDragHandle,
+    RecipesMultipleSelectComponent,
+    MatSlideToggleModule,
+    AsyncPipe
+  ]
 })
 export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
@@ -242,13 +275,15 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
       );
     });
 
-    this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);
+    this.form.controls.categorySelect.patchValue(
+      this._recipeDetails.categories
+    );
   }
 
   private getCategories(): void {
     this.recipeService
       .getCategories()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(categories => this.categories = categories);
+      .subscribe(categories => (this.categories = categories));
   }
 }

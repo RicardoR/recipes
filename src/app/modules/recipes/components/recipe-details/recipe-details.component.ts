@@ -20,11 +20,21 @@ import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 @NgLog()
 @Component({
-    selector: 'app-recipe-details',
-    templateUrl: './recipe-details.component.html',
-    styleUrls: ['./recipe-details.component.scss'],
-    standalone: true,
-    imports: [ToolbarComponent, NgIf, MatCardModule, MatExpansionModule, MatListModule, NgFor, MatButtonModule, AsyncPipe, DatePipe]
+  selector: 'app-recipe-details',
+  templateUrl: './recipe-details.component.html',
+  styleUrls: ['./recipe-details.component.scss'],
+  standalone: true,
+  imports: [
+    ToolbarComponent,
+    NgIf,
+    MatCardModule,
+    MatExpansionModule,
+    MatListModule,
+    NgFor,
+    MatButtonModule,
+    AsyncPipe,
+    DatePipe
+  ]
 })
 export class RecipeDetailsComponent implements OnInit, OnDestroy {
   recipeDetails$!: Observable<Recipe>;

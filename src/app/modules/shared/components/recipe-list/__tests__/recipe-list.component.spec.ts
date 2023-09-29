@@ -17,9 +17,9 @@ describe('RecipeListComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [RecipeListComponent],
-    providers: [{ provide: RecipeService, useValue: recipeServiceSpy }]
-}).overrideTemplate(RecipeListComponent, '');
+      imports: [RecipeListComponent],
+      providers: [{ provide: RecipeService, useValue: recipeServiceSpy }]
+    }).overrideTemplate(RecipeListComponent, '');
   });
 
   beforeEach(() => {

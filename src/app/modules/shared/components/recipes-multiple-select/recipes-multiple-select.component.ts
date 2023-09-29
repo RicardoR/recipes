@@ -1,7 +1,18 @@
 import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Input,
+  ChangeDetectionStrategy
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  UntypedFormControl,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { ElementModel } from '../../../recipes/models/element.model';
 import { MatOptionModule } from '@angular/material/core';
 import { NgIf, NgFor } from '@angular/common';
@@ -9,21 +20,29 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-    selector: 'app-recipes-multiple-select',
-    templateUrl: './recipes-multiple-select.component.html',
-    styleUrls: ['./recipes-multiple-select.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            multi: true,
-            useExisting: RecipesMultipleSelectComponent
-        }
-    ],
-    standalone: true,
-    imports: [MatFormFieldModule, MatSelectModule, ReactiveFormsModule, NgIf, NgFor, MatOptionModule]
+  selector: 'app-recipes-multiple-select',
+  templateUrl: './recipes-multiple-select.component.html',
+  styleUrls: ['./recipes-multiple-select.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: RecipesMultipleSelectComponent
+    }
+  ],
+  standalone: true,
+  imports: [
+    MatFormFieldModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    NgIf,
+    NgFor,
+    MatOptionModule
+  ]
 })
-export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class RecipesMultipleSelectComponent
+  implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() label: string = 'Select';
   @Input() options: ElementModel[] = [];
 
@@ -68,7 +87,7 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
 
   setDisabledState(disabled: boolean): void {
     this.disabled = disabled;
-    if(disabled) {
+    if (disabled) {
       this.elementSelectControl.disable();
     } else {
       this.elementSelectControl.enable();
@@ -84,10 +103,10 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
       .pipe(
         takeUntil(this.destroy$),
         tap(() => this.markAsTouched()),
-        filter((value) => value !== this.value),
+        filter(value => value !== this.value)
       )
       .subscribe((value: ElementModel[]) => {
-        this.onChange(value)
+        this.onChange(value);
       });
   }
 }

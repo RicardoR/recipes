@@ -1,5 +1,12 @@
 import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  OnDestroy
+} from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, tap, filter, takeWhile } from 'rxjs/operators';
 import { ElementModel } from 'src/app/modules/recipes/models/element.model';
@@ -14,11 +21,20 @@ import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recip
 import { NgIf, NgFor, DatePipe } from '@angular/common';
 @NgLog()
 @Component({
-    selector: 'app-recipe-list',
-    templateUrl: './recipe-list.component.html',
-    styleUrls: ['./recipe-list.component.scss'],
-    standalone: true,
-    imports: [NgIf, RecipesMultipleSelectComponent, ReactiveFormsModule, NgFor, MatCardModule, RecipeRibbonComponent, MatButtonModule, DatePipe]
+  selector: 'app-recipe-list',
+  templateUrl: './recipe-list.component.html',
+  styleUrls: ['./recipe-list.component.scss'],
+  standalone: true,
+  imports: [
+    NgIf,
+    RecipesMultipleSelectComponent,
+    ReactiveFormsModule,
+    NgFor,
+    MatCardModule,
+    RecipeRibbonComponent,
+    MatButtonModule,
+    DatePipe
+  ]
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   @Input() set recipes(recipeList: Recipe[]) {
