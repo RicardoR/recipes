@@ -1,0 +1,13 @@
+.mat-mdc-card-content {
+  .mat-mdc-selection-list {
+    .mdc-list-item__content, .mdc-list-item__primary-text {
+      text-overflow: unset;
+      white-space: initial;
+      overflow: unset;
+    }
+  }
+  .mdc-list-item.mdc-list-item--with-one-line {
+    height: auto;
+    margin-bottom: 8px;
+  }
+}
