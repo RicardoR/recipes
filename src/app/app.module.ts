@@ -14,8 +14,9 @@ import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 import { AppErrorHandler } from './app-error-handle';
 import { AuthModule } from './modules/auth/auth.module';
-import { SharedModule } from './modules/shared/shared.module';
+
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,21 +24,19 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-
     // Firebase
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAnalyticsModule,
-
-    SharedModule,
     AuthModule,
+    MatSnackBarModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the app is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
+        enabled: environment.production,
+        // Register the ServiceWorker as soon as the app is stable
+        // or after 30 seconds (whichever comes first).
+        registrationStrategy: 'registerWhenStable:30000'
     }),
-  ],
+],
   providers: [
     {
       provide: ErrorHandler,
