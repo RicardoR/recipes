@@ -27,14 +27,14 @@
     "@angular/router": "16.2.6",
     "@angular/service-worker": "16.2.6",
     "firebase": "9.9.3",
-    "lint": "0.7.0",
+    "lint": "^1.1.2",
     "rxfire": "6.0.3",
     "rxjs": "6.6.7",
     "tslib": "2.3.1",
     "zone.js": "0.13.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "16.2.3",
+    "@angular-devkit/build-angular": "^16.2.5",
     "@angular-eslint/builder": "16.2.0",
     "@angular-eslint/eslint-plugin": "16.2.0",
     "@angular-eslint/eslint-plugin-template": "16.2.0",
