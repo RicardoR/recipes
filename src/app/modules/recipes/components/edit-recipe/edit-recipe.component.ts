@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
@@ -25,18 +25,14 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;
   isSending = false;
   private destroy$: Subject<null> = new Subject();
-
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private recipesService: RecipeService,
-    private messagesService: MessagesService,
-    private analytics: AngularFireAnalytics
-  ) {
-    this.analytics.logEvent('edit_recipe_component_opened');
-  }
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  private recipesService = inject(RecipeService);
+  private messagesService = inject(MessagesService);
+  private analytics = inject(AngularFireAnalytics);
 
   ngOnInit(): void {
+    this.analytics.logEvent('edit_recipe_component_opened');
     this.getRecipeDetails();
   }
 
