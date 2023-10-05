@@ -9,6 +9,7 @@ import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mo
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { PublicRecipeListComponent } from '../public-recipe-list.component';
+import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
 
 describe('PublicRecipeListComponent', () => {
   let component: PublicRecipeListComponent;
@@ -25,21 +26,18 @@ describe('PublicRecipeListComponent', () => {
     'logoutSuccess$',
   ]);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
-    'logEvent',
-  ]);
+  let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [PublicRecipeListComponent],
-    providers: [
+      imports: [PublicRecipeListComponent, AngularFireTestingModule],
+      providers: [
         { provide: Router, useValue: routerSpy },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
-        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-    ],
-}).overrideTemplate(PublicRecipeListComponent, '');
+      ],
+    }).overrideTemplate(PublicRecipeListComponent, '');
   });
 
   beforeEach(() => {
@@ -49,6 +47,7 @@ describe('PublicRecipeListComponent', () => {
     recipeServiceSpy.getPublicRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
     authServiceSpy.logoutSuccess$ = new BehaviorSubject<void>(undefined);
+    firebaseAnalycitsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -116,6 +115,6 @@ describe('PublicRecipeListComponent', () => {
   });
 
   it('should log the event when component is started', () => {
-    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('public_recipes_component_opened');
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith('public_recipes_component_opened');
   });
 });
