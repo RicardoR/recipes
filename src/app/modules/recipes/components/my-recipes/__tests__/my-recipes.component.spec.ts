@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -9,6 +8,7 @@ import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mo
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { MyRecipesComponent } from '../my-recipes.component';
+import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
 
 describe('MyRecipesComponent', () => {
   let component: MyRecipesComponent;
@@ -22,21 +22,18 @@ describe('MyRecipesComponent', () => {
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
-    'logEvent',
-  ]);
+  let angularFireAnalyticsSpy: jasmine.SpyObj<any>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [MyRecipesComponent],
-    providers: [
+      imports: [MyRecipesComponent, AngularFireTestingModule],
+      providers: [
         { provide: Router, useValue: routerSpy },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
-        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
-    ],
-}).overrideTemplate(MyRecipesComponent, '');
+      ],
+    }).overrideTemplate(MyRecipesComponent, '');
   });
 
   beforeEach(() => {
@@ -45,6 +42,7 @@ describe('MyRecipesComponent', () => {
 
     recipeServiceSpy.getOwnRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
+    angularFireAnalyticsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -107,6 +105,8 @@ describe('MyRecipesComponent', () => {
   });
 
   it('should send my_recipes_component_opened event to analytics', () => {
-    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('my_recipes_component_opened');
+    expect(angularFireAnalyticsSpy).toHaveBeenCalledWith(
+      'my_recipes_component_opened'
+    );
   });
 });
