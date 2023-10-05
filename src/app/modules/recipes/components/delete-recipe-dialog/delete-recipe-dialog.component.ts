@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -10,8 +10,10 @@ import { MatDialogModule } from '@angular/material/dialog';
     standalone: true,
     imports: [MatDialogModule, MatButtonModule],
 })
-export class DeleteRecipeDialogComponent {
-  constructor(private analytics: AngularFireAnalytics) {
+export class DeleteRecipeDialogComponent implements OnInit {
+  private analytics = inject(AngularFireAnalytics);
+
+  ngOnInit(): void {
     this.analytics.logEvent('delete_recipe_dialog_opened');
   }
 }
