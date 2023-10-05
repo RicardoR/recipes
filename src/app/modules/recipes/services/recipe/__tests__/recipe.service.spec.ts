@@ -7,10 +7,10 @@ import {
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { of } from 'rxjs';
 
-import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
+import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { documentList } from 'src/app/__tests__/mocks/firebase-documents-mock';
-import { userMock } from 'src/app/__tests__/mocks/user-mock';
+import { documentList } from 'src/app/testing-resources/mocks/firebase-documents-mock';
+import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../recipe.service';
 
 describe('RecipeService', () => {

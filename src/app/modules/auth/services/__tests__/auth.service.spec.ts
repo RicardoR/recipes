@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { AuthService } from '../auth.service';
-import { userMock } from './../../../../__tests__/mocks/user-mock';
+import { userMock } from '../../../../testing-resources/mocks/user-mock';
 
 describe('AuthService', () => {
   let service: AuthService;

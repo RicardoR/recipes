@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { recipesListMock } from 'src/app/__tests__/mocks/recipes-list-mock';
-import { userMock } from 'src/app/__tests__/mocks/user-mock';
+import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mock';
+import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { MyRecipesComponent } from '../my-recipes.component';
 

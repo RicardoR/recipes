@@ -9,9 +9,9 @@ import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { MEDIA_STORAGE_PATH, RecipeCardFormComponent } from '../recipe-card-form.component';
 import { UtilService } from '../../../utils/utils.service';
 import { MessagesService } from '../../../services/messages/messages.service';
-import { userMock } from 'src/app/__tests__/mocks/user-mock';
-import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
-import { categoriesMock } from 'src/app/__tests__/mocks/categories-mock';
+import { userMock } from 'src/app/testing-resources/mocks/user-mock';
+import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
+import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
 
 describe('RecipeCardFormComponent', () => {
   let component: RecipeCardFormComponent;

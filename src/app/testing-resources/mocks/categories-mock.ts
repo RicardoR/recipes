@@ -1,4 +1,4 @@
-import { ElementModel } from './../../modules/recipes/models/element.model';
+import { ElementModel } from '../../modules/recipes/models/element.model';
 
 export const categoriesMock: ElementModel[] = [
   {

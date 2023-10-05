@@ -3,7 +3,7 @@ import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
-import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
+import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { NewRecipeComponent } from '../new-recipe.component';
 
