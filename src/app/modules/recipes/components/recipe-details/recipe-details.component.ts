@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -44,18 +44,16 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   private destroy$: Subject<null> = new Subject();
   private recipeDetails!: Recipe;
 
-  constructor(
-    private recipesService: RecipeService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService,
-    public dialog: MatDialog,
-    private analytics: AngularFireAnalytics
-  ) {
-    this.analytics.logEvent('recipe_detail_component_opened');
-  }
+  private recipesService = inject(RecipeService);
+  private activatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private analytics = inject(AngularFireAnalytics);
+
 
   ngOnInit(): void {
+    this.analytics.logEvent('recipe_detail_component_opened');
     this.currentUserId = this.authService.currentUser?.uid;
     this.getRecipeDetails();
   }
