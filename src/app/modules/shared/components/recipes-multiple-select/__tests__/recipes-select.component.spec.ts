@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RecipesMultipleSelectComponent } from '../recipes-multiple-select.component';
-import { categoriesMock } from 'src/app/__tests__/mocks/categories-mock';
+import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
 import { ElementModel } from 'src/app/modules/recipes/models/element.model';
 
 describe('RecipesSelectComponent', () => {
@@ -10,9 +10,8 @@ describe('RecipesSelectComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ RecipesMultipleSelectComponent ]
-    })
-    .overrideTemplate(RecipesMultipleSelectComponent, '')
+      imports: [RecipesMultipleSelectComponent],
+    }).overrideTemplate(RecipesMultipleSelectComponent, '');
   });
 
   beforeEach(() => {
@@ -40,7 +39,10 @@ describe('RecipesSelectComponent', () => {
     const option: ElementModel = { id: 1, detail: 'test' };
     const optionNew: ElementModel = { id: 90, detail: 'test' };
 
-    const expectedResultOne = component.compareElements(option, categoriesMock[0]);
+    const expectedResultOne = component.compareElements(
+      option,
+      categoriesMock[0]
+    );
     const expectedResultTwo = component.compareElements(optionNew, option);
 
     expect(expectedResultOne).toBe(true);

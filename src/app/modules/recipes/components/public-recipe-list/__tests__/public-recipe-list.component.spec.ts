@@ -5,10 +5,11 @@ import { Router } from '@angular/router';
 import { of, BehaviorSubject } from 'rxjs';
 
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { recipesListMock } from 'src/app/__tests__/mocks/recipes-list-mock';
-import { userMock } from 'src/app/__tests__/mocks/user-mock';
+import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mock';
+import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { PublicRecipeListComponent } from '../public-recipe-list.component';
+import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
 
 describe('PublicRecipeListComponent', () => {
   let component: PublicRecipeListComponent;
@@ -25,19 +26,16 @@ describe('PublicRecipeListComponent', () => {
     'logoutSuccess$',
   ]);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
-    'logEvent',
-  ]);
+  let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PublicRecipeListComponent],
+      imports: [PublicRecipeListComponent, AngularFireTestingModule],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
-        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
       ],
     }).overrideTemplate(PublicRecipeListComponent, '');
   });
@@ -49,6 +47,8 @@ describe('PublicRecipeListComponent', () => {
     recipeServiceSpy.getPublicRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
     authServiceSpy.logoutSuccess$ = new BehaviorSubject<void>(undefined);
+    firebaseAnalycitsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -104,7 +104,6 @@ describe('PublicRecipeListComponent', () => {
     });
 
     it('should not call to back end if a recipe doesnt have a recipe id', () => {
-
       const recipe = { ...recipesListMock[0] };
       recipe.id = '';
       component.deleteRecipe(recipe);
@@ -112,10 +111,12 @@ describe('PublicRecipeListComponent', () => {
       expect(recipeServiceSpy.deleteRecipe).not.toHaveBeenCalled();
       expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
       expect(recipeServiceSpy.getPublicRecipes).not.toHaveBeenCalled();
-     });
+    });
   });
 
   it('should log the event when component is started', () => {
-    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('public_recipes_component_opened');
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'public_recipes_component_opened'
+    );
   });
 });

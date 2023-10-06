@@ -4,5 +4,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   templateUrl: './recipe-ribbon.component.html',
   styleUrls: ['./recipe-ribbon.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
 })
 export class RecipeRibbonComponent {}

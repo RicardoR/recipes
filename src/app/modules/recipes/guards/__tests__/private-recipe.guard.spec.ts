@@ -17,31 +17,29 @@ describe('PrivateRecipeGuard', () => {
     'getRecipeDetail',
   ]);
   const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
-      'showSnackBar',
+    'showSnackBar',
   ]);
 
   const route = {
     params: {},
   } as ActivatedRouteSnapshot;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        imports: [
-          RouterTestingModule.withRoutes([
-            { path: 'recipes', component: RecipeListComponent },
-          ]),
-        ],
-        providers: [
-          PrivateRecipeGuard,
-          { provide: MessagesService, useValue: messagesServiceSpy },
-          { provide: AuthService, useValue: authServiceSpy },
-          { provide: RecipeService, useValue: recipeServiceSpy },
-        ],
-      });
-      service = TestBed.inject(PrivateRecipeGuard);
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule.withRoutes([
+          { path: 'recipes', component: RecipeListComponent },
+        ]),
+      ],
+      providers: [
+        PrivateRecipeGuard,
+        { provide: MessagesService, useValue: messagesServiceSpy },
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: RecipeService, useValue: recipeServiceSpy },
+      ],
+    });
+    service = TestBed.inject(PrivateRecipeGuard);
+  }));
 
   it('should create', () => {
     expect(service).toBeTruthy();
@@ -53,7 +51,9 @@ describe('PrivateRecipeGuard', () => {
       title: 'test',
       private: false,
     } as Recipe;
-    recipeServiceSpy.getRecipeDetail.and.returnValue(new BehaviorSubject(recipeMocked));
+    recipeServiceSpy.getRecipeDetail.and.returnValue(
+      new BehaviorSubject(recipeMocked)
+    );
     service.canActivate(route).subscribe((res) => {
       expect(res).toBeTruthy();
     });
@@ -68,7 +68,9 @@ describe('PrivateRecipeGuard', () => {
       ownerId: '1',
     } as Recipe;
 
-    recipeServiceSpy.getRecipeDetail.and.returnValue(new BehaviorSubject(recipeMocked));
+    recipeServiceSpy.getRecipeDetail.and.returnValue(
+      new BehaviorSubject(recipeMocked)
+    );
 
     service.canActivate(route).subscribe((res) => {
       expect(res).toBeTruthy();
@@ -84,11 +86,12 @@ describe('PrivateRecipeGuard', () => {
       ownerId: '1',
     } as Recipe;
 
-    recipeServiceSpy.getRecipeDetail.and.returnValue(new BehaviorSubject(recipeMocked));
+    recipeServiceSpy.getRecipeDetail.and.returnValue(
+      new BehaviorSubject(recipeMocked)
+    );
 
     service.canActivate(route).subscribe((res) => {
       expect(res).toBeFalsy();
     });
   });
-
 });

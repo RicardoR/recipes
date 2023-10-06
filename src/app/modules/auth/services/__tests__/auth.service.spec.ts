@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { AuthService } from '../auth.service';
-import { userMock } from './../../../../__tests__/mocks/user-mock';
+import { userMock } from '../../../../testing-resources/mocks/user-mock';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -44,7 +44,10 @@ describe('AuthService', () => {
   it('should allow to login and navigate to my recipes component', fakeAsync(() => {
     const autData = { email: 'email@domain.com', password: 'password' };
     service.login(autData);
-    expect(angularFireAuthSpy.signInWithEmailAndPassword).toHaveBeenCalledWith(autData.email, autData.password);
+    expect(angularFireAuthSpy.signInWithEmailAndPassword).toHaveBeenCalledWith(
+      autData.email,
+      autData.password
+    );
     flushMicrotasks();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/my-recipes']);
   }));

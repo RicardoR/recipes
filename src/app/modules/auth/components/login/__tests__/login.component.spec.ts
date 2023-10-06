@@ -8,12 +8,11 @@ describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
 
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['login',]);
+  const authServiceSpy = jasmine.createSpyObj('AuthService', ['login']);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [LoginComponent],
-      imports: [ReactiveFormsModule],
+      imports: [ReactiveFormsModule, LoginComponent],
       providers: [{ provide: AuthService, useValue: authServiceSpy }],
     })
       .overrideTemplate(LoginComponent, '')

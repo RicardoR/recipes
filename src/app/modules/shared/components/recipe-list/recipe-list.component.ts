@@ -1,5 +1,12 @@
-import { UntypedFormControl } from '@angular/forms';
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, tap, filter, takeWhile } from 'rxjs/operators';
 import { ElementModel } from 'src/app/modules/recipes/models/element.model';
@@ -7,11 +14,27 @@ import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.se
 import { NgLog } from '../../utils/decorators/log-decorator';
 
 import { Recipe } from './../../../recipes/models/recipes.model';
+import { MatButtonModule } from '@angular/material/button';
+import { RecipeRibbonComponent } from '../recipe-ribbon/recipe-ribbon.component';
+import { MatCardModule } from '@angular/material/card';
+import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recipes-multiple-select.component';
+import { NgIf, NgFor, DatePipe } from '@angular/common';
 @NgLog()
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
-  styleUrls: ['./recipe-list.component.scss']
+  styleUrls: ['./recipe-list.component.scss'],
+  standalone: true,
+  imports: [
+    NgIf,
+    RecipesMultipleSelectComponent,
+    ReactiveFormsModule,
+    NgFor,
+    MatCardModule,
+    RecipeRibbonComponent,
+    MatButtonModule,
+    DatePipe,
+  ],
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   @Input() set recipes(recipeList: Recipe[]) {
@@ -61,7 +84,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       .getCategories()
       .pipe(
         takeUntil(this.destroy$),
-        tap(categories => (this.categories = categories))
+        tap((categories) => (this.categories = categories))
       )
       .subscribe();
   }
@@ -69,7 +92,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   private listenCategoryFilter(): void {
     this.categoryFilter.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(value => this.filterRecipes(value));
+      .subscribe((value) => this.filterRecipes(value));
   }
 
   private filterRecipes(categoriesSelected: ElementModel[]): void {
@@ -78,8 +101,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.recipesFiltered = this._recipes.filter(recipe => {
-      return recipe.categories?.some(category =>
+    this.recipesFiltered = this._recipes.filter((recipe) => {
+      return recipe.categories?.some((category) =>
         this.filterCategories(categoriesSelected, category)
       );
     });
@@ -90,7 +113,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     category: ElementModel
   ): boolean {
     return categoriesSelected?.some(
-      categorySelected => categorySelected.id === category.id
+      (categorySelected) => categorySelected.id === category.id
     );
   }
 }

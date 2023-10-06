@@ -11,8 +11,8 @@ describe('MessagesService', () => {
     TestBed.configureTestingModule({
       providers: [
         MessagesService,
-        { provide: MatSnackBar, useValue: matBnackBarSpy }
-      ]
+        { provide: MatSnackBar, useValue: matBnackBarSpy },
+      ],
     });
 
     service = TestBed.inject(MessagesService);
@@ -20,8 +20,8 @@ describe('MessagesService', () => {
 
   it('showSnackBar should open then snackBar', () => {
     service.showSnackBar('test');
-    expect(matBnackBarSpy.open).toHaveBeenCalledWith(
-      'test', undefined, { duration: 3000 }
-    );
+    expect(matBnackBarSpy.open).toHaveBeenCalledWith('test', undefined, {
+      duration: 3000,
+    });
   });
 });

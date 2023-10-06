@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -12,12 +12,16 @@ import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
+import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
+import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 
 @NgLog()
 @Component({
   selector: 'app-public-recipe-list',
   templateUrl: './public-recipe-list.component.html',
-  styleUrls: ['./public-recipe-list.component.scss']
+  styleUrls: ['./public-recipe-list.component.scss'],
+  standalone: true,
+  imports: [ToolbarComponent, RecipeListComponent],
 })
 export class PublicRecipeListComponent implements OnInit, OnDestroy {
   recipesFiltered: Recipe[] = [];
@@ -26,17 +30,14 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   private destroy$: Subject<null> = new Subject();
   private recipesRetrieved: Recipe[] = [];
 
-  constructor(
-    private router: Router,
-    private recipeService: RecipeService,
-    private authService: AuthService,
-    public dialog: MatDialog,
-    private analytics: AngularFireAnalytics
-  ) {
-    this.analytics.logEvent('public_recipes_component_opened');
-  }
+  private router = inject(Router);
+  private recipeService = inject(RecipeService);
+  private authService = inject(AuthService);
+  public dialog = inject(MatDialog);
+  private analytics = inject(AngularFireAnalytics);
 
   ngOnInit(): void {
+    this.analytics.logEvent('public_recipes_component_opened');
     this.getRecipes();
     this.listenToLogoutChanges();
     this.userId = this.authService.currentUser?.uid;
@@ -51,7 +52,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     if (recipe.id) {
       this.router.navigate([
         `/${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
-        recipe.id
+        recipe.id,
       ]);
     }
   }
@@ -64,7 +65,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
         .afterClosed()
         .pipe(
           takeUntil(this.destroy$),
-          concatMap(data =>
+          concatMap((data) =>
             data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
           ),
           concatMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
@@ -90,13 +91,13 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
 
   cloneRecipe(recipe: Recipe): void {
     this.analytics.logEvent('public_recipe_cloned', {
-      recipeId: recipe.id
+      recipeId: recipe.id,
     });
 
     this.recipeService
       .cloneRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(recipeId => this.goToEditRecipe(recipeId));
+      .subscribe((recipeId) => this.goToEditRecipe(recipeId));
   }
 
   private getRecipes(): void {
@@ -129,7 +130,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   private goToEditRecipe(recipeId: string): void {
     this.router.navigate([
       `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,
-      recipeId
+      recipeId,
     ]);
   }
 }

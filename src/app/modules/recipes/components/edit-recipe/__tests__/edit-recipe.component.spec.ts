@@ -5,8 +5,8 @@ import { of } from 'rxjs';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { EditRecipeComponent } from '../edit-recipe.component';
-import { recipeMock } from '../../../../../__tests__/mocks/recipe-mock';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
+import { recipeMock } from '../../../../../testing-resources/mocks/recipe-mock';
+import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
 
 describe('EditRecipeComponent', () => {
   let component: EditRecipeComponent;
@@ -17,22 +17,22 @@ describe('EditRecipeComponent', () => {
     'updateRecipe',
     'deleteImage',
   ]);
-  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', ['showSnackBar']);
+  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
+    'showSnackBar',
+  ]);
   const activatedRouteStub = { data: of({ recipe: recipeMock }) };
-  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', ['logEvent']);
+  let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [EditRecipeComponent],
+      imports: [EditRecipeComponent, AngularFireTestingModule],
       providers: [
         { provide: Router, useValue: routeSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: MessagesService, useValue: messagesServiceSpy },
-        { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
       ],
-    })
-      .overrideTemplate(EditRecipeComponent, '');
+    }).overrideTemplate(EditRecipeComponent, '');
   });
 
   beforeEach(() => {
@@ -40,7 +40,8 @@ describe('EditRecipeComponent', () => {
     component = fixture.componentInstance;
     recipeServiceSpy.updateRecipe.and.returnValue(of({}));
     recipeServiceSpy.deleteImage.and.returnValue(of({}));
-
+    firebaseAnalycitsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -55,14 +56,21 @@ describe('EditRecipeComponent', () => {
 
   it('goToReceipt should allow to navigate to the receipt', () => {
     component.goToRecipe();
-    expect(routeSpy.navigate).toHaveBeenCalledWith(['recipes/details', component.recipeDetails.id]);
+    expect(routeSpy.navigate).toHaveBeenCalledWith([
+      'recipes/details',
+      component.recipeDetails.id,
+    ]);
   });
 
   it('updateRecipe should allow to update the recipe', () => {
     recipeServiceSpy.updateRecipe.and.returnValue(of({}));
     component.updateRecipe(component.recipeDetails);
-    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('update_recipe_button_clicked');
-    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(component.recipeDetails);
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'update_recipe_button_clicked'
+    );
+    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(
+      component.recipeDetails
+    );
     expect(messagesServiceSpy.showSnackBar).toHaveBeenCalledWith(
       'Receta actualizada'
     );
@@ -72,10 +80,14 @@ describe('EditRecipeComponent', () => {
     const newRecipe = { ...recipeMock };
     newRecipe.imgSrc = 'new-image';
     component.updateRecipe(newRecipe);
-    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(component.recipeDetails.imgSrc);
+    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(
+      component.recipeDetails.imgSrc
+    );
   });
 
   it('should log edit_recipe_component_opened event', () => {
-    expect(firebaseAnalycitsSpy.logEvent).toHaveBeenCalledWith('edit_recipe_component_opened');
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'edit_recipe_component_opened'
+    );
   });
 });

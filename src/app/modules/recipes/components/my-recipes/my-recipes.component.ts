@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import {  MatDialog } from '@angular/material/dialog';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { Router } from '@angular/router';
 import { Subject, EMPTY } from 'rxjs';
@@ -12,12 +12,16 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { AppRoutingNames } from './../../../../app-routing.module';
+import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
+import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 
 @NgLog()
 @Component({
   selector: 'app-my-recipes',
   templateUrl: './my-recipes.component.html',
   styleUrls: ['./my-recipes.component.scss'],
+  standalone: true,
+  imports: [ToolbarComponent, RecipeListComponent],
 })
 export class MyRecipesComponent implements OnInit, OnDestroy {
   recipesFiltered: Recipe[] = [];
@@ -25,18 +29,14 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<null> = new Subject();
   private recipesRetrieved: Recipe[] = [];
-
-  constructor(
-    private router: Router,
-    private recipeService: RecipeService,
-    private authService: AuthService,
-    public dialog: MatDialog,
-    private analytics: AngularFireAnalytics
-  ) {
-    this.analytics.logEvent('my_recipes_component_opened');
-  }
+  private router = inject(Router);
+  private recipeService = inject(RecipeService);
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private analytics = inject(AngularFireAnalytics);
 
   ngOnInit(): void {
+    this.analytics.logEvent('my_recipes_component_opened');
     this.getRecipes();
     this.userId = this.authService.currentUser?.uid;
   }
@@ -78,7 +78,10 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
 
   onSearchText(searchText: string): void {
     if (searchText?.trim()) {
-      this.recipesFiltered = this.recipeService.filterRecipes(this.recipesRetrieved, searchText);
+      this.recipesFiltered = this.recipeService.filterRecipes(
+        this.recipesRetrieved,
+        searchText
+      );
     } else {
       this.recipesFiltered = [...this.recipesRetrieved];
     }

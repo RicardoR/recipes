@@ -7,20 +7,21 @@ describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
 
-  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', ['logEvent']);
+  const firebaseAnalycitsSpy = jasmine.createSpyObj('AngularFireAnalytics', [
+    'logEvent',
+  ]);
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      imports: [RouterTestingModule, AppComponent],
       providers: [
         { provide: AngularFireAnalytics, useValue: firebaseAnalycitsSpy },
       ],
-      declarations: [AppComponent],
     }).overrideTemplate(AppComponent, '');
   });
 
   beforeEach(() => {
-      fixture = TestBed.createComponent(AppComponent);
-      component = fixture.componentInstance;
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
   });
 
   it('should create the app', () => {

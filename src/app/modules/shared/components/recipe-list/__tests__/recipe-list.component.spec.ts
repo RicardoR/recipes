@@ -1,9 +1,9 @@
-import { recipesListMock } from 'src/app/__tests__/mocks/recipes-list-mock';
+import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mock';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
-import { categoriesMock } from 'src/app/__tests__/mocks/categories-mock';
-import { recipeMock } from 'src/app/__tests__/mocks/recipe-mock';
+import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
+import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
 
 import { RecipeListComponent } from '../recipe-list.component';
 
@@ -12,13 +12,13 @@ describe('RecipeListComponent', () => {
   let fixture: ComponentFixture<RecipeListComponent>;
 
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
-    'getCategories'
+    'getCategories',
   ]);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RecipeListComponent],
-      providers: [{ provide: RecipeService, useValue: recipeServiceSpy }]
+      imports: [RecipeListComponent],
+      providers: [{ provide: RecipeService, useValue: recipeServiceSpy }],
     }).overrideTemplate(RecipeListComponent, '');
   });
 

@@ -1,4 +1,10 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  moveItemInArray,
+  CdkDropList,
+  CdkDrag,
+  CdkDragHandle,
+} from '@angular/cdk/drag-drop';
 import {
   ChangeDetectorRef,
   Component,
@@ -15,6 +21,7 @@ import {
   FormControl,
   FormGroup,
   Validators,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
@@ -27,6 +34,18 @@ import { MessagesService } from '../../services/messages/messages.service';
 import { UtilService } from '../../utils/utils.service';
 import { NgLog } from '../../utils/decorators/log-decorator';
 import { ElementModel } from './../../../recipes/models/element.model';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recipes-multiple-select.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { NgxMatFileInputModule } from '@angular-material-components/file-input';
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
 
@@ -34,7 +53,28 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
 @Component({
   selector: 'app-recipe-card-form',
   templateUrl: './recipe-card-form.component.html',
-  styleUrls: ['./recipe-card-form.component.scss']
+  styleUrls: ['./recipe-card-form.component.scss'],
+  standalone: true,
+  imports: [
+    MatCardModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    TextFieldModule,
+    NgIf,
+    NgxMatFileInputModule,
+    MatProgressBarModule,
+    MatButtonModule,
+    MatExpansionModule,
+    CdkDropList,
+    NgFor,
+    CdkDrag,
+    CdkDragHandle,
+    RecipesMultipleSelectComponent,
+    MatSlideToggleModule,
+    AsyncPipe,
+  ],
 })
 export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
@@ -115,7 +155,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
         id: this._recipeDetails ? this._recipeDetails.id : '',
         imgSrc: imageRoute ? imageRoute : '',
         private: this.form.controls.isPrivate.getRawValue(),
-        categories: this.form.controls.categorySelect.getRawValue() ?? []
+        categories: this.form.controls.categorySelect.getRawValue() ?? [],
       };
 
       this.recipeChanged$.emit(recipe);
@@ -141,24 +181,22 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   postImage(): void {
     this.submitted = true;
 
-    const {
-      downloadUrl$,
-      uploadProgress$
-    } = this.recipeService.uploadFileAndGetMetadata(
-      MEDIA_STORAGE_PATH,
-      this.fileToUpload
-    );
+    const { downloadUrl$, uploadProgress$ } =
+      this.recipeService.uploadFileAndGetMetadata(
+        MEDIA_STORAGE_PATH,
+        this.fileToUpload
+      );
     this.uploadProgress$ = uploadProgress$;
 
     downloadUrl$
       .pipe(
         takeUntil(this.destroy$),
-        catchError(error => {
+        catchError((error) => {
           this.messageService.showSnackBar(`${error.message}`);
           return EMPTY;
         })
       )
-      .subscribe(downloadUrl => {
+      .subscribe((downloadUrl) => {
         this.submitted = false;
         this.imageRoute = downloadUrl;
       });
@@ -179,11 +217,11 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
       isPrivate: this.formBuilder.control(false),
-      categorySelect: this.formBuilder.control('')
+      categorySelect: this.formBuilder.control(''),
     });
 
     this.pictureForm = this.formBuilder.group({
-      photo: [null, [Validators.required, this.imageValidator.bind(this)]]
+      photo: [null, [Validators.required, this.imageValidator.bind(this)]],
     });
 
     this.user = this.authService.currentUser;
@@ -210,7 +248,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   private handleFileChange(recipeImage: File): void {
     this.fileToUpload = recipeImage;
     const reader = new FileReader();
-    reader.onload = loadEvent =>
+    reader.onload = (loadEvent) =>
       (this.recipeImage = loadEvent.target?.result || undefined);
     reader.readAsDataURL(recipeImage);
   }
@@ -225,23 +263,25 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.form.controls.title.patchValue(this._recipeDetails.title);
     this.form.controls.description.patchValue(this._recipeDetails.description);
     this.form.controls.isPrivate.patchValue(this._recipeDetails.private);
-    this._recipeDetails.steps.forEach(step => {
+    this._recipeDetails.steps.forEach((step) => {
       (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
     });
 
-    this._recipeDetails.ingredients.forEach(ingredient => {
+    this._recipeDetails.ingredients.forEach((ingredient) => {
       (<FormArray>this.form.controls.ingredients).push(
         this.createFormItem(ingredient)
       );
     });
 
-    this.form.controls.categorySelect.patchValue(this._recipeDetails.categories);
+    this.form.controls.categorySelect.patchValue(
+      this._recipeDetails.categories
+    );
   }
 
   private getCategories(): void {
     this.recipeService
       .getCategories()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(categories => this.categories = categories);
+      .subscribe((categories) => (this.categories = categories));
   }
 }

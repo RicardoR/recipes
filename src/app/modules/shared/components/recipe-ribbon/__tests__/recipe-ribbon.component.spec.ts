@@ -8,9 +8,8 @@ describe('RecipeRibbonComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RecipeRibbonComponent]
-    })
-      .overrideTemplate(RecipeRibbonComponent, '');
+      imports: [RecipeRibbonComponent],
+    }).overrideTemplate(RecipeRibbonComponent, '');
   });
 
   beforeEach(() => {

@@ -13,8 +13,12 @@ describe('UtilService', () => {
   });
 
   it('validateFile should determine if a file name is valid', () => {
-    const textFile = new File(['content'], 'filename.txt', { type: 'text/plain' });
-    const imageFile = new File(['content'], 'filename.png', { type: 'image/png' });
+    const textFile = new File(['content'], 'filename.txt', {
+      type: 'text/plain',
+    });
+    const imageFile = new File(['content'], 'filename.png', {
+      type: 'image/png',
+    });
 
     expect(service.validateFile(textFile)).toBeFalsy();
     expect(service.validateFile(imageFile)).toBeTruthy();

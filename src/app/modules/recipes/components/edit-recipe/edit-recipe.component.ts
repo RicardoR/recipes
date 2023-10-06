@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
@@ -10,29 +10,29 @@ import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { Recipe } from '../../models/recipes.model';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
+import { RecipeCardFormComponent } from '../../../shared/components/recipe-card-form/recipe-card-form.component';
+import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 
 @NgLog()
 @Component({
   selector: 'app-edit-recipe',
   templateUrl: './edit-recipe.component.html',
   styleUrls: ['./edit-recipe.component.scss'],
+  standalone: true,
+  imports: [ToolbarComponent, RecipeCardFormComponent],
 })
 export class EditRecipeComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;
   isSending = false;
   private destroy$: Subject<null> = new Subject();
-
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private recipesService: RecipeService,
-    private messagesService: MessagesService,
-    private analytics: AngularFireAnalytics
-  ) {
-    this.analytics.logEvent('edit_recipe_component_opened');
-  }
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  private recipesService = inject(RecipeService);
+  private messagesService = inject(MessagesService);
+  private analytics = inject(AngularFireAnalytics);
 
   ngOnInit(): void {
+    this.analytics.logEvent('edit_recipe_component_opened');
     this.getRecipeDetails();
   }
 
