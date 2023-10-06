@@ -24,7 +24,7 @@ import { RecipeDetailsResolve } from './services/resolvers/recipe-details.resolv
     NewRecipeComponent,
     PublicRecipeListComponent,
     RecipeDetailsComponent,
-],
+  ],
   providers: [
     PrivateRecipeGuard,
     RecipeDetailsResolve,

@@ -42,7 +42,8 @@ describe('MyRecipesComponent', () => {
 
     recipeServiceSpy.getOwnRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
-    angularFireAnalyticsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
+    angularFireAnalyticsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -77,8 +78,12 @@ describe('MyRecipesComponent', () => {
 
       component.deleteRecipe(recipesListMock[0]);
       expect(matDialogSpy.open).toHaveBeenCalled();
-      expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(recipesListMock[0].id);
-      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(recipesListMock[0].imgSrc);
+      expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(
+        recipesListMock[0].id
+      );
+      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(
+        recipesListMock[0].imgSrc
+      );
       expect(recipeServiceSpy.getOwnRecipes).toHaveBeenCalled();
     });
 

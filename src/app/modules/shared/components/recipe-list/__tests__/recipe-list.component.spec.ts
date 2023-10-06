@@ -12,13 +12,13 @@ describe('RecipeListComponent', () => {
   let fixture: ComponentFixture<RecipeListComponent>;
 
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
-    'getCategories'
+    'getCategories',
   ]);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [RecipeListComponent],
-      providers: [{ provide: RecipeService, useValue: recipeServiceSpy }]
+      providers: [{ provide: RecipeService, useValue: recipeServiceSpy }],
     }).overrideTemplate(RecipeListComponent, '');
   });
 

@@ -17,7 +17,9 @@ describe('EditRecipeComponent', () => {
     'updateRecipe',
     'deleteImage',
   ]);
-  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', ['showSnackBar']);
+  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
+    'showSnackBar',
+  ]);
   const activatedRouteStub = { data: of({ recipe: recipeMock }) };
   let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
 
@@ -38,7 +40,8 @@ describe('EditRecipeComponent', () => {
     component = fixture.componentInstance;
     recipeServiceSpy.updateRecipe.and.returnValue(of({}));
     recipeServiceSpy.deleteImage.and.returnValue(of({}));
-    firebaseAnalycitsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
+    firebaseAnalycitsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -53,14 +56,21 @@ describe('EditRecipeComponent', () => {
 
   it('goToReceipt should allow to navigate to the receipt', () => {
     component.goToRecipe();
-    expect(routeSpy.navigate).toHaveBeenCalledWith(['recipes/details', component.recipeDetails.id]);
+    expect(routeSpy.navigate).toHaveBeenCalledWith([
+      'recipes/details',
+      component.recipeDetails.id,
+    ]);
   });
 
   it('updateRecipe should allow to update the recipe', () => {
     recipeServiceSpy.updateRecipe.and.returnValue(of({}));
     component.updateRecipe(component.recipeDetails);
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith('update_recipe_button_clicked');
-    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(component.recipeDetails);
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'update_recipe_button_clicked'
+    );
+    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(
+      component.recipeDetails
+    );
     expect(messagesServiceSpy.showSnackBar).toHaveBeenCalledWith(
       'Receta actualizada'
     );
@@ -70,10 +80,14 @@ describe('EditRecipeComponent', () => {
     const newRecipe = { ...recipeMock };
     newRecipe.imgSrc = 'new-image';
     component.updateRecipe(newRecipe);
-    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(component.recipeDetails.imgSrc);
+    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(
+      component.recipeDetails.imgSrc
+    );
   });
 
   it('should log edit_recipe_component_opened event', () => {
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith('edit_recipe_component_opened');
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'edit_recipe_component_opened'
+    );
   });
 });

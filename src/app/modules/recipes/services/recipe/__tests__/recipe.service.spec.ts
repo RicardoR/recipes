@@ -19,17 +19,15 @@ describe('RecipeService', () => {
   let angularFirestore: jasmine.SpyObj<AngularFirestore>;
 
   beforeEach(() => {
-      const angularFirestoreSpy = jasmine.createSpyObj('AngularFirestore', [
-        'collection',
-      ]);
-      const authServiceSpy = jasmine.createSpyObj('AuthService', [
-        'currentUser',
-      ]);
-      const angularFireStorageSpy = jasmine.createSpyObj('AngularFireStorage', [
-        'upload',
-        'refFromURL',
-        'ref',
-      ]);
+    const angularFirestoreSpy = jasmine.createSpyObj('AngularFirestore', [
+      'collection',
+    ]);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
+    const angularFireStorageSpy = jasmine.createSpyObj('AngularFireStorage', [
+      'upload',
+      'refFromURL',
+      'ref',
+    ]);
 
     TestBed.configureTestingModule({
       imports: [RouterTestingModule],
@@ -38,7 +36,7 @@ describe('RecipeService', () => {
         { provide: AngularFirestore, useValue: angularFirestoreSpy },
         { provide: AngularFireStorage, useValue: angularFireStorageSpy },
         { provide: AuthService, useValue: authServiceSpy },
-      ]
+      ],
     });
     service = TestBed.inject(RecipeService);
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -57,7 +55,7 @@ describe('RecipeService', () => {
     authService.currentUser = userMock;
 
     angularFirestore.collection.and.returnValue(collectionStub);
-    service.getOwnRecipes().subscribe(recipesList => {
+    service.getOwnRecipes().subscribe((recipesList) => {
       const recipeRetrieved = recipesList[0];
       const expectedRecipe = documentList[0].payload.doc.data();
       expect(recipeRetrieved.title).toEqual(expectedRecipe.title);
@@ -81,14 +79,16 @@ describe('RecipeService', () => {
     } as unknown as AngularFirestoreCollection<unknown>;
 
     angularFirestore.collection.and.returnValue(collectionStub);
-    service.getPublicRecipes().subscribe(recipesList => {
+    service.getPublicRecipes().subscribe((recipesList) => {
       expect(recipesList.length).toEqual(2);
     });
   });
 
   it('createRecipe should call to add method', () => {
     const collectionStub = {
-      add: jasmine.createSpy('add').and.returnValue(Promise.resolve({data: '123er56'})),
+      add: jasmine
+        .createSpy('add')
+        .and.returnValue(Promise.resolve({ data: '123er56' })),
     } as unknown as AngularFirestoreCollection<unknown>;
 
     angularFirestore.collection.and.returnValue(collectionStub);
@@ -105,7 +105,6 @@ describe('RecipeService', () => {
       doc: jasmine.createSpy('doc').and.returnValue(updateStub),
     } as unknown as AngularFirestoreCollection<unknown>;
 
-
     angularFirestore.collection.and.returnValue(collectionStub);
     service.updateRecipe(recipeMock);
     expect(collectionStub.doc).toHaveBeenCalledWith(recipeMock.id);
@@ -113,7 +112,9 @@ describe('RecipeService', () => {
 
   it('getRecipeDetails should get the details', () => {
     const getStub = {
-      get: jasmine.createSpy('get').and.returnValue(of(documentList[0].payload.doc)),
+      get: jasmine
+        .createSpy('get')
+        .and.returnValue(of(documentList[0].payload.doc)),
     };
     const collectionStub = {
       doc: jasmine.createSpy('doc').and.returnValue(getStub),
@@ -127,7 +128,7 @@ describe('RecipeService', () => {
   it('deleteRecipe should call to delete method', () => {
     const deleteSub = {
       delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
-    }
+    };
     const collectionStub = {
       doc: jasmine.createSpy('doc').and.returnValue(deleteSub),
     } as unknown as AngularFirestoreCollection<unknown>;

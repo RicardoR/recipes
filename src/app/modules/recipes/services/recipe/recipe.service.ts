@@ -12,7 +12,7 @@ import {
   Observable,
   Subject,
   ReplaySubject,
-  from
+  from,
 } from 'rxjs';
 import { map, switchMap, take, tap } from 'rxjs/operators';
 
@@ -50,7 +50,7 @@ export class RecipeService {
     const userId = this.authService.currentUser?.uid;
 
     this.firestore
-      .collection(privateRecipeNameCollection, ref =>
+      .collection(privateRecipeNameCollection, (ref) =>
         ref.where('ownerId', '==', userId).orderBy('date', 'desc')
       )
       .stateChanges()
@@ -104,13 +104,13 @@ export class RecipeService {
     const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
 
     const queryOne = this.firestore
-      .collection(publicRecipeNameCollection, ref =>
+      .collection(publicRecipeNameCollection, (ref) =>
         ref.where('private', '==', false).orderBy('date', 'desc')
       )
       .stateChanges();
 
     const queryTwo = this.firestore
-      .collection(publicRecipeNameCollection, ref =>
+      .collection(publicRecipeNameCollection, (ref) =>
         ref
           .where('private', '==', true)
           .where('ownerId', '==', userId)
@@ -157,16 +157,16 @@ export class RecipeService {
   }
 
   cloneRecipe(recipe: Recipe): Observable<string> {
-      const userId = this.authService.currentUser?.uid;
+    const userId = this.authService.currentUser?.uid;
 
-      const recipeCloned = { ...recipe };
-      recipeCloned.id = '';
-      recipeCloned.imgSrc = '';
-      recipeCloned.ownerId = userId;
-      recipeCloned.date = new Date();
-      recipeCloned.categories = recipe.categories ?? [];
+    const recipeCloned = { ...recipe };
+    recipeCloned.id = '';
+    recipeCloned.imgSrc = '';
+    recipeCloned.ownerId = userId;
+    recipeCloned.date = new Date();
+    recipeCloned.categories = recipe.categories ?? [];
 
-      return this.createRecipe(recipeCloned);
+    return this.createRecipe(recipeCloned);
   }
 
   updateRecipe(recipe: Recipe): Observable<void> {
@@ -200,7 +200,7 @@ export class RecipeService {
       .get()
       .pipe(
         take(1),
-        map(doc => this.recipesConverter(doc.data(), doc.id))
+        map((doc) => this.recipesConverter(doc.data(), doc.id))
       )
       .subscribe((data: Recipe) => {
         result.next(data);
@@ -244,7 +244,7 @@ export class RecipeService {
 
     return {
       uploadProgress$: uploadTask.percentageChanges(),
-      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath)
+      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath),
     };
   }
 
@@ -261,9 +261,10 @@ export class RecipeService {
 
   filterRecipes(recipesList: Recipe[], filter: string): Recipe[] {
     filter = filter?.trim().toLowerCase();
-    return recipesList.filter(recipe =>
-      recipe.title.toLowerCase().includes(filter.toLowerCase()) ||
-      recipe.description.toLowerCase().includes(filter.toLowerCase())
+    return recipesList.filter(
+      (recipe) =>
+        recipe.title.toLowerCase().includes(filter.toLowerCase()) ||
+        recipe.description.toLowerCase().includes(filter.toLowerCase())
     );
   }
 
@@ -283,7 +284,7 @@ export class RecipeService {
       ingredients: docData.ingredients,
       imgSrc: docData.imgSrc ? docData.imgSrc : DEFAULT_IMAGE,
       private: docData.private,
-      categories: docData.categories
+      categories: docData.categories,
     };
   }
 
@@ -294,7 +295,7 @@ export class RecipeService {
 
     return {
       id: docData.id,
-      detail: docData.detail
+      detail: docData.detail,
     };
   }
 
@@ -303,7 +304,7 @@ export class RecipeService {
     path: string
   ): Observable<string> {
     return from(uploadTask).pipe(
-      switchMap(_ => this.storage.ref(path).getDownloadURL())
+      switchMap((_) => this.storage.ref(path).getDownloadURL())
     );
   }
 }

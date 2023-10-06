@@ -6,7 +6,10 @@ import { of } from 'rxjs';
 
 import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { MEDIA_STORAGE_PATH, RecipeCardFormComponent } from '../recipe-card-form.component';
+import {
+  MEDIA_STORAGE_PATH,
+  RecipeCardFormComponent,
+} from '../recipe-card-form.component';
 import { UtilService } from '../../../utils/utils.service';
 import { MessagesService } from '../../../services/messages/messages.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
@@ -21,7 +24,7 @@ describe('RecipeCardFormComponent', () => {
 
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
     'uploadFileAndGetMetadata',
-    'getCategories'
+    'getCategories',
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
@@ -30,16 +33,16 @@ describe('RecipeCardFormComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [RecipeCardFormComponent],
-    providers: [
+      imports: [RecipeCardFormComponent],
+      providers: [
         FormBuilder,
         ChangeDetectorRef,
         UtilService,
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MessagesService, useValue: messagesServiceSpy },
-    ],
-}).overrideTemplate(RecipeCardFormComponent, '');
+      ],
+    }).overrideTemplate(RecipeCardFormComponent, '');
   });
 
   beforeEach(() => {
@@ -93,7 +96,9 @@ describe('RecipeCardFormComponent', () => {
     it('fill the controls', () => {
       expect(component.form.get('title')?.value).toBe(recipeMock.title);
 
-      const ingredientsInForm = component.form.get('ingredients')?.getRawValue();
+      const ingredientsInForm = component.form
+        .get('ingredients')
+        ?.getRawValue();
       expect(ingredientsInForm).toEqual(recipeMock.ingredients);
 
       const stepsInForm = component.form.get('steps')?.getRawValue();
@@ -142,7 +147,7 @@ describe('RecipeCardFormComponent', () => {
 
   it('createFormItem should return a form group with the desired data', () => {
     const formItem = component.createFormItem('title');
-    expect(formItem.value).toEqual( 'title');
+    expect(formItem.value).toEqual('title');
   });
 
   it('addControl should add a new control to the form', () => {

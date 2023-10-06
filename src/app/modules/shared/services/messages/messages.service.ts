@@ -5,7 +5,6 @@ import { Injectable, inject } from '@angular/core';
   providedIn: 'root',
 })
 export class MessagesService {
-
   private snackBar = inject(MatSnackBar);
 
   showSnackBar(message: string, action?: string, duration = 3000): void {

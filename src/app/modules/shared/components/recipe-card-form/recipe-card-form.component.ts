@@ -3,7 +3,7 @@ import {
   moveItemInArray,
   CdkDropList,
   CdkDrag,
-  CdkDragHandle
+  CdkDragHandle,
 } from '@angular/cdk/drag-drop';
 import {
   ChangeDetectorRef,
@@ -12,7 +12,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -21,7 +21,7 @@ import {
   FormControl,
   FormGroup,
   Validators,
-  ReactiveFormsModule
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
@@ -73,8 +73,8 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
     CdkDragHandle,
     RecipesMultipleSelectComponent,
     MatSlideToggleModule,
-    AsyncPipe
-  ]
+    AsyncPipe,
+  ],
 })
 export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
@@ -155,7 +155,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
         id: this._recipeDetails ? this._recipeDetails.id : '',
         imgSrc: imageRoute ? imageRoute : '',
         private: this.form.controls.isPrivate.getRawValue(),
-        categories: this.form.controls.categorySelect.getRawValue() ?? []
+        categories: this.form.controls.categorySelect.getRawValue() ?? [],
       };
 
       this.recipeChanged$.emit(recipe);
@@ -181,24 +181,22 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   postImage(): void {
     this.submitted = true;
 
-    const {
-      downloadUrl$,
-      uploadProgress$
-    } = this.recipeService.uploadFileAndGetMetadata(
-      MEDIA_STORAGE_PATH,
-      this.fileToUpload
-    );
+    const { downloadUrl$, uploadProgress$ } =
+      this.recipeService.uploadFileAndGetMetadata(
+        MEDIA_STORAGE_PATH,
+        this.fileToUpload
+      );
     this.uploadProgress$ = uploadProgress$;
 
     downloadUrl$
       .pipe(
         takeUntil(this.destroy$),
-        catchError(error => {
+        catchError((error) => {
           this.messageService.showSnackBar(`${error.message}`);
           return EMPTY;
         })
       )
-      .subscribe(downloadUrl => {
+      .subscribe((downloadUrl) => {
         this.submitted = false;
         this.imageRoute = downloadUrl;
       });
@@ -219,11 +217,11 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
       steps: this.formBuilder.array([]),
       ingredients: this.formBuilder.array([]),
       isPrivate: this.formBuilder.control(false),
-      categorySelect: this.formBuilder.control('')
+      categorySelect: this.formBuilder.control(''),
     });
 
     this.pictureForm = this.formBuilder.group({
-      photo: [null, [Validators.required, this.imageValidator.bind(this)]]
+      photo: [null, [Validators.required, this.imageValidator.bind(this)]],
     });
 
     this.user = this.authService.currentUser;
@@ -250,7 +248,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   private handleFileChange(recipeImage: File): void {
     this.fileToUpload = recipeImage;
     const reader = new FileReader();
-    reader.onload = loadEvent =>
+    reader.onload = (loadEvent) =>
       (this.recipeImage = loadEvent.target?.result || undefined);
     reader.readAsDataURL(recipeImage);
   }
@@ -265,11 +263,11 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.form.controls.title.patchValue(this._recipeDetails.title);
     this.form.controls.description.patchValue(this._recipeDetails.description);
     this.form.controls.isPrivate.patchValue(this._recipeDetails.private);
-    this._recipeDetails.steps.forEach(step => {
+    this._recipeDetails.steps.forEach((step) => {
       (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
     });
 
-    this._recipeDetails.ingredients.forEach(ingredient => {
+    this._recipeDetails.ingredients.forEach((ingredient) => {
       (<FormArray>this.form.controls.ingredients).push(
         this.createFormItem(ingredient)
       );
@@ -284,6 +282,6 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     this.recipeService
       .getCategories()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(categories => (this.categories = categories));
+      .subscribe((categories) => (this.categories = categories));
   }
 }

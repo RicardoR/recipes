@@ -29,20 +29,25 @@ describe('NewRecipeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(NewRecipeComponent);
     component = fixture.componentInstance;
-    firebaseAnalycitsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
+    firebaseAnalycitsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
   it('create recipe should create the recipe and then redirect to list', () => {
     recipeServiceSpy.createRecipe.and.returnValue(of({}));
     component.createRecipe(recipeMock);
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith('create_recipe_button_clicked');
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'create_recipe_button_clicked'
+    );
 
     expect(recipeServiceSpy.createRecipe).toHaveBeenCalledWith(recipeMock);
     expect(routeSpy.navigate).toHaveBeenCalledWith(['recipes/my-recipes']);
   });
 
   it('should log new_recipe_component_opened event', () => {
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith('new_recipe_component_opened');
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'new_recipe_component_opened'
+    );
   });
 });

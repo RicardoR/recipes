@@ -33,8 +33,8 @@ import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.com
     NgFor,
     MatButtonModule,
     AsyncPipe,
-    DatePipe
-  ]
+    DatePipe,
+  ],
 })
 export class RecipeDetailsComponent implements OnInit, OnDestroy {
   recipeDetails$!: Observable<Recipe>;
@@ -50,7 +50,6 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private analytics = inject(AngularFireAnalytics);
-
 
   ngOnInit(): void {
     this.analytics.logEvent('recipe_detail_component_opened');
@@ -72,7 +71,7 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
       .afterClosed()
       .pipe(
         takeUntil(this.destroy$),
-        concatMap(data =>
+        concatMap((data) =>
           data === true
             ? this.recipesService.deleteRecipe(this.recipeDetails.id)
             : EMPTY
@@ -97,23 +96,23 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
     this.recipesService
       .cloneRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(recipeId => this.goToEditRecipe(recipeId));
+      .subscribe((recipeId) => this.goToEditRecipe(recipeId));
   }
 
   private getRecipeDetails(): void {
     this.recipeDetails$ = this.activatedRoute.data.pipe(
-      tap(data => {
+      tap((data) => {
         this.isOwnReceip = data.recipe.ownerId === this.currentUserId;
         this.recipeDetails = data.recipe;
       }),
-      map(data => data.recipe)
+      map((data) => data.recipe)
     );
   }
 
   private goToEditRecipe(recipeId: string): void {
     this.router.navigate([
       `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,
-      recipeId
+      recipeId,
     ]);
   }
 }

@@ -10,29 +10,24 @@ describe('AuthReadyGuard', () => {
     'authServiceReady',
   ]);
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        providers: [
-          { provide: AuthService, useValue: authServiceSpy },
-        ],
-      });
-      service = TestBed.inject(AuthReadyGuard);
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+    });
+    service = TestBed.inject(AuthReadyGuard);
+  }));
 
   it('should determine if canActivate based on authServiceReady', () => {
     authServiceSpy.authServiceReady.and.returnValue(new BehaviorSubject(true));
-    service.canActivate().subscribe(result => {
+    service.canActivate().subscribe((result) => {
       expect(result).toBe(true);
     });
   });
 
   it('should determine if canLoad based on authServiceReady', () => {
     authServiceSpy.authServiceReady.and.returnValue(new BehaviorSubject(false));
-    service.canLoad().subscribe(result => {
+    service.canLoad().subscribe((result) => {
       expect(result).toBe(false);
     });
   });
-
 });

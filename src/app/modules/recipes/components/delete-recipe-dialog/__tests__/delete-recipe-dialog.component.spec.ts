@@ -19,7 +19,8 @@ describe('DeleteRecipeDialogComponent', () => {
     fixture = TestBed.createComponent(DeleteRecipeDialogComponent);
 
     component = fixture.componentInstance;
-    angularFireAnalyticsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
+    angularFireAnalyticsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -29,7 +30,7 @@ describe('DeleteRecipeDialogComponent', () => {
 
   it('should log delete_recipe_dialog_opened event in analytics', fakeAsync(() => {
     expect(angularFireAnalyticsSpy).toHaveBeenCalledWith(
-      'delete_recipe_dialog_opened',
+      'delete_recipe_dialog_opened'
     );
   }));
 });

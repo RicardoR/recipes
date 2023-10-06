@@ -12,5 +12,5 @@ export const categoriesMock: ElementModel[] = [
   {
     id: 3,
     detail: 'Categoría 3',
-  }
-]
+  },
+];

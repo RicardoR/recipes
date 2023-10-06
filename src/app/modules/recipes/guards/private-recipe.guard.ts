@@ -7,9 +7,8 @@ import { Observable, ReplaySubject } from 'rxjs';
 import { AuthService } from '../../auth/services/auth.service';
 import { MessagesService } from '../../shared/services/messages/messages.service';
 
-
 @Injectable()
-export class PrivateRecipeGuard  {
+export class PrivateRecipeGuard {
   constructor(
     private recipesService: RecipeService,
     private authService: AuthService,
@@ -30,7 +29,9 @@ export class PrivateRecipeGuard  {
         } else {
           this.router.navigate(['/recipes']);
           canActivate.next(false);
-          this.messagesService.showSnackBar('No estás autorizado para ver esta receta');
+          this.messagesService.showSnackBar(
+            'No estás autorizado para ver esta receta'
+          );
         }
       });
 

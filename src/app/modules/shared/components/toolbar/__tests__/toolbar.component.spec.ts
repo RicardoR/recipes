@@ -10,7 +10,7 @@ describe('ToolbarComponent', () => {
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const authServiceSpy = jasmine.createSpyObj('AuthService', [
     'currentUser',
-    'logout'
+    'logout',
   ]);
 
   beforeEach(() => {
@@ -18,8 +18,8 @@ describe('ToolbarComponent', () => {
       imports: [ToolbarComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
-        { provide: AuthService, useValue: authServiceSpy }
-      ]
+        { provide: AuthService, useValue: authServiceSpy },
+      ],
     }).overrideTemplate(ToolbarComponent, '');
   });
 

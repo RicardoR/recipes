@@ -1,5 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, RouterStateSnapshot } from '@angular/router';
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  RouterStateSnapshot,
+} from '@angular/router';
 import { of } from 'rxjs';
 
 import { RecipeService } from '../../recipe/recipe.service';
@@ -29,8 +33,8 @@ describe('RecipeDetailsResolve', () => {
   });
 
   beforeEach(() => {
-     resolver = TestBed.inject(RecipeDetailsResolve);
-     route = TestBed.inject(ActivatedRoute);
+    resolver = TestBed.inject(RecipeDetailsResolve);
+    route = TestBed.inject(ActivatedRoute);
   });
 
   it('should resolve to the recipe', () => {
@@ -42,5 +46,4 @@ describe('RecipeDetailsResolve', () => {
 
     expect(recipeServiceSpy.getRecipeDetail).toHaveBeenCalledWith('recipeId');
   });
-
 });

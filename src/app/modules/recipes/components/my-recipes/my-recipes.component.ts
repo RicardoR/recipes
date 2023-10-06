@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import {  MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { Router } from '@angular/router';
 import { Subject, EMPTY } from 'rxjs';
@@ -17,11 +17,11 @@ import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.com
 
 @NgLog()
 @Component({
-    selector: 'app-my-recipes',
-    templateUrl: './my-recipes.component.html',
-    styleUrls: ['./my-recipes.component.scss'],
-    standalone: true,
-    imports: [ToolbarComponent, RecipeListComponent],
+  selector: 'app-my-recipes',
+  templateUrl: './my-recipes.component.html',
+  styleUrls: ['./my-recipes.component.scss'],
+  standalone: true,
+  imports: [ToolbarComponent, RecipeListComponent],
 })
 export class MyRecipesComponent implements OnInit, OnDestroy {
   recipesFiltered: Recipe[] = [];
@@ -30,7 +30,7 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
   private destroy$: Subject<null> = new Subject();
   private recipesRetrieved: Recipe[] = [];
   private router = inject(Router);
-  private recipeService = inject(RecipeService)
+  private recipeService = inject(RecipeService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private analytics = inject(AngularFireAnalytics);
@@ -78,7 +78,10 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
 
   onSearchText(searchText: string): void {
     if (searchText?.trim()) {
-      this.recipesFiltered = this.recipeService.filterRecipes(this.recipesRetrieved, searchText);
+      this.recipesFiltered = this.recipeService.filterRecipes(
+        this.recipesRetrieved,
+        searchText
+      );
     } else {
       this.recipesFiltered = [...this.recipesRetrieved];
     }

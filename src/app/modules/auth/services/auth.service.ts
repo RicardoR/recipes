@@ -36,7 +36,7 @@ export class AuthService {
       .signInWithEmailAndPassword(authData.email, authData.password)
       .then(() =>
         this.router.navigate([
-          `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
+          `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
         ])
       );
   }
@@ -67,7 +67,8 @@ export class AuthService {
           } else {
             userLogged.next(false);
           }
-      }))
+        })
+      )
       .subscribe();
     return userLogged;
   }

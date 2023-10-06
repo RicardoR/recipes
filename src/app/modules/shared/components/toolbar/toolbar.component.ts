@@ -7,7 +7,7 @@ import {
   OnDestroy,
   ViewChild,
   ElementRef,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -38,8 +38,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatInputModule,
     ReactiveFormsModule,
     MatButtonModule,
-    MatMenuModule
-  ]
+    MatMenuModule,
+  ],
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   @Input() displayListButton = false;
@@ -68,13 +68,13 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   goToCreate(): void {
     this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.new}`,
     ]);
   }
 
   goToPrivateList(): void {
     this.router.navigate([
-      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`
+      `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
     ]);
   }
 
@@ -101,6 +101,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   private listenSearchText(): void {
     this.searchFormControl.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(value => this.searchText$.emit(value));
+      .subscribe((value) => this.searchText$.emit(value));
   }
 }

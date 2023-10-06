@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  UntypedFormControl,
+  Validators,
+  UntypedFormBuilder,
+  ReactiveFormsModule,
+} from '@angular/forms';
 
 import { AuthData } from '../../auth-data.model';
 import { AuthService, FAKE_USER_EMAIL } from '../../services/auth.service';
@@ -11,19 +17,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss'],
-    standalone: true,
-    imports: [
-        MatCardModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-        NgIf,
-        MatButtonModule,
-    ],
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+  standalone: true,
+  imports: [
+    MatCardModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    NgIf,
+    MatButtonModule,
+  ],
 })
 export class LoginComponent implements OnInit {
   form!: UntypedFormGroup;
@@ -32,7 +38,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private fb: UntypedFormBuilder
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.buildLoginForm();

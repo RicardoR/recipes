@@ -10,7 +10,7 @@ describe('RecipesSelectComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RecipesMultipleSelectComponent]
+      imports: [RecipesMultipleSelectComponent],
     }).overrideTemplate(RecipesMultipleSelectComponent, '');
   });
 

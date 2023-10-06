@@ -46,7 +46,8 @@ describe('RecipeDetailsComponent', () => {
     fixture = TestBed.createComponent(RecipeDetailsComponent);
     component = fixture.componentInstance;
     authServiceSpy.currentUser = userMock;
-    firebaseAnalycitsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
+    firebaseAnalycitsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -55,7 +56,9 @@ describe('RecipeDetailsComponent', () => {
   });
 
   it('getRecipeDetails should get the recipe details and determine if is the owner', () => {
-    component.recipeDetails$.subscribe((recipe) => expect(recipe).toEqual(recipeMock));
+    component.recipeDetails$.subscribe((recipe) =>
+      expect(recipe).toEqual(recipeMock)
+    );
     expect(component.isOwnReceip).toBeFalsy();
   });
 
@@ -75,9 +78,13 @@ describe('RecipeDetailsComponent', () => {
       component.deleteRecipe();
       expect(matDialogSpy.open).toHaveBeenCalled();
       expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(recipeMock.id);
-      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(recipeMock.imgSrc);
+      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(
+        recipeMock.imgSrc
+      );
       expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes']);
-      expect(firebaseAnalycitsSpy).toHaveBeenCalledWith('delete_recipe_button_clicked');
+      expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+        'delete_recipe_button_clicked'
+      );
     });
 
     it('should not delete the recipe when user cancel the dialog', () => {
@@ -99,7 +106,10 @@ describe('RecipeDetailsComponent', () => {
     it('should navigate to edit recipe page when recipe has an id', () => {
       component.editRecipe();
 
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/edit', recipeMock.id]);
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        'recipes/edit',
+        recipeMock.id,
+      ]);
       expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
         'edit_recipe_button_clicked'
       );

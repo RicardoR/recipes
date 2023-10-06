@@ -15,11 +15,11 @@ import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.com
 
 @NgLog()
 @Component({
-    selector: 'app-edit-recipe',
-    templateUrl: './edit-recipe.component.html',
-    styleUrls: ['./edit-recipe.component.scss'],
-    standalone: true,
-    imports: [ToolbarComponent, RecipeCardFormComponent],
+  selector: 'app-edit-recipe',
+  templateUrl: './edit-recipe.component.html',
+  styleUrls: ['./edit-recipe.component.scss'],
+  standalone: true,
+  imports: [ToolbarComponent, RecipeCardFormComponent],
 })
 export class EditRecipeComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;

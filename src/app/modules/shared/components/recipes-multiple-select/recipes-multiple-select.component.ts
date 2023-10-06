@@ -5,13 +5,13 @@ import {
   OnInit,
   OnDestroy,
   Input,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   ControlValueAccessor,
   UntypedFormControl,
   NG_VALUE_ACCESSOR,
-  ReactiveFormsModule
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { ElementModel } from '../../../recipes/models/element.model';
 import { MatOptionModule } from '@angular/material/core';
@@ -28,8 +28,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: RecipesMultipleSelectComponent
-    }
+      useExisting: RecipesMultipleSelectComponent,
+    },
   ],
   standalone: true,
   imports: [
@@ -38,11 +38,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     ReactiveFormsModule,
     NgIf,
     NgFor,
-    MatOptionModule
-  ]
+    MatOptionModule,
+  ],
 })
 export class RecipesMultipleSelectComponent
-  implements ControlValueAccessor, OnInit, OnDestroy {
+  implements ControlValueAccessor, OnInit, OnDestroy
+{
   @Input() label: string = 'Select';
   @Input() options: ElementModel[] = [];
 
@@ -103,7 +104,7 @@ export class RecipesMultipleSelectComponent
       .pipe(
         takeUntil(this.destroy$),
         tap(() => this.markAsTouched()),
-        filter(value => value !== this.value)
+        filter((value) => value !== this.value)
       )
       .subscribe((value: ElementModel[]) => {
         this.onChange(value);

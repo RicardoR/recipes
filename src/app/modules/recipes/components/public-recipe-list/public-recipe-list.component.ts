@@ -17,11 +17,11 @@ import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.com
 
 @NgLog()
 @Component({
-    selector: 'app-public-recipe-list',
-    templateUrl: './public-recipe-list.component.html',
-    styleUrls: ['./public-recipe-list.component.scss'],
-    standalone: true,
-    imports: [ToolbarComponent, RecipeListComponent]
+  selector: 'app-public-recipe-list',
+  templateUrl: './public-recipe-list.component.html',
+  styleUrls: ['./public-recipe-list.component.scss'],
+  standalone: true,
+  imports: [ToolbarComponent, RecipeListComponent],
 })
 export class PublicRecipeListComponent implements OnInit, OnDestroy {
   recipesFiltered: Recipe[] = [];
@@ -35,7 +35,6 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   public dialog = inject(MatDialog);
   private analytics = inject(AngularFireAnalytics);
-
 
   ngOnInit(): void {
     this.analytics.logEvent('public_recipes_component_opened');
@@ -53,7 +52,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     if (recipe.id) {
       this.router.navigate([
         `/${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
-        recipe.id
+        recipe.id,
       ]);
     }
   }
@@ -66,7 +65,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
         .afterClosed()
         .pipe(
           takeUntil(this.destroy$),
-          concatMap(data =>
+          concatMap((data) =>
             data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
           ),
           concatMap(() => this.recipeService.deleteImage(recipe.imgSrc)),
@@ -92,13 +91,13 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
 
   cloneRecipe(recipe: Recipe): void {
     this.analytics.logEvent('public_recipe_cloned', {
-      recipeId: recipe.id
+      recipeId: recipe.id,
     });
 
     this.recipeService
       .cloneRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(recipeId => this.goToEditRecipe(recipeId));
+      .subscribe((recipeId) => this.goToEditRecipe(recipeId));
   }
 
   private getRecipes(): void {
@@ -131,7 +130,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   private goToEditRecipe(recipeId: string): void {
     this.router.navigate([
       `${AppRoutingNames.recipes}/${RecipesRoutingNames.edit}`,
-      recipeId
+      recipeId,
     ]);
   }
 }

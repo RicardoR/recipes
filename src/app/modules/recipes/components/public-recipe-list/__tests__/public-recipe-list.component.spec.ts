@@ -47,7 +47,8 @@ describe('PublicRecipeListComponent', () => {
     recipeServiceSpy.getPublicRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
     authServiceSpy.logoutSuccess$ = new BehaviorSubject<void>(undefined);
-    firebaseAnalycitsSpy = AngularFireTestingModule.getAngularFireAnalyticsSpy();
+    firebaseAnalycitsSpy =
+      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -103,7 +104,6 @@ describe('PublicRecipeListComponent', () => {
     });
 
     it('should not call to back end if a recipe doesnt have a recipe id', () => {
-
       const recipe = { ...recipesListMock[0] };
       recipe.id = '';
       component.deleteRecipe(recipe);
@@ -111,10 +111,12 @@ describe('PublicRecipeListComponent', () => {
       expect(recipeServiceSpy.deleteRecipe).not.toHaveBeenCalled();
       expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
       expect(recipeServiceSpy.getPublicRecipes).not.toHaveBeenCalled();
-     });
+    });
   });
 
   it('should log the event when component is started', () => {
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith('public_recipes_component_opened');
+    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      'public_recipes_component_opened'
+    );
   });
 });

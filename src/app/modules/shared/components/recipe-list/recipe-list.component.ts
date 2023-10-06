@@ -5,7 +5,7 @@ import {
   Input,
   Output,
   OnInit,
-  OnDestroy
+  OnDestroy,
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, tap, filter, takeWhile } from 'rxjs/operators';
@@ -33,8 +33,8 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
     MatCardModule,
     RecipeRibbonComponent,
     MatButtonModule,
-    DatePipe
-  ]
+    DatePipe,
+  ],
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   @Input() set recipes(recipeList: Recipe[]) {
@@ -84,7 +84,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       .getCategories()
       .pipe(
         takeUntil(this.destroy$),
-        tap(categories => (this.categories = categories))
+        tap((categories) => (this.categories = categories))
       )
       .subscribe();
   }
@@ -92,7 +92,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   private listenCategoryFilter(): void {
     this.categoryFilter.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(value => this.filterRecipes(value));
+      .subscribe((value) => this.filterRecipes(value));
   }
 
   private filterRecipes(categoriesSelected: ElementModel[]): void {
@@ -101,8 +101,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.recipesFiltered = this._recipes.filter(recipe => {
-      return recipe.categories?.some(category =>
+    this.recipesFiltered = this._recipes.filter((recipe) => {
+      return recipe.categories?.some((category) =>
         this.filterCategories(categoriesSelected, category)
       );
     });
@@ -113,7 +113,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     category: ElementModel
   ): boolean {
     return categoriesSelected?.some(
-      categorySelected => categorySelected.id === category.id
+      (categorySelected) => categorySelected.id === category.id
     );
   }
 }

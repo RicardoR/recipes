@@ -13,11 +13,11 @@ import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.com
 
 @NgLog()
 @Component({
-    selector: 'app-new-recipe',
-    templateUrl: './new-recipe.component.html',
-    styleUrls: ['./new-recipe.component.scss'],
-    standalone: true,
-    imports: [ToolbarComponent, RecipeCardFormComponent],
+  selector: 'app-new-recipe',
+  templateUrl: './new-recipe.component.html',
+  styleUrls: ['./new-recipe.component.scss'],
+  standalone: true,
+  imports: [ToolbarComponent, RecipeCardFormComponent],
 })
 export class NewRecipeComponent implements OnInit, OnDestroy {
   private destroy$: Subject<null> = new Subject();
@@ -25,7 +25,6 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
   private recipeService = inject(RecipeService);
   private router = inject(Router);
   private analytics = inject(AngularFireAnalytics);
-
 
   ngOnInit(): void {
     this.analytics.logEvent('new_recipe_component_opened');

@@ -10,14 +10,12 @@ describe('AuthGuard', () => {
     'initAuthListener',
   ]);
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        providers: [{ provide: AuthService, useValue: authServiceSpy }],
-      });
-      service = TestBed.inject(AuthGuard);
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+    });
+    service = TestBed.inject(AuthGuard);
+  }));
 
   it('should determine if canActivate based on initAuthListener', () => {
     authServiceSpy.initAuthListener.and.returnValue(new BehaviorSubject(true));
