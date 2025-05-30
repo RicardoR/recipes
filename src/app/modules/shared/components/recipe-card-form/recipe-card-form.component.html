@@ -32,8 +32,8 @@
             class="preview-image"
             [src]="recipeImage"
             alt="Imagen de la receta"/>
-          <div *ngIf="user" [formGroup]="pictureForm">
-            <mat-form-field appearance="outline" class="file-input__wrapper">
+          <div *ngIf="false" [formGroup]="pictureForm">
+            <!--<mat-form-field appearance="outline" class="file-input__wrapper">
               <ngx-mat-file-input accept="image/*"
                                   placeholder="Imagen de la receta"
                                   formControlName="photo">
@@ -42,7 +42,7 @@
               <mat-error *ngIf="pictureForm.controls['photo'].hasError('image')">
                   Formato de archivo incorrecto
               </mat-error>
-            </mat-form-field>
+            </mat-form-field> -->
           </div>
           <mat-progress-bar *ngIf="submitted" [value]="uploadProgress$ | async" mode="determinate">
           </mat-progress-bar>

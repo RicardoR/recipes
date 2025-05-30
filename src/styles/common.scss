@@ -25,3 +25,13 @@ input:-webkit-autofill:active
 .mat-input-element {
   caret-color: #fff;
 }
+
+.mat-mdc-card  {
+  height: 100%;
+  .mat-mdc-card-content {
+    height: 100%;
+  }
+  .mat-mdc-card-header {
+    min-height: 90px;
+  }
+}
