@@ -39,7 +39,7 @@ import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recip
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { NgxMatFileInputModule } from '@angular-material-components/file-input';
+import { NgxMatFileInputComponent } from '@ngxmc/file-input';
 import { NgIf, NgFor, AsyncPipe } from '@angular/common';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -63,7 +63,7 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
     MatIconModule,
     TextFieldModule,
     NgIf,
-    NgxMatFileInputModule,
+    NgxMatFileInputComponent,
     MatProgressBarModule,
     MatButtonModule,
     MatExpansionModule,
