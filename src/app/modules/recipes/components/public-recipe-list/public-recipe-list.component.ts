@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
@@ -14,6 +13,7 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
+import { AnalyticsService } from "../../../shared/services/Analytics/analytics.service";
 
 @NgLog()
 @Component({
@@ -34,10 +34,10 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   private recipeService = inject(RecipeService);
   private authService = inject(AuthService);
   public dialog = inject(MatDialog);
-  private analytics = inject(AngularFireAnalytics);
+  private analytics = inject(AnalyticsService);
 
   ngOnInit(): void {
-    this.analytics.logEvent('public_recipes_component_opened');
+    this.analytics.sendToAnalytics('public_recipes_component_opened');
     this.getRecipes();
     this.listenToLogoutChanges();
     this.userId = this.authService.currentUser?.uid;
@@ -89,8 +89,9 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     }
   }
 
+  //todo: add test
   cloneRecipe(recipe: Recipe): void {
-    this.analytics.logEvent('public_recipe_cloned', {
+    this.analytics.sendToAnalytics('public_recipe_cloned', {
       recipeId: recipe.id,
     });
 

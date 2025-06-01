@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
@@ -12,6 +11,7 @@ import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { RecipeCardFormComponent } from '../../../shared/components/recipe-card-form/recipe-card-form.component';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
+import { AnalyticsService } from "../../../shared/services/Analytics/analytics.service";
 
 @NgLog()
 @Component({
@@ -29,10 +29,10 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
   private recipesService = inject(RecipeService);
   private messagesService = inject(MessagesService);
-  private analytics = inject(AngularFireAnalytics);
+  private analytics = inject(AnalyticsService);
 
   ngOnInit(): void {
-    this.analytics.logEvent('edit_recipe_component_opened');
+    this.analytics.sendToAnalytics('edit_recipe_component_opened')
     this.getRecipeDetails();
   }
 
@@ -55,7 +55,7 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   }
 
   updateRecipe(recipe: Recipe): void {
-    this.analytics.logEvent('update_recipe_button_clicked');
+    this.analytics.sendToAnalytics('update_recipe_button_clicked');
 
     this.isSending = true;
     this.recipesService

@@ -8,7 +8,7 @@ import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mo
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { MyRecipesComponent } from '../my-recipes.component';
-import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
+import { AnalyticsService } from '../../../../shared/services/Analytics/analytics.service';
 
 describe('MyRecipesComponent', () => {
   let component: MyRecipesComponent;
@@ -22,16 +22,17 @@ describe('MyRecipesComponent', () => {
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-  let angularFireAnalyticsSpy: jasmine.SpyObj<any>;
+  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [MyRecipesComponent, AngularFireTestingModule],
+      imports: [MyRecipesComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
+        { provide: AnalyticsService, useValue: analyticsSpy },
       ],
     }).overrideTemplate(MyRecipesComponent, '');
   });
@@ -42,8 +43,6 @@ describe('MyRecipesComponent', () => {
 
     recipeServiceSpy.getOwnRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
-    angularFireAnalyticsSpy =
-      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -110,8 +109,7 @@ describe('MyRecipesComponent', () => {
   });
 
   it('should send my_recipes_component_opened event to analytics', () => {
-    expect(angularFireAnalyticsSpy).toHaveBeenCalledWith(
-      'my_recipes_component_opened'
-    );
+    component.ngOnInit();
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('my_recipes_component_opened');
   });
 });

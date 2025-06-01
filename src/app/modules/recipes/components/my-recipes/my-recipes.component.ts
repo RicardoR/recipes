@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { Router } from '@angular/router';
 import { Subject, EMPTY } from 'rxjs';
 import { takeUntil, concatMap } from 'rxjs/operators';
@@ -11,9 +10,10 @@ import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
-import { AppRoutingNames } from './../../../../app-routing.module';
+import {AppRoutingNames} from '../../../../app-routing.module';
 import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
+import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
 
 @NgLog()
 @Component({
@@ -33,10 +33,10 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
   private recipeService = inject(RecipeService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
-  private analytics = inject(AngularFireAnalytics);
+  private analytics = inject(AnalyticsService);
 
   ngOnInit(): void {
-    this.analytics.logEvent('my_recipes_component_opened');
+    this.analytics.sendToAnalytics('my_recipes_component_opened');
     this.getRecipes();
     this.userId = this.authService.currentUser?.uid;
   }

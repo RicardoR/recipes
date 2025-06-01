@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
+import {Component, inject, OnInit} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { AnalyticsService } from '../../../shared/services/Analytics/analytics.service';
 
 @Component({
   selector: 'app-delete-recipe-dialog',
@@ -11,9 +11,9 @@ import { MatDialogModule } from '@angular/material/dialog';
   imports: [MatDialogModule, MatButtonModule],
 })
 export class DeleteRecipeDialogComponent implements OnInit {
-  private analytics = inject(AngularFireAnalytics);
+  private analytics = inject(AnalyticsService);
 
   ngOnInit(): void {
-    this.analytics.logEvent('delete_recipe_dialog_opened');
+    this.analytics.sendToAnalytics('delete_recipe_dialog_opened');
   }
 }

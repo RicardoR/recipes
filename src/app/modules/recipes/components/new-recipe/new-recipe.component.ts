@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -7,9 +6,10 @@ import { AppRoutingNames } from 'src/app/app-routing.module';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { RecipesRoutingNames } from '../../recipes-routing.module';
 import { RecipeService } from '../../services/recipe/recipe.service';
-import { Recipe } from './../../models/recipes.model';
+import { Recipe } from '../../models/recipes.model';
 import { RecipeCardFormComponent } from '../../../shared/components/recipe-card-form/recipe-card-form.component';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
+import { AnalyticsService } from '../../../shared/services/Analytics/analytics.service';
 
 @NgLog()
 @Component({
@@ -24,10 +24,10 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
 
   private recipeService = inject(RecipeService);
   private router = inject(Router);
-  private analytics = inject(AngularFireAnalytics);
+  private analytics = inject(AnalyticsService);
 
   ngOnInit(): void {
-    this.analytics.logEvent('new_recipe_component_opened');
+    this.analytics.sendToAnalytics('new_recipe_component_opened');
   }
 
   ngOnDestroy(): void {
@@ -35,7 +35,7 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
   }
 
   createRecipe(recipe: Recipe): void {
-    this.analytics.logEvent('create_recipe_button_clicked');
+    this.analytics.sendToAnalytics('create_recipe_button_clicked');
     this.recipeService
       .createRecipe(recipe)
       .pipe(takeUntil(this.destroy$))
