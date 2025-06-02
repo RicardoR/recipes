@@ -12,7 +12,7 @@ const routes: Routes = [
     path: AppRoutingNames.recipes,
     canActivate: [AuthReadyGuard],
     loadChildren: () =>
-      import('./modules/recipes/recipes.module').then((m) => m.RecipesModule),
+      import('./modules/recipes/recipes.routes').then((m) => m.RECIPE_ROUTES),
   },
   {
     path: AppRoutingNames.login,

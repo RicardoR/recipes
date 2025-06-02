@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { Observable, Subject, ReplaySubject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {AngularFireAuth} from '@angular/fire/compat/auth';
+import {Observable, ReplaySubject, Subject} from 'rxjs';
+import {map, take} from 'rxjs/operators';
 
-import { AuthData } from '../auth-data.model';
-import { AppRoutingNames } from 'src/app/app-routing.module';
-import { RecipesRoutingNames } from '../../recipes/recipes-routing.module';
+import {AuthData} from '../auth-data.model';
+import {AppRoutingNames} from 'src/app/app-routing.module';
+import {RecipesRoutingNames} from '../../recipes/recipes.routes';
 
 export const FAKE_USER_EMAIL = 'test@mail.com';
 
@@ -56,13 +56,11 @@ export class AuthService {
         take(1),
         map((user) => {
           if (user) {
-            const userData: AuthData = {
+            this.currentUser = {
               email: user.email ?? '',
               password: '',
               uid: user.uid,
             };
-
-            this.currentUser = userData;
             userLogged.next(true);
           } else {
             userLogged.next(false);

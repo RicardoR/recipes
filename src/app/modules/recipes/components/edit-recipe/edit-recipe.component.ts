@@ -7,7 +7,7 @@ import { AppRoutingNames } from 'src/app/app-routing.module';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { Recipe } from '../../models/recipes.model';
-import { RecipesRoutingNames } from '../../recipes-routing.module';
+import { RecipesRoutingNames } from '../../recipes.routes';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { RecipeCardFormComponent } from '../../../shared/components/recipe-card-form/recipe-card-form.component';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';

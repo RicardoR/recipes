@@ -1,5 +1,4 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { EditRecipeComponent } from './components/edit-recipe/edit-recipe.component';
 import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
@@ -17,7 +16,7 @@ export const RecipesRoutingNames = {
   myRecipes: 'my-recipes',
 };
 
-const routes: Routes = [
+export const RECIPE_ROUTES: Routes = [
   {
     path: RecipesRoutingNames.myRecipes,
     component: MyRecipesComponent,
@@ -46,8 +45,3 @@ const routes: Routes = [
   },
 ];
 
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class RecipesRoutingModule {}

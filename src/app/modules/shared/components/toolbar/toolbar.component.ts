@@ -15,7 +15,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AppRoutingNames } from 'src/app/app-routing.module';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { RecipesRoutingNames } from 'src/app/modules/recipes/recipes-routing.module';
+import { RecipesRoutingNames } from 'src/app/modules/recipes/recipes.routes';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';

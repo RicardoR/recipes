@@ -6,7 +6,7 @@ import { takeUntil, concatMap } from 'rxjs/operators';
 
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { Recipe } from '../../models/recipes.model';
-import { RecipesRoutingNames } from '../../recipes-routing.module';
+import { RecipesRoutingNames } from '../../recipes.routes';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';

@@ -7,7 +7,9 @@ import { Observable, ReplaySubject } from 'rxjs';
 import { AuthService } from '../../auth/services/auth.service';
 import { MessagesService } from '../../shared/services/messages/messages.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class PrivateRecipeGuard {
   constructor(
     private recipesService: RecipeService,
@@ -24,7 +26,7 @@ export class PrivateRecipeGuard {
       .getRecipeDetail(recipeId)
       .pipe(take(1))
       .subscribe((recipe: Recipe) => {
-        if (recipe.private === false || recipe.ownerId === userId) {
+        if (!recipe.private || recipe.ownerId === userId) {
           canActivate.next(true);
         } else {
           this.router.navigate(['/recipes']);
