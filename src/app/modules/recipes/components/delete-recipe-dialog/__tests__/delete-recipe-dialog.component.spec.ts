@@ -1,17 +1,19 @@
-import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog.component';
-import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
+import {AnalyticsService} from "../../../../shared/services/Analytics/analytics.service";
 
 describe('DeleteRecipeDialogComponent', () => {
   let component: DeleteRecipeDialogComponent;
   let fixture: ComponentFixture<DeleteRecipeDialogComponent>;
-  let angularFireAnalyticsSpy: jasmine.SpyObj<any>;
+  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [DeleteRecipeDialogComponent, AngularFireTestingModule],
-      providers: [],
+      imports: [DeleteRecipeDialogComponent],
+      providers: [
+        { provide: AnalyticsService, useValue: analyticsSpy }
+      ],
     }).overrideTemplate(DeleteRecipeDialogComponent, '');
   });
 
@@ -19,8 +21,7 @@ describe('DeleteRecipeDialogComponent', () => {
     fixture = TestBed.createComponent(DeleteRecipeDialogComponent);
 
     component = fixture.componentInstance;
-    angularFireAnalyticsSpy =
-      AngularFireTestingModule.getAngularFireAnalyticsSpy();
+
     fixture.detectChanges();
   });
 
@@ -28,9 +29,9 @@ describe('DeleteRecipeDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should log delete_recipe_dialog_opened event in analytics', fakeAsync(() => {
-    expect(angularFireAnalyticsSpy).toHaveBeenCalledWith(
+  it('should log delete_recipe_dialog_opened event in analytics', () => {
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
       'delete_recipe_dialog_opened'
     );
-  }));
+  });
 });

@@ -1,23 +1,24 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { concatMap, map, takeUntil, tap } from 'rxjs/operators';
 
-import { AppRoutingNames } from 'src/app/app-routing.module';
+import { AppRoutingNames } from 'src/app/app.routes';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
-import { RecipesRoutingNames } from '../../recipes-routing.module';
+import { RecipesRoutingNames } from '../../recipes.routes';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
-import { AuthService } from './../../../auth/services/auth.service';
-import { Recipe } from './../../models/recipes.model';
-import { RecipeService } from './../../services/recipe/recipe.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { Recipe } from '../../models/recipes.model';
+import { RecipeService } from '../../services/recipe/recipe.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
 import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
+import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
+
 @NgLog()
 @Component({
   selector: 'app-recipe-details',
@@ -49,10 +50,10 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
-  private analytics = inject(AngularFireAnalytics);
+  private analytics = inject(AnalyticsService);
 
   ngOnInit(): void {
-    this.analytics.logEvent('recipe_detail_component_opened');
+    this.analytics.sendToAnalytics('recipe_detail_component_opened');
     this.currentUserId = this.authService.currentUser?.uid;
     this.getRecipeDetails();
   }
@@ -63,7 +64,7 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   }
 
   deleteRecipe(): void {
-    this.analytics.logEvent('delete_recipe_button_clicked');
+    this.analytics.sendToAnalytics('delete_recipe_button_clicked');
 
     const dialogRef = this.dialog.open(DeleteRecipeDialogComponent);
 
@@ -84,14 +85,14 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
   }
 
   editRecipe(): void {
-    this.analytics.logEvent('edit_recipe_button_clicked');
+    this.analytics.sendToAnalytics('edit_recipe_button_clicked');
     if (this.recipeDetails.id) {
       this.goToEditRecipe(this.recipeDetails.id);
     }
   }
 
   cloneRecipe(recipe: Recipe): void {
-    this.analytics.logEvent('clone_recipe_button_clicked');
+    this.analytics.sendToAnalytics('clone_recipe_button_clicked');
 
     this.recipesService
       .cloneRecipe(recipe)

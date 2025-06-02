@@ -1,14 +1,10 @@
-import { TestBed } from '@angular/core/testing';
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  RouterStateSnapshot,
-} from '@angular/router';
-import { of } from 'rxjs';
+import {TestBed} from '@angular/core/testing';
+import {ActivatedRoute, convertToParamMap,} from '@angular/router';
+import {of} from 'rxjs';
 
-import { RecipeService } from '../../recipe/recipe.service';
-import { RecipeDetailsResolve } from '../recipe-details.resolver';
-import { Recipe } from './../../../models/recipes.model';
+import {RecipeService} from '../../recipe/recipe.service';
+import {RecipeDetailsResolve} from '../recipe-details.resolver';
+import {Recipe} from '../../../models/recipes.model';
 
 describe('RecipeDetailsResolve', () => {
   let resolver: RecipeDetailsResolve;
@@ -38,11 +34,10 @@ describe('RecipeDetailsResolve', () => {
   });
 
   it('should resolve to the recipe', () => {
-    const routerState = {} as RouterStateSnapshot;
     const recipe = { id: 'recipeId', title: 'test' } as Recipe;
 
     recipeServiceSpy.getRecipeDetail.and.returnValue(of(recipe));
-    resolver.resolve(route.snapshot, routerState);
+    resolver.resolve(route.snapshot);
 
     expect(recipeServiceSpy.getRecipeDetail).toHaveBeenCalledWith('recipeId');
   });

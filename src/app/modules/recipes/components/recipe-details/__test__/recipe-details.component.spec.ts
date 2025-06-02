@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgIf } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { of, BehaviorSubject } from 'rxjs';
@@ -8,7 +9,7 @@ import { RecipeDetailsComponent } from '../recipe-details.component';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
-import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
+import { AnalyticsService } from '../../../../shared/services/Analytics/analytics.service';
 
 describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;
@@ -24,17 +25,18 @@ describe('RecipeDetailsComponent', () => {
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-  let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
+  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RecipeDetailsComponent, AngularFireTestingModule],
+      imports: [RecipeDetailsComponent, NgIf],
       providers: [
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
+        { provide: AnalyticsService, useValue: analyticsSpy },
       ],
     }).overrideTemplate(
       RecipeDetailsComponent,
@@ -46,8 +48,6 @@ describe('RecipeDetailsComponent', () => {
     fixture = TestBed.createComponent(RecipeDetailsComponent);
     component = fixture.componentInstance;
     authServiceSpy.currentUser = userMock;
-    firebaseAnalycitsSpy =
-      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -82,7 +82,7 @@ describe('RecipeDetailsComponent', () => {
         recipeMock.imgSrc
       );
       expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes']);
-      expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
         'delete_recipe_button_clicked'
       );
     });
@@ -96,7 +96,7 @@ describe('RecipeDetailsComponent', () => {
       expect(recipeServiceSpy.deleteRecipe).not.toHaveBeenCalled();
       expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
       expect(routerSpy.navigate).not.toHaveBeenCalled();
-      expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
         'delete_recipe_button_clicked'
       );
     });
@@ -110,14 +110,14 @@ describe('RecipeDetailsComponent', () => {
         'recipes/edit',
         recipeMock.id,
       ]);
-      expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
         'edit_recipe_button_clicked'
       );
     });
   });
 
   it('should log recipe_detail_component_opened event at start', () => {
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
       'recipe_detail_component_opened'
     );
   });

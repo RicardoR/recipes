@@ -6,7 +6,7 @@ import { MessagesService } from 'src/app/modules/shared/services/messages/messag
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { EditRecipeComponent } from '../edit-recipe.component';
 import { recipeMock } from '../../../../../testing-resources/mocks/recipe-mock';
-import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
+import { AnalyticsService } from "../../../../shared/services/Analytics/analytics.service";
 
 describe('EditRecipeComponent', () => {
   let component: EditRecipeComponent;
@@ -20,17 +20,19 @@ describe('EditRecipeComponent', () => {
   const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
     'showSnackBar',
   ]);
+  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
+
   const activatedRouteStub = { data: of({ recipe: recipeMock }) };
-  let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [EditRecipeComponent, AngularFireTestingModule],
+      imports: [EditRecipeComponent],
       providers: [
         { provide: Router, useValue: routeSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: MessagesService, useValue: messagesServiceSpy },
+        { provide: AnalyticsService, useValue: analyticsSpy },
       ],
     }).overrideTemplate(EditRecipeComponent, '');
   });
@@ -40,8 +42,6 @@ describe('EditRecipeComponent', () => {
     component = fixture.componentInstance;
     recipeServiceSpy.updateRecipe.and.returnValue(of({}));
     recipeServiceSpy.deleteImage.and.returnValue(of({}));
-    firebaseAnalycitsSpy =
-      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -65,7 +65,7 @@ describe('EditRecipeComponent', () => {
   it('updateRecipe should allow to update the recipe', () => {
     recipeServiceSpy.updateRecipe.and.returnValue(of({}));
     component.updateRecipe(component.recipeDetails);
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
       'update_recipe_button_clicked'
     );
     expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(
@@ -86,7 +86,7 @@ describe('EditRecipeComponent', () => {
   });
 
   it('should log edit_recipe_component_opened event', () => {
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
       'edit_recipe_component_opened'
     );
   });

@@ -1,8 +1,9 @@
 import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
-import { Component } from '@angular/core';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
+import {Component, inject} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { getAnalytics, logEvent } from '@angular/fire/analytics';
+import {AnalyticsService} from "./modules/shared/services/Analytics/analytics.service";
 
 @Component({
   selector: 'app-root',
@@ -12,8 +13,10 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
 })
 export class AppComponent {
-  constructor(private analytics: AngularFireAnalytics) {
+  private analytics = inject(AnalyticsService);
+
+  constructor() {
     registerLocaleData(localeEs);
-    this.analytics.logEvent('app_started');
+    this.analytics.sendToAnalytics('app_started');
   }
 }

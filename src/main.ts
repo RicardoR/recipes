@@ -1,47 +1,12 @@
-import { enableProdMode, ErrorHandler, LOCALE_ID, importProvidersFrom } from '@angular/core';
-import { environment } from './environments/environment';
-import { AppComponent } from './app/app.component';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { AuthModule } from './app/modules/auth/auth.module';
-import { AngularFireAnalyticsModule } from '@angular/fire/compat/analytics';
-import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
-import { AngularFireModule } from '@angular/fire/compat';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { AppRoutingModule } from './app/app-routing.module';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
-import { AppErrorHandler } from './app/app-error-handle';
+import {enableProdMode} from '@angular/core';
+import {environment} from './environments/environment';
+import {AppComponent} from './app/app.component';
+import {bootstrapApplication} from '@angular/platform-browser';
+import {appConfig} from "./app/app.config";
 
 if (environment.production) {
   enableProdMode();
 }
 
-bootstrapApplication(AppComponent, {
-    providers: [
-      importProvidersFrom(
-        BrowserModule,
-        AppRoutingModule,
-        // Firebase
-        AngularFireModule.initializeApp(environment.firebase),
-        AngularFirestoreModule,
-        AngularFireAnalyticsModule,
-        AuthModule,
-        MatSnackBarModule,
-        ServiceWorkerModule.register('ngsw-worker.js', {
-            enabled: environment.production,
-            // Register the ServiceWorker as soon as the app is stable
-            // or after 30 seconds (whichever comes first).
-            registrationStrategy: 'registerWhenStable:30000'
-          })),
-          {
-              provide: ErrorHandler,
-              useClass: AppErrorHandler,
-          },
-          {
-              provide: LOCALE_ID,
-              useValue: 'es'
-          },
-          provideAnimations(),
-    ]
-})
+bootstrapApplication(AppComponent, appConfig)
   .catch(err => console.error(err));

@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { NewRecipeComponent } from '../new-recipe.component';
-import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
+import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
 
 describe('NewRecipeComponent', () => {
   let component: NewRecipeComponent;
@@ -14,14 +14,15 @@ describe('NewRecipeComponent', () => {
     'createRecipe',
   ]);
   const routeSpy = jasmine.createSpyObj('Router', ['navigate']);
-  let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
+  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [NewRecipeComponent, AngularFireTestingModule],
+      imports: [NewRecipeComponent],
       providers: [
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: Router, useValue: routeSpy },
+        { provide: AnalyticsService, useValue: analyticsSpy },
       ],
     }).overrideTemplate(NewRecipeComponent, '');
   });
@@ -29,15 +30,13 @@ describe('NewRecipeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(NewRecipeComponent);
     component = fixture.componentInstance;
-    firebaseAnalycitsSpy =
-      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
   it('create recipe should create the recipe and then redirect to list', () => {
     recipeServiceSpy.createRecipe.and.returnValue(of({}));
     component.createRecipe(recipeMock);
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
       'create_recipe_button_clicked'
     );
 
@@ -46,7 +45,7 @@ describe('NewRecipeComponent', () => {
   });
 
   it('should log new_recipe_component_opened event', () => {
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
       'new_recipe_component_opened'
     );
   });

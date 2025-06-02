@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AngularFireAnalytics } from '@angular/fire/compat/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { of, BehaviorSubject } from 'rxjs';
@@ -9,7 +8,7 @@ import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mo
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { PublicRecipeListComponent } from '../public-recipe-list.component';
-import { AngularFireTestingModule } from 'src/app/testing-resources/modules/angular-fire-testing.module';
+import { AnalyticsService } from '../../../../shared/services/Analytics/analytics.service';
 
 describe('PublicRecipeListComponent', () => {
   let component: PublicRecipeListComponent;
@@ -26,16 +25,17 @@ describe('PublicRecipeListComponent', () => {
     'logoutSuccess$',
   ]);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-  let firebaseAnalycitsSpy: jasmine.SpyObj<any>;
+  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [PublicRecipeListComponent, AngularFireTestingModule],
+      imports: [PublicRecipeListComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: RecipeService, useValue: recipeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: MatDialog, useValue: matDialogSpy },
+        { provide: AnalyticsService, useValue: analyticsSpy },
       ],
     }).overrideTemplate(PublicRecipeListComponent, '');
   });
@@ -47,8 +47,6 @@ describe('PublicRecipeListComponent', () => {
     recipeServiceSpy.getPublicRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
     authServiceSpy.logoutSuccess$ = new BehaviorSubject<void>(undefined);
-    firebaseAnalycitsSpy =
-      AngularFireTestingModule.getAngularFireAnalyticsSpy();
     fixture.detectChanges();
   });
 
@@ -115,7 +113,7 @@ describe('PublicRecipeListComponent', () => {
   });
 
   it('should log the event when component is started', () => {
-    expect(firebaseAnalycitsSpy).toHaveBeenCalledWith(
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
       'public_recipes_component_opened'
     );
   });
