@@ -12,6 +12,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app/app-routing.module';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { AppErrorHandler } from './app/app-error-handle';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
 
 if (environment.production) {
@@ -21,14 +22,13 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
     providers: [
       provideFirebaseApp(() => initializeApp(environment.firebase)),
-      //provideFirestore(() => getFirestore()),
+      provideFirestore(() => getFirestore()),
       provideAnalytics(() => getAnalytics()),
       importProvidersFrom(
         BrowserModule,
         AppRoutingModule,
         // Firebase
         AngularFireModule.initializeApp(environment.firebase), // todo: can be removed ?
-        AngularFirestoreModule,
         AuthModule,
         MatSnackBarModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
