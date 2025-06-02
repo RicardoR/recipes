@@ -17,7 +17,7 @@ const routes: Routes = [
   {
     path: AppRoutingNames.login,
     loadChildren: () =>
-      import('./modules/auth/auth.module').then((m) => m.AuthModule),
+      import('./modules/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   { path: '**', redirectTo: AppRoutingNames.recipes },
 ];
