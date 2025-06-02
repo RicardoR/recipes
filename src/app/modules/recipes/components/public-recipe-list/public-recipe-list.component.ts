@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { EMPTY, Subject } from 'rxjs';
 import { concatMap, takeUntil, switchMap, tap } from 'rxjs/operators';
 
-import { AppRoutingNames } from 'src/app/app-routing.module';
+import { AppRoutingNames } from 'src/app/app.routes';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { Recipe } from '../../models/recipes.model';

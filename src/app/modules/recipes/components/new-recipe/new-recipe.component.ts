@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { AppRoutingNames } from 'src/app/app-routing.module';
+import { AppRoutingNames } from 'src/app/app.routes';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { RecipesRoutingNames } from '../../recipes.routes';
 import { RecipeService } from '../../services/recipe/recipe.service';

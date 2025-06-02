@@ -10,7 +10,7 @@ import { RecipesRoutingNames } from '../../recipes.routes';
 import { RecipeService } from '../../services/recipe/recipe.service';
 import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
-import {AppRoutingNames} from '../../../../app-routing.module';
+import {AppRoutingNames} from '../../../../app.routes';
 import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";

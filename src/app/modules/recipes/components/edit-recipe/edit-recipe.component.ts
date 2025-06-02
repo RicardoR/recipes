@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 
-import { AppRoutingNames } from 'src/app/app-routing.module';
+import { AppRoutingNames } from 'src/app/app.routes';
 import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
 import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
 import { Recipe } from '../../models/recipes.model';

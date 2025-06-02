@@ -19,7 +19,7 @@ import { map, switchMap, take, tap } from 'rxjs/operators';
 import { Recipe } from '../../models/recipes.model';
 import { AuthService } from '../../../auth/services/auth.service';
 import { ElementModel } from '../../models/element.model';
-import { AppRoutingNames } from 'src/app/app-routing.module';
+import { AppRoutingNames } from 'src/app/app.routes';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',

@@ -1,13 +1,12 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AuthReadyGuard } from './modules/auth/guards/auth-ready.guard';
+import {Routes} from '@angular/router';
+import {AuthReadyGuard} from './modules/auth/guards/auth-ready.guard';
 
 export const AppRoutingNames = {
   recipes: 'recipes',
   login: 'login',
 };
 
-const routes: Routes = [
+export const APP_ROUTES: Routes = [
   {
     path: AppRoutingNames.recipes,
     canActivate: [AuthReadyGuard],
@@ -21,11 +20,3 @@ const routes: Routes = [
   },
   { path: '**', redirectTo: AppRoutingNames.recipes },
 ];
-
-@NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' }),
-  ],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}
