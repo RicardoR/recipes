@@ -15,7 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
-import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
 import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
 
@@ -25,16 +25,14 @@ import {AnalyticsService} from "../../../shared/services/Analytics/analytics.ser
     templateUrl: './recipe-details.component.html',
     styleUrls: ['./recipe-details.component.scss'],
     imports: [
-        ToolbarComponent,
-        NgIf,
-        MatCardModule,
-        MatExpansionModule,
-        MatListModule,
-        NgFor,
-        MatButtonModule,
-        AsyncPipe,
-        DatePipe,
-    ]
+    ToolbarComponent,
+    MatCardModule,
+    MatExpansionModule,
+    MatListModule,
+    MatButtonModule,
+    AsyncPipe,
+    DatePipe
+]
 })
 export class RecipeDetailsComponent implements OnInit, OnDestroy {
   recipeDetails$!: Observable<Recipe>;

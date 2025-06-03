@@ -15,7 +15,7 @@ import {
 } from '@angular/forms';
 import { ElementModel } from '../../../recipes/models/element.model';
 import { MatOptionModule } from '@angular/material/core';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
@@ -32,13 +32,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
         },
     ],
     imports: [
-        MatFormFieldModule,
-        MatSelectModule,
-        ReactiveFormsModule,
-        NgIf,
-        NgFor,
-        MatOptionModule,
-    ]
+    MatFormFieldModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatOptionModule
+]
 })
 export class RecipesMultipleSelectComponent
   implements ControlValueAccessor, OnInit, OnDestroy

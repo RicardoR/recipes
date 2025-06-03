@@ -10,7 +10,7 @@ import {
 import { AuthData } from '../../auth-data.model';
 import { AuthService, FAKE_USER_EMAIL } from '../../services/auth.service';
 import { MatButtonModule } from '@angular/material/button';
-import { NgIf } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,14 +21,13 @@ import { MatCardModule } from '@angular/material/card';
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
     imports: [
-        MatCardModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-        NgIf,
-        MatButtonModule,
-    ]
+    MatCardModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule
+]
 })
 export class LoginComponent implements OnInit {
   form!: UntypedFormGroup;

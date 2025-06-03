@@ -21,7 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { NgIf } from '@angular/common';
+
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
@@ -30,15 +30,14 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     styleUrls: ['./toolbar.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        MatToolbarModule,
-        NgIf,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatMenuModule,
-    ]
+    MatToolbarModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatMenuModule
+]
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   @Input() displayListButton = false;

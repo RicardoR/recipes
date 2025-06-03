@@ -1,29 +1,35 @@
 <mat-toolbar color="primary">
-  <ng-content *ngIf="!displaySearchControl"
-              select="[title]">
-  </ng-content>
+  @if (!displaySearchControl) {
+    <ng-content
+      select="[title]">
+    </ng-content>
+  }
   <span class="horizontal-spacer"></span>
-  <mat-icon *ngIf="displaySearchButton"
-            (click)="switchSearchControl()"
-            class="search-icon cursor-pointer mr-1"
-            aria-hidden="false"
-            aria-label="Search">search
-  </mat-icon>
-  <div class="w-100 d-flex" *ngIf="displaySearchControl">
-    <mat-form-field class="w-50 form-field__transparent">
-      <input #search
-             matInput
-             type="search"
-             autofocus
-             autocomplete="off"
-             [formControl]="searchFormControl">
-    </mat-form-field>
-  </div>
+  @if (displaySearchButton) {
+    <mat-icon
+      (click)="switchSearchControl()"
+      class="search-icon cursor-pointer mr-1"
+      aria-hidden="false"
+      aria-label="Search">search
+    </mat-icon>
+  }
+  @if (displaySearchControl) {
+    <div class="w-100 d-flex">
+      <mat-form-field class="w-50 form-field__transparent">
+        <input #search
+          matInput
+          type="search"
+          autofocus
+          autocomplete="off"
+          [formControl]="searchFormControl">
+      </mat-form-field>
+    </div>
+  }
 
-  <ng-container *ngIf="userId">
+  @if (userId) {
     <button mat-icon-button
-            [matMenuTriggerFor]="menu"
-            aria-label="Example icon-button with a menu">
+      [matMenuTriggerFor]="menu"
+      aria-label="Example icon-button with a menu">
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
@@ -44,11 +50,12 @@
         <span>Ver todas las recetas</span>
       </button>
     </mat-menu>
-  </ng-container>
+  }
 
- <button mat-icon-button
-        *ngIf="!userId && displayListButton"
-        (click)="goToPublicList()">
-    <mat-icon>list</mat-icon>
-  </button>
+  @if (!userId && displayListButton) {
+    <button mat-icon-button
+      (click)="goToPublicList()">
+      <mat-icon>list</mat-icon>
+    </button>
+  }
 </mat-toolbar>

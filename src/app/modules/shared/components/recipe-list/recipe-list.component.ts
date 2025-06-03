@@ -18,7 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { RecipeRibbonComponent } from '../recipe-ribbon/recipe-ribbon.component';
 import { MatCardModule } from '@angular/material/card';
 import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recipes-multiple-select.component';
-import { NgIf, NgFor, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @NgLog()
 @Component({
@@ -26,15 +26,13 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
     templateUrl: './recipe-list.component.html',
     styleUrls: ['./recipe-list.component.scss'],
     imports: [
-        NgIf,
-        RecipesMultipleSelectComponent,
-        ReactiveFormsModule,
-        NgFor,
-        MatCardModule,
-        RecipeRibbonComponent,
-        MatButtonModule,
-        DatePipe,
-    ]
+    RecipesMultipleSelectComponent,
+    ReactiveFormsModule,
+    MatCardModule,
+    RecipeRibbonComponent,
+    MatButtonModule,
+    DatePipe
+]
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   @Input() set recipes(recipeList: Recipe[]) {

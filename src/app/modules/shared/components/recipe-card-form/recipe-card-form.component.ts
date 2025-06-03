@@ -40,7 +40,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgxMatFileInputComponent } from '@ngxmc/file-input';
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -55,25 +55,23 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
     templateUrl: './recipe-card-form.component.html',
     styleUrls: ['./recipe-card-form.component.scss'],
     imports: [
-        MatCardModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-        TextFieldModule,
-        NgIf,
-        NgxMatFileInputComponent,
-        MatProgressBarModule,
-        MatButtonModule,
-        MatExpansionModule,
-        CdkDropList,
-        NgFor,
-        CdkDrag,
-        CdkDragHandle,
-        RecipesMultipleSelectComponent,
-        MatSlideToggleModule,
-        AsyncPipe,
-    ]
+    MatCardModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    TextFieldModule,
+    NgxMatFileInputComponent,
+    MatProgressBarModule,
+    MatButtonModule,
+    MatExpansionModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    RecipesMultipleSelectComponent,
+    MatSlideToggleModule,
+    AsyncPipe
+]
 })
 export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
