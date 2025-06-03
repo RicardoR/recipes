@@ -51,30 +51,29 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
 
 @NgLog()
 @Component({
-  selector: 'app-recipe-card-form',
-  templateUrl: './recipe-card-form.component.html',
-  styleUrls: ['./recipe-card-form.component.scss'],
-  standalone: true,
-  imports: [
-    MatCardModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    TextFieldModule,
-    NgIf,
-    NgxMatFileInputComponent,
-    MatProgressBarModule,
-    MatButtonModule,
-    MatExpansionModule,
-    CdkDropList,
-    NgFor,
-    CdkDrag,
-    CdkDragHandle,
-    RecipesMultipleSelectComponent,
-    MatSlideToggleModule,
-    AsyncPipe,
-  ],
+    selector: 'app-recipe-card-form',
+    templateUrl: './recipe-card-form.component.html',
+    styleUrls: ['./recipe-card-form.component.scss'],
+    imports: [
+        MatCardModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        TextFieldModule,
+        NgIf,
+        NgxMatFileInputComponent,
+        MatProgressBarModule,
+        MatButtonModule,
+        MatExpansionModule,
+        CdkDropList,
+        NgFor,
+        CdkDrag,
+        CdkDragHandle,
+        RecipesMultipleSelectComponent,
+        MatSlideToggleModule,
+        AsyncPipe,
+    ]
 })
 export class RecipeCardFormComponent implements OnInit, OnDestroy {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();

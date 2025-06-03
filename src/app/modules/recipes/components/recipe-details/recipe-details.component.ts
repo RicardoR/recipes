@@ -21,21 +21,20 @@ import {AnalyticsService} from "../../../shared/services/Analytics/analytics.ser
 
 @NgLog()
 @Component({
-  selector: 'app-recipe-details',
-  templateUrl: './recipe-details.component.html',
-  styleUrls: ['./recipe-details.component.scss'],
-  standalone: true,
-  imports: [
-    ToolbarComponent,
-    NgIf,
-    MatCardModule,
-    MatExpansionModule,
-    MatListModule,
-    NgFor,
-    MatButtonModule,
-    AsyncPipe,
-    DatePipe,
-  ],
+    selector: 'app-recipe-details',
+    templateUrl: './recipe-details.component.html',
+    styleUrls: ['./recipe-details.component.scss'],
+    imports: [
+        ToolbarComponent,
+        NgIf,
+        MatCardModule,
+        MatExpansionModule,
+        MatListModule,
+        NgFor,
+        MatButtonModule,
+        AsyncPipe,
+        DatePipe,
+    ]
 })
 export class RecipeDetailsComponent implements OnInit, OnDestroy {
   recipeDetails$!: Observable<Recipe>;

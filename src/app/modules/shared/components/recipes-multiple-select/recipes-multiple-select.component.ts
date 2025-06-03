@@ -20,26 +20,25 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-recipes-multiple-select',
-  templateUrl: './recipes-multiple-select.component.html',
-  styleUrls: ['./recipes-multiple-select.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      multi: true,
-      useExisting: RecipesMultipleSelectComponent,
-    },
-  ],
-  standalone: true,
-  imports: [
-    MatFormFieldModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-    NgIf,
-    NgFor,
-    MatOptionModule,
-  ],
+    selector: 'app-recipes-multiple-select',
+    templateUrl: './recipes-multiple-select.component.html',
+    styleUrls: ['./recipes-multiple-select.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            multi: true,
+            useExisting: RecipesMultipleSelectComponent,
+        },
+    ],
+    imports: [
+        MatFormFieldModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        NgIf,
+        NgFor,
+        MatOptionModule,
+    ]
 })
 export class RecipesMultipleSelectComponent
   implements ControlValueAccessor, OnInit, OnDestroy

@@ -4,11 +4,10 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { AnalyticsService } from '../../../shared/services/Analytics/analytics.service';
 
 @Component({
-  selector: 'app-delete-recipe-dialog',
-  templateUrl: './delete-recipe-dialog.component.html',
-  styleUrls: ['./delete-recipe-dialog.component.scss'],
-  standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
+    selector: 'app-delete-recipe-dialog',
+    templateUrl: './delete-recipe-dialog.component.html',
+    styleUrls: ['./delete-recipe-dialog.component.scss'],
+    imports: [MatDialogModule, MatButtonModule]
 })
 export class DeleteRecipeDialogComponent implements OnInit {
   private analytics = inject(AnalyticsService);

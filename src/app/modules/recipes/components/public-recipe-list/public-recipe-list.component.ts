@@ -17,11 +17,10 @@ import { AnalyticsService } from "../../../shared/services/Analytics/analytics.s
 
 @NgLog()
 @Component({
-  selector: 'app-public-recipe-list',
-  templateUrl: './public-recipe-list.component.html',
-  styleUrls: ['./public-recipe-list.component.scss'],
-  standalone: true,
-  imports: [ToolbarComponent, RecipeListComponent],
+    selector: 'app-public-recipe-list',
+    templateUrl: './public-recipe-list.component.html',
+    styleUrls: ['./public-recipe-list.component.scss'],
+    imports: [ToolbarComponent, RecipeListComponent]
 })
 export class PublicRecipeListComponent implements OnInit, OnDestroy {
   recipesFiltered: Recipe[] = [];

@@ -15,11 +15,10 @@ import { AnalyticsService } from "../../../shared/services/Analytics/analytics.s
 
 @NgLog()
 @Component({
-  selector: 'app-edit-recipe',
-  templateUrl: './edit-recipe.component.html',
-  styleUrls: ['./edit-recipe.component.scss'],
-  standalone: true,
-  imports: [ToolbarComponent, RecipeCardFormComponent],
+    selector: 'app-edit-recipe',
+    templateUrl: './edit-recipe.component.html',
+    styleUrls: ['./edit-recipe.component.scss'],
+    imports: [ToolbarComponent, RecipeCardFormComponent]
 })
 export class EditRecipeComponent implements OnInit, OnDestroy {
   recipeDetails!: Recipe;

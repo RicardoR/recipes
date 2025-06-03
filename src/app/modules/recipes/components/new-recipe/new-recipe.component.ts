@@ -13,11 +13,10 @@ import { AnalyticsService } from '../../../shared/services/Analytics/analytics.s
 
 @NgLog()
 @Component({
-  selector: 'app-new-recipe',
-  templateUrl: './new-recipe.component.html',
-  styleUrls: ['./new-recipe.component.scss'],
-  standalone: true,
-  imports: [ToolbarComponent, RecipeCardFormComponent],
+    selector: 'app-new-recipe',
+    templateUrl: './new-recipe.component.html',
+    styleUrls: ['./new-recipe.component.scss'],
+    imports: [ToolbarComponent, RecipeCardFormComponent]
 })
 export class NewRecipeComponent implements OnInit, OnDestroy {
   private destroy$: Subject<null> = new Subject();
