@@ -1,20 +1,20 @@
-@import "../_variables";
+@use "../_variables";
 
 .mdc-card {
   color: #fff;
 
   .mat-mdc-card-header {
     .mat-mdc-card-header-text {
-      margin-bottom: $space-2x;
+      margin-bottom: variables.$space-2x;
     }
   }
 
   .mat-mdc-card-content {
-    margin-bottom: $space-2x;
+    margin-bottom: variables.$space-2x;
   }
 
   .mdc-card__actions {
-    gap: $space-2x;
+    gap: variables.$space-2x;
   }
 
   .mdc-card__media {
@@ -24,6 +24,6 @@
 
 .recipe-details__container {
   .mat-mdc-card-content {
-    margin-top: $space-2x;
+    margin-top: variables.$space-2x;
   }
 }

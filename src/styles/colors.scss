@@ -1,12 +1,12 @@
-@import './_variables.scss';
+@use '_variables.scss';
 
 // Copy the palettes from selected theme.
 
 
 .color-white {
-  color: $white;
+  color: variables.$white;
 }
 
 .color-purple {
-  color: $purple;
+  color: variables.$purple;
 }

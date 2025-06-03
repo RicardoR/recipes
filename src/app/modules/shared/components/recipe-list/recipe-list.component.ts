@@ -19,6 +19,7 @@ import { RecipeRibbonComponent } from '../recipe-ribbon/recipe-ribbon.component'
 import { MatCardModule } from '@angular/material/card';
 import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recipes-multiple-select.component';
 import { NgIf, NgFor, DatePipe } from '@angular/common';
+
 @NgLog()
 @Component({
     selector: 'app-recipe-list',
