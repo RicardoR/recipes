@@ -1,5 +1,5 @@
-import { Injectable, Injector } from '@angular/core';
-import { Analytics, isSupported, logEvent } from '@angular/fire/analytics';
+import {Injectable, Injector} from '@angular/core';
+import {Analytics, isSupported, logEvent} from '@angular/fire/analytics';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,10 @@ export class AnalyticsService {
 
 
   sendToAnalytics(value: string, params?: { [key: string]: any }): void {
-    logEvent(this.analytics, value, params);
+    if (this.analytics) {
+      logEvent(this.analytics, value, params);
+    } else {
+      console.warn('Analytics not initialized, event not sent:', value);
+    }
   }
 }

@@ -1,25 +1,25 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { DocumentChangeAction } from '@angular/fire/compat/firestore/interfaces';
-import { Router } from '@angular/router';
-import {
-  AngularFireStorage,
-  AngularFireUploadTask,
-} from '@angular/fire/compat/storage';
-import {
-  BehaviorSubject,
-  combineLatest,
-  Observable,
-  Subject,
-  ReplaySubject,
-  from,
-} from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {deleteObject, FirebaseStorage, getDownloadURL, ref, Storage, uploadBytesResumable} from '@angular/fire/storage';
+import {from, Observable, of, ReplaySubject, Subject,} from 'rxjs';
 
-import { Recipe } from '../../models/recipes.model';
-import { AuthService } from '../../../auth/services/auth.service';
-import { ElementModel } from '../../models/element.model';
-import { AppRoutingNames } from 'src/app/app.routes';
+import {Recipe} from '../../models/recipes.model';
+import {AuthService} from '../../../auth/services/auth.service';
+import {ElementModel} from '../../models/element.model';
+import {AppRoutingNames} from 'src/app/app.routes';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  Firestore,
+  getDocs,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+  where
+} from '@angular/fire/firestore';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
@@ -40,32 +40,30 @@ export class RecipeService {
   private categoryList?: ElementModel[] = undefined;
 
   constructor(
-    private firestore: AngularFirestore,
+    private firestore: Firestore,
     private authService: AuthService,
-    private storage: AngularFireStorage,
-    private router: Router
-  ) {}
+    private router: Router,
+    private storage: Storage
+  ) {
+  }
 
   getOwnRecipes(): Observable<Recipe[]> {
     const result = new ReplaySubject<Recipe[]>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
     const userId = this.authService.currentUser?.uid;
 
-    this.firestore
-      .collection(privateRecipeNameCollection, (ref) =>
-        ref.where('ownerId', '==', userId).orderBy('date', 'desc')
-      )
-      .stateChanges()
-      .pipe(
-        take(1),
-        map((docArray: DocumentChangeAction<any>[]) => {
-          return docArray.map((document: DocumentChangeAction<any>) => {
-            const docData = document.payload.doc.data();
-            return this.recipesConverter(docData, document.payload.doc.id);
-          });
-        })
-      )
-      .subscribe((recipes: Recipe[]) => result.next(recipes));
+    const collectionRef = collection(this.firestore, privateRecipeNameCollection);
+    const queryData = query(collectionRef, where('ownerId', '==', userId), orderBy('date', 'desc'));
+
+    getDocs(queryData).then((querySnapshot) => {
+      const recipes: Recipe[] = [];
+      querySnapshot.forEach((doc) => {
+        const docData = doc.data();
+        recipes.push(this.recipesConverter(docData, doc.id));
+      });
+      result.next(recipes);
+      return recipes;
+    })
 
     return result;
   }
@@ -77,68 +75,45 @@ export class RecipeService {
       return result;
     }
 
-    this.firestore
-      .collection(DatabaseCollectionsNames.categories)
-      .stateChanges()
-      .pipe(
-        take(1),
-        map((docArray: DocumentChangeAction<any>[]) => {
-          return docArray.map((document: DocumentChangeAction<any>) => {
-            const docData = document.payload.doc.data();
-            return this.elementModelConverter(docData);
-          });
-        }),
-        tap((categories: ElementModel[]) => (this.categoryList = categories))
-      )
-      .subscribe((categoriesList: ElementModel[]) => {
-        result.next(categoriesList);
+    const collectionRef = collection(this.firestore, DatabaseCollectionsNames.categories);
+
+    getDocs(collectionRef).then((querySnapshot) => {
+      const categories: ElementModel[] = [];
+      querySnapshot.forEach((doc) => {
+        const docData = doc.data();
+        categories.push(this.elementModelConverter(docData));
       });
+      this.categoryList = categories;
+      result.next(categories);
+    })
 
     return result;
   }
 
-  getPublicRecipes(): Observable<any> {
-    const userId = this.authService.currentUser?.uid
-      ? this.authService.currentUser?.uid
-      : '-1';
-
+  getPublicRecipes(): Observable<Recipe[]> {
+    const userId = this.authService.currentUser?.uid ?? '-1';
     const result = new ReplaySubject<Recipe[]>();
-    const publicRecipeNameCollection = DatabaseCollectionsNames.recipes;
+    const recipesCollection = DatabaseCollectionsNames.recipes;
 
-    const queryOne = this.firestore
-      .collection(publicRecipeNameCollection, (ref) =>
-        ref.where('private', '==', false).orderBy('date', 'desc')
-      )
-      .stateChanges();
+    const publicQuery = query(
+      collection(this.firestore, recipesCollection),
+      where('private', '==', false),
+      orderBy('date', 'desc')
+    );
 
-    const queryTwo = this.firestore
-      .collection(publicRecipeNameCollection, (ref) =>
-        ref
-          .where('private', '==', true)
-          .where('ownerId', '==', userId)
-          .orderBy('date', 'desc')
-      )
-      .stateChanges();
+    const privateQuery = query(
+      collection(this.firestore, recipesCollection),
+      where('private', '==', true),
+      where('ownerId', '==', userId),
+      orderBy('date', 'desc')
+    );
 
-    combineLatest([queryOne, queryTwo])
-      .pipe(
-        take(1),
-        map(([docOne, docTwo]) => {
-          const allRecipes = [...docOne, ...docTwo];
-
-          return allRecipes.map((document: DocumentChangeAction<any>) => {
-            const docData = document.payload.doc.data();
-            return this.recipesConverter(docData, document.payload.doc.id);
-          });
-        })
-      )
-      .subscribe((recipes: Recipe[]) => {
-        recipes.sort(
-          (recipeOne, recipeTwo) =>
-            recipeTwo.date?.getTime() - recipeOne.date?.getTime()
-        );
-        result.next(recipes);
-      });
+    Promise.all([getDocs(publicQuery), getDocs(privateQuery)]).then(([publicSnap, privateSnap]) => {
+      const allDocs = [...publicSnap.docs, ...privateSnap.docs];
+      const recipes = allDocs.map(doc => this.recipesConverter(doc.data(), doc.id));
+      recipes.sort((a, b) => b.date?.getTime() - a.date?.getTime());
+      result.next(recipes);
+    });
 
     return result;
   }
@@ -147,21 +122,22 @@ export class RecipeService {
     if (this.authService.isDemoUser) {
       throw new Error('You can not create a recipe with demo user');
     }
-    const result = new Subject<string>();
     const recipeNameCollection = DatabaseCollectionsNames.recipes;
 
-    this.firestore
-      .collection(recipeNameCollection)
-      .add(recipe)
-      .then((data) => result.next(data.id));
+    const collectionRef = collection(this.firestore, recipeNameCollection);
 
-    return result;
+    return from(
+      addDoc(collectionRef, recipe).then(async (docRef) => {
+        await setDoc(docRef, {...recipe, id: docRef.id});
+        return docRef.id;
+      })
+    );
   }
 
   cloneRecipe(recipe: Recipe): Observable<string> {
     const userId = this.authService.currentUser?.uid;
 
-    const recipeCloned = { ...recipe };
+    const recipeCloned = {...recipe};
     recipeCloned.id = '';
     recipeCloned.imgSrc = '';
     recipeCloned.ownerId = userId;
@@ -177,15 +153,17 @@ export class RecipeService {
     }
 
     const result = new Subject<void>();
-    const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
+    const recipesCollection = DatabaseCollectionsNames.recipes;
+    const docRef = doc(this.firestore, `${recipesCollection}/${recipe.id}`);
 
-    this.firestore
-      .collection(privateRecipeNameCollection)
-      .doc(recipe.id)
-      .update(recipe)
-      .then(() => result.next());
+    updateDoc(docRef, {...recipe})
+      .then(() => {
+        result.next();
+        result.complete();
+      })
+      .catch((error) => result.error(error));
 
-    return result;
+    return result.asObservable();
   }
 
   getRecipeDetail(id: string | null): Observable<Recipe> {
@@ -195,19 +173,20 @@ export class RecipeService {
 
     const result = new Subject<Recipe>();
     const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
+    const collectionRef = collection(this.firestore, privateRecipeNameCollection);
+    const queryData = query(collectionRef, where('id', '==', id));
 
-    this.firestore
-      .collection(privateRecipeNameCollection)
-      .doc(id)
-      .get()
-      .pipe(
-        take(1),
-        map((doc) => this.recipesConverter(doc.data(), doc.id))
-      )
-      .subscribe((data: Recipe) => {
-        result.next(data);
-        result.complete();
-      });
+    getDocs(queryData).then((querySnapshot) => {
+      if (querySnapshot.empty) {
+        this.router.navigate([AppRoutingNames.recipes]);
+        throw new Error('Recipe does not exists');
+      }
+
+      const doc = querySnapshot.docs[0];
+      const docData = doc.data();
+      const recipe = this.recipesConverter(docData, doc.id);
+      result.next(recipe);
+    })
 
     return result;
   }
@@ -218,47 +197,61 @@ export class RecipeService {
     }
 
     const result = new Subject<boolean>();
-    const privateRecipeNameCollection = DatabaseCollectionsNames.recipes;
-    this.firestore
-      .collection(privateRecipeNameCollection)
-      .doc(id)
-      .delete()
+    const recipesCollection = DatabaseCollectionsNames.recipes;
+    const docRef = doc(this.firestore, `${recipesCollection}/${id}`);
+
+    deleteDoc(docRef)
       .then(() => {
         result.next(true);
         result.complete();
-      });
-    return result;
+      })
+      .catch((error) => result.error(error));
+
+    return result.asObservable();
   }
 
-  uploadFileAndGetMetadata(
-    mediaFolderPath: string,
-    fileToUpload: File
-  ): FilesUploadMetadata {
+  uploadFileAndGetMetadata(mediaFolderPath: string, fileToUpload: File): FilesUploadMetadata {
     if (this.authService.isDemoUser) {
       throw new Error('You can not upload a picture with demo user');
     }
-    const { name } = fileToUpload;
+    const {name} = fileToUpload;
     const filePath = `${mediaFolderPath}/${new Date().getTime()}_${name}`;
-    const uploadTask: AngularFireUploadTask = this.storage.upload(
-      filePath,
-      fileToUpload
-    );
+    const storageRef = ref(this.storage as unknown as FirebaseStorage, filePath);
+    const uploadTask = uploadBytesResumable(storageRef, fileToUpload);
+
+    const uploadProgress$ = new Observable<number | undefined>((observer) => {
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          observer.next(progress);
+        },
+        (error) => observer.error(error),
+        () => observer.complete()
+      );
+    });
+
+    const downloadUrl$ = from(
+      uploadTask.then(() => getDownloadURL(storageRef))
+    ) as Observable<string>;
 
     return {
-      uploadProgress$: uploadTask.percentageChanges(),
-      downloadUrl$: this.getDownloadUrl$(uploadTask, filePath),
+      uploadProgress$,
+      downloadUrl$,
     };
   }
 
-  deleteImage(ref: string): Observable<any> {
+  deleteImage(imageUrl: string): Observable<any> {
     if (this.authService.isDemoUser) {
       throw new Error('You can not do this with demo user');
     }
 
-    if (ref === DEFAULT_IMAGE) {
-      return new BehaviorSubject<any>(true);
+    if (imageUrl === DEFAULT_IMAGE) {
+      return of(true);
     }
-    return this.storage.refFromURL(ref).delete();
+
+    const storageRef = ref(this.storage, imageUrl);
+    return from(deleteObject(storageRef));
   }
 
   filterRecipes(recipesList: Recipe[], filter: string): Recipe[] {
@@ -300,13 +293,5 @@ export class RecipeService {
       detail: docData.detail,
     };
   }
-
-  private getDownloadUrl$(
-    uploadTask: AngularFireUploadTask,
-    path: string
-  ): Observable<string> {
-    return from(uploadTask).pipe(
-      switchMap((_) => this.storage.ref(path).getDownloadURL())
-    );
-  }
 }
+

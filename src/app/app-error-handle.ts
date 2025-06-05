@@ -1,5 +1,4 @@
-import {ErrorHandler, Injectable, Injector, NgZone} from '@angular/core';
-import { isSupported } from '@angular/fire/analytics';
+import {ErrorHandler, inject, Injectable, Injector, NgZone} from '@angular/core';
 import { MessagesService } from './modules/shared/services/messages/messages.service';
 import { AnalyticsService } from './modules/shared/services/Analytics/analytics.service';
 
@@ -7,15 +6,11 @@ import { AnalyticsService } from './modules/shared/services/Analytics/analytics.
   providedIn: 'root',
 })
 export class AppErrorHandler implements ErrorHandler {
-  private analytics!: AnalyticsService;
+  private messagesService: MessagesService = inject(MessagesService);
+  private zone: NgZone = inject(NgZone);
 
-  constructor(
-    private messagesService: MessagesService,
-    private zone: NgZone,
-    private injector: Injector
-  ) {
-    this.initAnalyticsWhenIsSupported();
-  }
+  constructor(private injector: Injector) {}
+
 
   handleError(error: Error) {
     this.zone.run(() =>
@@ -23,17 +18,11 @@ export class AppErrorHandler implements ErrorHandler {
         error.message || 'Undefined client error'
       )
     );
-
-    this.analytics.sendToAnalytics(`client_error: ${error.message}`);
+    const analytics = this.injector.get(AnalyticsService, null);
+    if (analytics) {
+      analytics.sendToAnalytics(`client_error: ${error.message}`);
+    }
 
     console.error(error);
-  }
-
-  private initAnalyticsWhenIsSupported() {
-    isSupported().then((isSupported: any) => {
-      if (isSupported) {
-        this.analytics = this.injector.get(AnalyticsService);
-      }
-    });
   }
 }

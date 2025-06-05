@@ -15,6 +15,6 @@ export class AppComponent {
 
   constructor() {
     registerLocaleData(localeEs);
-    this.analytics.sendToAnalytics('app_started');
+    this.analytics?.sendToAnalytics('app_started');
   }
 }
