@@ -1,17 +1,18 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { of, Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {of} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 
-import { AppRoutingNames } from 'src/app/app.routes';
-import { MessagesService } from 'src/app/modules/shared/services/messages/messages.service';
-import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
-import { Recipe } from '../../models/recipes.model';
-import { RecipesRoutingNames } from '../../recipes.routes';
-import { RecipeService } from '../../services/recipe/recipe.service';
-import { RecipeCardFormComponent } from '../../../shared/components/recipe-card-form/recipe-card-form.component';
-import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
-import { AnalyticsService } from "../../../shared/services/Analytics/analytics.service";
+import {AppRoutingNames} from 'src/app/app.routes';
+import {MessagesService} from 'src/app/modules/shared/services/messages/messages.service';
+import {NgLog} from 'src/app/modules/shared/utils/decorators/log-decorator';
+import {Recipe} from '../../models/recipes.model';
+import {RecipesRoutingNames} from '../../recipes.routes';
+import {RecipeService} from '../../services/recipe/recipe.service';
+import {RecipeCardFormComponent} from '../../../shared/components/recipe-card-form/recipe-card-form.component';
+import {ToolbarComponent} from '../../../shared/components/toolbar/toolbar.component';
+import {AnalyticsService} from '../../../shared/services/Analytics/analytics.service';
 
 @NgLog()
 @Component({
@@ -20,10 +21,11 @@ import { AnalyticsService } from "../../../shared/services/Analytics/analytics.s
     styleUrls: ['./edit-recipe.component.scss'],
     imports: [ToolbarComponent, RecipeCardFormComponent]
 })
-export class EditRecipeComponent implements OnInit, OnDestroy {
+export class EditRecipeComponent implements OnInit {
   recipeDetails!: Recipe;
   isSending = false;
-  private destroy$: Subject<null> = new Subject();
+
+  private destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private recipesService = inject(RecipeService);
@@ -33,11 +35,6 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.analytics.sendToAnalytics('edit_recipe_component_opened')
     this.getRecipeDetails();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
-    this.destroy$.complete();
   }
 
   goToList(): void {
@@ -60,7 +57,7 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
     this.recipesService
       .updateRecipe(recipe)
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         switchMap(() => {
           if (this.recipeDetails.imgSrc !== recipe.imgSrc) {
             return this.recipesService.deleteImage(this.recipeDetails.imgSrc);
@@ -76,7 +73,7 @@ export class EditRecipeComponent implements OnInit, OnDestroy {
 
   private getRecipeDetails(): void {
     this.activatedRoute.data
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => (this.recipeDetails = data.recipe));
   }
 }

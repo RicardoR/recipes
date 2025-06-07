@@ -1,30 +1,29 @@
-import {
-  CdkDragDrop,
-  moveItemInArray,
-  CdkDropList,
-  CdkDrag,
-  CdkDragHandle,
-} from '@angular/cdk/drag-drop';
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
+import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray,} from '@angular/cdk/drag-drop';
+import {ChangeDetectorRef, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output,} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
-import {EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, takeUntil} from 'rxjs/operators';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatCardModule} from '@angular/material/card';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatButtonModule} from '@angular/material/button';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {NgxMatFileInputComponent} from '@ngxmc/file-input';
+import {AsyncPipe} from '@angular/common';
+import {TextFieldModule} from '@angular/cdk/text-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+
+import {EMPTY, Observable} from 'rxjs';
+import {catchError} from 'rxjs/operators';
 
 import {AuthData} from 'src/app/modules/auth/auth-data.model';
 import {AuthService} from 'src/app/modules/auth/services/auth.service';
@@ -34,18 +33,8 @@ import {MessagesService} from '../../services/messages/messages.service';
 import {UtilService} from '../../utils/utils.service';
 import {NgLog} from '../../utils/decorators/log-decorator';
 import {ElementModel} from '../../../recipes/models/element.model';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes-multiple-select.component';
-import {MatExpansionModule} from '@angular/material/expansion';
-import {MatButtonModule} from '@angular/material/button';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {NgxMatFileInputComponent} from '@ngxmc/file-input';
-import {AsyncPipe} from '@angular/common';
-import {TextFieldModule} from '@angular/cdk/text-field';
-import {MatIconModule} from '@angular/material/icon';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatCardModule} from '@angular/material/card';
+
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
 
@@ -73,7 +62,7 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
     AsyncPipe
   ]
 })
-export class RecipeCardFormComponent implements OnInit, OnDestroy {
+export class RecipeCardFormComponent implements OnInit {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
   @Output() seeReceipt$: EventEmitter<void> = new EventEmitter();
 
@@ -91,7 +80,14 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
 
   private fileToUpload!: File;
   private imageRoute: string = '';
-  private destroy$: Subject<null> = new Subject();
+  private destroyRef = inject(DestroyRef);
+  private recipeService = inject(RecipeService);
+  private formBuilder = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private cdf = inject(ChangeDetectorRef);
+  private utilService = inject(UtilService);
+  private messageService = inject(MessagesService);
+
   private _recipeDetails!: Recipe;
 
   form!: FormGroup;
@@ -113,25 +109,13 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
     return this.form.get('ingredients') as FormArray;
   }
 
-  constructor(
-    private recipeService: RecipeService,
-    private formBuilder: FormBuilder,
-    private authService: AuthService,
-    private cdf: ChangeDetectorRef,
-    private utilService: UtilService,
-    private messageService: MessagesService
-  ) {
+  constructor() {
     this.initForm();
   }
 
   ngOnInit(): void {
     this.listenPicturesForm();
     this.getCategories();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
-    this.destroy$.complete();
   }
 
   sendRecipe(): void {
@@ -187,7 +171,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
 
     downloadUrl$
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           this.messageService.showSnackBar(`${error.message}`);
           return EMPTY;
@@ -238,7 +222,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   private listenPicturesForm(): void {
     this.pictureForm
       ?.get('photo')
-      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((file: File) => this.handleFileChange(file));
   }
 
@@ -278,7 +262,7 @@ export class RecipeCardFormComponent implements OnInit, OnDestroy {
   private getCategories(): void {
     this.recipeService
       .getCategories()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((categories) => (this.categories = categories));
   }
 }

@@ -1,15 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NgIf } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { of, BehaviorSubject } from 'rxjs';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ActivatedRoute, Router} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {of, BehaviorSubject} from 'rxjs';
 
-import { RecipeService } from '../../../services/recipe/recipe.service';
-import { RecipeDetailsComponent } from '../recipe-details.component';
-import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
-import { userMock } from 'src/app/testing-resources/mocks/user-mock';
-import { AnalyticsService } from '../../../../shared/services/Analytics/analytics.service';
+import {RecipeService} from '../../../services/recipe/recipe.service';
+import {RecipeDetailsComponent} from '../recipe-details.component';
+import {AuthService} from 'src/app/modules/auth/services/auth.service';
+import {recipeMock} from 'src/app/testing-resources/mocks/recipe-mock';
+import {userMock} from 'src/app/testing-resources/mocks/user-mock';
+import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
 
 describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;
@@ -20,8 +19,8 @@ describe('RecipeDetailsComponent', () => {
     'deleteImage',
   ]);
 
-  const recipeStub = new BehaviorSubject<any>({ recipe: recipeMock });
-  const activatedRouteStub = { data: recipeStub };
+  const recipeStub = new BehaviorSubject<any>({recipe: recipeMock});
+  const activatedRouteStub = {data: recipeStub};
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -29,19 +28,16 @@ describe('RecipeDetailsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RecipeDetailsComponent, NgIf],
+      imports: [RecipeDetailsComponent],
       providers: [
-        { provide: RecipeService, useValue: recipeServiceSpy },
-        { provide: ActivatedRoute, useValue: activatedRouteStub },
-        { provide: Router, useValue: routerSpy },
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: MatDialog, useValue: matDialogSpy },
-        { provide: AnalyticsService, useValue: analyticsSpy },
+        {provide: RecipeService, useValue: recipeServiceSpy},
+        {provide: ActivatedRoute, useValue: activatedRouteStub},
+        {provide: Router, useValue: routerSpy},
+        {provide: AuthService, useValue: authServiceSpy},
+        {provide: MatDialog, useValue: matDialogSpy},
+        {provide: AnalyticsService, useValue: analyticsSpy},
       ],
-    }).overrideTemplate(
-      RecipeDetailsComponent,
-      '<div class="mt-1" *ngIf="recipeDetails$ | async as recipeDetails"></div>'
-    );
+    }).compileComponents()
   });
 
   beforeEach(() => {
@@ -59,7 +55,7 @@ describe('RecipeDetailsComponent', () => {
     component.recipeDetails$.subscribe((recipe) =>
       expect(recipe).toEqual(recipeMock)
     );
-    expect(component.isOwnReceip).toBeFalsy();
+    expect(component.isOwnRecipe).toBeFalsy();
   });
 
   describe('deleteRecipe', () => {
@@ -71,7 +67,7 @@ describe('RecipeDetailsComponent', () => {
     });
 
     it('should delete the recipe when user confirm the dialog', () => {
-      matDialogSpy.open.and.returnValue({ afterClosed: () => of(true) });
+      matDialogSpy.open.and.returnValue({afterClosed: () => of(true)});
       recipeServiceSpy.deleteRecipe.and.returnValue(of(true));
       recipeServiceSpy.deleteImage.and.returnValue(of(true));
 
@@ -88,7 +84,7 @@ describe('RecipeDetailsComponent', () => {
     });
 
     it('should not delete the recipe when user cancel the dialog', () => {
-      matDialogSpy.open.and.returnValue({ afterClosed: () => of(false) });
+      matDialogSpy.open.and.returnValue({afterClosed: () => of(false)});
 
       component.deleteRecipe();
       expect(matDialogSpy.open).toHaveBeenCalled();

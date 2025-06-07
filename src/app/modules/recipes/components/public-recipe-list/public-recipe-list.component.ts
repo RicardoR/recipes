@@ -1,19 +1,20 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { EMPTY, Subject } from 'rxjs';
-import { concatMap, takeUntil, switchMap, tap } from 'rxjs/operators';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {Router} from '@angular/router';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {EMPTY} from 'rxjs';
+import {concatMap, switchMap, tap} from 'rxjs/operators';
 
-import { AppRoutingNames } from 'src/app/app.routes';
-import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
-import { Recipe } from '../../models/recipes.model';
-import { RecipesRoutingNames } from '../../recipes.routes';
-import { RecipeService } from '../../services/recipe/recipe.service';
-import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
-import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
-import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
-import { AnalyticsService } from "../../../shared/services/Analytics/analytics.service";
+import {AppRoutingNames} from 'src/app/app.routes';
+import {AuthService} from 'src/app/modules/auth/services/auth.service';
+import {NgLog} from 'src/app/modules/shared/utils/decorators/log-decorator';
+import {Recipe} from '../../models/recipes.model';
+import {RecipesRoutingNames} from '../../recipes.routes';
+import {RecipeService} from '../../services/recipe/recipe.service';
+import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe-dialog.component';
+import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe-list.component';
+import {ToolbarComponent} from '../../../shared/components/toolbar/toolbar.component';
+import {AnalyticsService} from '../../../shared/services/Analytics/analytics.service';
 
 @NgLog()
 @Component({
@@ -22,13 +23,13 @@ import { AnalyticsService } from "../../../shared/services/Analytics/analytics.s
     styleUrls: ['./public-recipe-list.component.scss'],
     imports: [ToolbarComponent, RecipeListComponent]
 })
-export class PublicRecipeListComponent implements OnInit, OnDestroy {
+export class PublicRecipeListComponent implements OnInit {
   recipesFiltered: Recipe[] = [];
   userId?: string;
 
-  private destroy$: Subject<null> = new Subject();
   private recipesRetrieved: Recipe[] = [];
 
+  private destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private recipeService = inject(RecipeService);
   private authService = inject(AuthService);
@@ -40,11 +41,6 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     this.getRecipes();
     this.listenToLogoutChanges();
     this.userId = this.authService.currentUser?.uid;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
-    this.destroy$.complete();
   }
 
   goToRecipe(recipe: Recipe): void {
@@ -63,7 +59,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
       dialogRef
         .afterClosed()
         .pipe(
-          takeUntil(this.destroy$),
+          takeUntilDestroyed(this.destroyRef),
           concatMap((data) =>
             data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
           ),
@@ -96,7 +92,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
 
     this.recipeService
       .cloneRecipe(recipe)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((recipeId) => this.goToEditRecipe(recipeId));
   }
 
@@ -104,7 +100,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
     this.recipeService
       .getPublicRecipes()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         tap((data: Recipe[]) => {
           this.recipesFiltered = data;
           this.recipesRetrieved = [...data];
@@ -116,7 +112,7 @@ export class PublicRecipeListComponent implements OnInit, OnDestroy {
   private listenToLogoutChanges(): void {
     this.authService.logoutSuccess$
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         tap(() => (this.userId = undefined)),
         switchMap(() => this.recipeService.getPublicRecipes()),
         tap((data: Recipe[]) => {

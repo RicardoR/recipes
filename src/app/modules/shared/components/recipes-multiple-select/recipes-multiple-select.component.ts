@@ -1,23 +1,12 @@
-import { filter, takeUntil, tap } from 'rxjs/operators';
-import { Subject } from 'rxjs';
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  Input,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-import {
-  ControlValueAccessor,
-  UntypedFormControl,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { ElementModel } from '../../../recipes/models/element.model';
-import { MatOptionModule } from '@angular/material/core';
+import {filter, tap} from 'rxjs/operators';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, Input, OnInit,} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, UntypedFormControl,} from '@angular/forms';
+import {MatOptionModule} from '@angular/material/core';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import {ElementModel} from '../../../recipes/models/element.model';
 
 @Component({
     selector: 'app-recipes-multiple-select',
@@ -38,13 +27,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatOptionModule
 ]
 })
-export class RecipesMultipleSelectComponent
-  implements ControlValueAccessor, OnInit, OnDestroy
+export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnInit
 {
   @Input() label: string = 'Select';
   @Input() options: ElementModel[] = [];
 
-  private destroy$: Subject<null> = new Subject();
+  private destroyRef = inject(DestroyRef);
 
   elementSelectControl = new UntypedFormControl();
   value: ElementModel[] = [];
@@ -56,11 +44,6 @@ export class RecipesMultipleSelectComponent
 
   ngOnInit(): void {
     this.listenSelectChange();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
-    this.destroy$.complete();
   }
 
   writeValue(value: ElementModel[]): void {
@@ -99,7 +82,7 @@ export class RecipesMultipleSelectComponent
   private listenSelectChange(): void {
     this.elementSelectControl.valueChanges
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         tap(() => this.markAsTouched()),
         filter((value) => value !== this.value)
       )

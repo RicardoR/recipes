@@ -1,18 +1,19 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { Subject, EMPTY } from 'rxjs';
-import { takeUntil, concatMap } from 'rxjs/operators';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {Router} from '@angular/router';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {EMPTY} from 'rxjs';
+import {concatMap} from 'rxjs/operators';
 
-import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { Recipe } from '../../models/recipes.model';
-import { RecipesRoutingNames } from '../../recipes.routes';
-import { RecipeService } from '../../services/recipe/recipe.service';
-import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog/delete-recipe-dialog.component';
-import { NgLog } from 'src/app/modules/shared/utils/decorators/log-decorator';
+import {AuthService} from 'src/app/modules/auth/services/auth.service';
+import {Recipe} from '../../models/recipes.model';
+import {RecipesRoutingNames} from '../../recipes.routes';
+import {RecipeService} from '../../services/recipe/recipe.service';
+import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe-dialog.component';
+import {NgLog} from 'src/app/modules/shared/utils/decorators/log-decorator';
 import {AppRoutingNames} from '../../../../app.routes';
-import { RecipeListComponent } from '../../../shared/components/recipe-list/recipe-list.component';
-import { ToolbarComponent } from '../../../shared/components/toolbar/toolbar.component';
+import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe-list.component';
+import {ToolbarComponent} from '../../../shared/components/toolbar/toolbar.component';
 import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
 
 @NgLog()
@@ -22,27 +23,22 @@ import {AnalyticsService} from "../../../shared/services/Analytics/analytics.ser
     styleUrls: ['./my-recipes.component.scss'],
     imports: [ToolbarComponent, RecipeListComponent]
 })
-export class MyRecipesComponent implements OnInit, OnDestroy {
+export class MyRecipesComponent implements OnInit {
   recipesFiltered: Recipe[] = [];
   userId?: string;
 
-  private destroy$: Subject<null> = new Subject();
   private recipesRetrieved: Recipe[] = [];
   private router = inject(Router);
   private recipeService = inject(RecipeService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private analytics = inject(AnalyticsService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.analytics.sendToAnalytics('my_recipes_component_opened');
     this.getRecipes();
     this.userId = this.authService.currentUser?.uid;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
-    this.destroy$.complete();
   }
 
   goToRecipe(recipe: Recipe): void {
@@ -61,7 +57,7 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
       dialogRef
         .afterClosed()
         .pipe(
-          takeUntil(this.destroy$),
+          takeUntilDestroyed(this.destroyRef),
           concatMap((data) =>
             data === true ? this.recipeService.deleteRecipe(recipe.id) : EMPTY
           ),
@@ -89,7 +85,7 @@ export class MyRecipesComponent implements OnInit, OnDestroy {
   private getRecipes(): void {
     this.recipeService
       .getOwnRecipes()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: Recipe[]) => {
         this.recipesFiltered = data;
         this.recipesRetrieved = [...data];
