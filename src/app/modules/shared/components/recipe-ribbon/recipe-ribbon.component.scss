@@ -1,5 +1,5 @@
-@import 'src/styles/colors.scss';
-@import 'src/styles/_variables.scss';
+@use 'src/styles/_variables.scss';
+@use 'src/styles/colors.scss';
 
 /* common */
 .ribbon {
@@ -14,14 +14,14 @@
   z-index: -1;
   content: '';
   display: block;
-  border: 5px solid $purple;
+  border: 5px solid variables.$purple;
 }
 .ribbon span {
   position: absolute;
   display: block;
   width: 225px;
   padding: 5px 0;
-  background-color: $purple;
+  background-color: variables.$purple;
   box-shadow: 0 5px 10px rgba(0,0,0,.1);
   color: #fff;
   text-shadow: 0 1px 1px rgba(0,0,0,.2);

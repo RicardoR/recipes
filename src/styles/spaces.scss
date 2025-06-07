@@ -1,4 +1,4 @@
-@import './_variables.scss';
+@use '_variables.scss';
 
 .horizontal-spacer {
   flex: 1 1 auto;
@@ -9,25 +9,25 @@
 }
 
 .mt-1 {
-  margin-top: $space-default;
+  margin-top: variables.$space-default;
 }
 
 .mb-1 {
-  margin-bottom: $space-default;
+  margin-bottom: variables.$space-default;
 }
 
 .mt-2 {
-  margin-top: $space-2x;
+  margin-top: variables.$space-2x;
 }
 
 .mb-2 {
-  margin-bottom: $space-2x;
+  margin-bottom: variables.$space-2x;
 }
 
 .p-2 {
-  padding: $space-2x;
+  padding: variables.$space-2x;
 }
 
 .mr-1 {
-  margin-right: $space-default;
+  margin-right: variables.$space-default;
 }

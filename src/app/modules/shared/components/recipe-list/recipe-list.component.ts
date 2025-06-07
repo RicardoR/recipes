@@ -1,46 +1,39 @@
-import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  OnInit,
-  OnDestroy,
-} from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, tap, filter, takeWhile } from 'rxjs/operators';
-import { ElementModel } from 'src/app/modules/recipes/models/element.model';
-import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
-import { NgLog } from '../../utils/decorators/log-decorator';
+import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
+import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output,} from '@angular/core';
+import {tap} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {MatCardModule} from '@angular/material/card';
+import {DatePipe} from '@angular/common';
 
-import { Recipe } from './../../../recipes/models/recipes.model';
-import { MatButtonModule } from '@angular/material/button';
-import { RecipeRibbonComponent } from '../recipe-ribbon/recipe-ribbon.component';
-import { MatCardModule } from '@angular/material/card';
-import { RecipesMultipleSelectComponent } from '../recipes-multiple-select/recipes-multiple-select.component';
-import { NgIf, NgFor, DatePipe } from '@angular/common';
+import {ElementModel} from 'src/app/modules/recipes/models/element.model';
+import {RecipeService} from 'src/app/modules/recipes/services/recipe/recipe.service';
+import {NgLog} from '../../utils/decorators/log-decorator';
+
+import {Recipe} from '../../../recipes/models/recipes.model';
+import {MatButtonModule} from '@angular/material/button';
+import {RecipeRibbonComponent} from '../recipe-ribbon/recipe-ribbon.component';
+import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes-multiple-select.component';
+
 @NgLog()
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.scss'],
-  standalone: true,
   imports: [
-    NgIf,
     RecipesMultipleSelectComponent,
     ReactiveFormsModule,
-    NgFor,
     MatCardModule,
     RecipeRibbonComponent,
     MatButtonModule,
-    DatePipe,
-  ],
+    DatePipe
+  ]
 })
-export class RecipeListComponent implements OnInit, OnDestroy {
+export class RecipeListComponent implements OnInit {
   @Input() set recipes(recipeList: Recipe[]) {
     this._recipes = recipeList;
     this.filterRecipes(this.categoryFilter.value);
   }
+
   @Input() userId?: string;
   @Input() ribbonTitle = 'Privada';
   @Input() publicList = true;
@@ -48,23 +41,17 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   @Output() deleteRecipe$: EventEmitter<Recipe> = new EventEmitter();
   @Output() cloneRecipe$: EventEmitter<Recipe> = new EventEmitter();
 
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
+  private recipeService = inject(RecipeService);
   private _recipes: Recipe[] = [];
 
   categories?: ElementModel[] = undefined;
   categoryFilter = new UntypedFormControl();
   recipesFiltered: Recipe[] = [];
 
-  constructor(private recipeService: RecipeService) {}
-
   ngOnInit(): void {
     this.getCategories();
     this.listenCategoryFilter();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   goToRecipe(recipe: Recipe): void {
@@ -83,7 +70,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.recipeService
       .getCategories()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         tap((categories) => (this.categories = categories))
       )
       .subscribe();
@@ -91,7 +78,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   private listenCategoryFilter(): void {
     this.categoryFilter.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.filterRecipes(value));
   }
 

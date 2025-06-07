@@ -1,69 +1,63 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   EventEmitter,
+  inject,
   Input,
   OnInit,
   Output,
-  OnDestroy,
   ViewChild,
-  ElementRef,
-  ChangeDetectionStrategy,
 } from '@angular/core';
-import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { AppRoutingNames } from 'src/app/app.routes';
-import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { RecipesRoutingNames } from 'src/app/modules/recipes/recipes.routes';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { NgIf } from '@angular/common';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
+import {Router} from '@angular/router';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+
+import {AppRoutingNames} from 'src/app/app.routes';
+import {AuthService} from 'src/app/modules/auth/services/auth.service';
+import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
+
 
 @Component({
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     MatToolbarModule,
-    NgIf,
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
     MatButtonModule,
-    MatMenuModule,
-  ],
+    MatMenuModule
+  ]
 })
-export class ToolbarComponent implements OnInit, OnDestroy {
+export class ToolbarComponent implements OnInit {
   @Input() displayListButton = false;
   @Input() displaySearchButton = true;
   @Output() searchText$: EventEmitter<string> = new EventEmitter();
 
   @ViewChild('search') searchElement: ElementRef | undefined;
 
-  private destroy$: Subject<null> = new Subject();
+  private destroyRef = inject(DestroyRef);
+  private router = inject(Router);
+  private authService = inject(AuthService);
 
   userId?: string;
   displaySearchControl = false;
   searchFormControl = new UntypedFormControl('', []);
 
-  constructor(private router: Router, private authService: AuthService) {}
-
   ngOnInit(): void {
     this.userId = this.authService.currentUser?.uid;
     this.listenSearchText();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
-    this.destroy$.complete();
   }
 
   goToCreate(): void {
@@ -100,7 +94,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   private listenSearchText(): void {
     this.searchFormControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.searchText$.emit(value));
   }
 }

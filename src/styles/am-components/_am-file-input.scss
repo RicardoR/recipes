@@ -1,7 +1,7 @@
-@import "../variables";
+@use "../variables";
 
 .file-input__wrapper {
-  margin-top: $space-2x;
+  margin-top: variables.$space-2x;
   width: 300px;
 }
 
@@ -10,7 +10,7 @@ ngx-mat-file-input {
     border: none;
     background: none;
     outline: none;
-    color: $white;
+    color: variables.$white;
     font-size: 14px;
     font-weight: 400;
   }

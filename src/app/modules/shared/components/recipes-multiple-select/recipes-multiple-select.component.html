@@ -3,11 +3,15 @@
   <mat-select #matmat [formControl]="elementSelectControl" multiple [compareWith]="compareElements">
     <mat-select-trigger>
       {{ elementSelectControl.value ? elementSelectControl.value[0]?.detail : '' }}
-      <span *ngIf="elementSelectControl.value?.length > 1" class="example-additional-selection">
-        (+{{elementSelectControl.value.length - 1}} {{elementSelectControl.value?.length === 2 ? 'otro' : 'otros'}})
-      </span>
+      @if (elementSelectControl.value?.length > 1) {
+        <span class="example-additional-selection">
+          (+{{elementSelectControl.value.length - 1}} {{elementSelectControl.value?.length === 2 ? 'otro' : 'otros'}})
+        </span>
+      }
     </mat-select-trigger>
-    <mat-option *ngFor="let element of options" [value]="element">{{element.detail}}</mat-option>
+    @for (element of options; track element) {
+      <mat-option [value]="element">{{element.detail}}</mat-option>
+    }
   </mat-select>
 </mat-form-field>
 

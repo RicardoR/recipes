@@ -18,6 +18,7 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {ServiceWorkerModule} from "@angular/service-worker";
 import {AppErrorHandler} from "./app-error-handle";
 import {provideAnimations} from "@angular/platform-browser/animations";
+import {getStorage, provideStorage} from '@angular/fire/storage';
 
 
 const scrollConfig: InMemoryScrollingOptions = {
@@ -34,6 +35,7 @@ export const appConfig: ApplicationConfig = {
     provideFirestore(() => getFirestore()),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
+    provideStorage(() => getStorage()),
     { provide: FIREBASE_OPTIONS, useValue: environment.firebase },
     provideRouter(APP_ROUTES, inMemoryScrollingFeature),
     importProvidersFrom(

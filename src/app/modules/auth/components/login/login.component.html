@@ -7,24 +7,26 @@
       <mat-form-field appearance="fill">
         <mat-label>Enter your email</mat-label>
         <input matInput
-               placeholder="pat@example.com"
-               type="text"
-               formControlName="email"
-               required>
+          placeholder="pat@example.com"
+          type="text"
+          formControlName="email"
+          required>
         <mat-icon class="email__icon" matSuffix>sentiment_very_satisfied</mat-icon>
-        <mat-error *ngIf="form.controls.email.invalid">{{getErrorMessage()}}</mat-error>
+        @if (form.controls.email.invalid) {
+          <mat-error>{{getErrorMessage()}}</mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="fill">
         <mat-label>Enter your password</mat-label>
         <input matInput
-               formControlName="password"
-               [type]="passWordHidden ? 'password' : 'text'">
+          formControlName="password"
+          [type]="passWordHidden ? 'password' : 'text'">
         <button mat-icon-button
-                matSuffix
-                (click)="passWordHidden = !passWordHidden"
-                [attr.aria-label]="'Hide password'"
-                [attr.aria-pressed]="passWordHidden">
+          matSuffix
+          (click)="passWordHidden = !passWordHidden"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="passWordHidden">
           <mat-icon>{{passWordHidden ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
       </mat-form-field>
