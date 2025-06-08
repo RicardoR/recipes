@@ -1,27 +1,102 @@
-# [Recipes](https://recipes-rrv.firebaseapp.com/recipes)
+# Recipes
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.1.1.
+[Live Demo](https://recipes-rrv.firebaseapp.com/recipes)
 
-## Development server
+A recipe management web application built with [Angular CLI](https://github.com/angular/angular-cli) v20
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+---
 
-## Code scaffolding
+## Table of Contents
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Features
+- Getting Started
+- Development
+- Testing
+- Build
+- Updating Dependencies
+- Further Help
+
+---
+
+## Features
+
+- Browse, add, edit, and delete recipes
+- User authentication
+- Responsive design
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v20.19.2 or higher recommended)
+- npm
+
+### Installation
+
+Clone the repository and install dependencies:
+
+```git clone git@github.com:RicardoR/recipes.git```
+```cd recipes```  
+```npm install```
+
+---
+
+## Development
+
+Start the development server:
+
+```ng serve```
+
+Navigate to http://localhost:4200/. The app will reload automatically on code changes.
+
+---
+
+## Testing
+
+### Unit Tests
+
+Run unit tests with Karma:
+
+```ng test```
+
+### End-to-End Tests
+
+To run end-to-end tests, first add a suitable e2e testing package, then:
+
+`ng e2e`
+
+---
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Build the project for production:
 
-## Running unit tests
+`ng build`
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+The output will be in the dist/ directory.
 
-## Running end-to-end tests
+---
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Updating Dependencies
 
-## Further help
+Check for outdated dependencies:
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+`npm outdated`
+
+For Angular-specific updates:
+
+`npx @angular/cli update`
+
+---
+
+## Further Help
+
+For more Angular CLI commands, run:
+
+`ng help`
+
+Or visit the Angular CLI Documentation: https://angular.io/cli
+
+---
