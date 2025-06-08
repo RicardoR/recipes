@@ -1,10 +1,10 @@
-import { fakeAsync, flushMicrotasks, TestBed } from '@angular/core/testing';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import {fakeAsync, flushMicrotasks, TestBed} from '@angular/core/testing';
+import {AngularFireAuth} from '@angular/fire/compat/auth';
+import {Router} from '@angular/router';
+import {of} from 'rxjs';
 
-import { AuthService } from '../auth.service';
-import { userMock } from '../../../../testing-resources/mocks/user-mock';
+import {AuthService} from '../auth.service';
+import {userMock} from '../../../../testing-resources/mocks/user-mock';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -74,24 +74,21 @@ describe('AuthService', () => {
   });
 
   it('initAuthListener should return true if user exists', () => {
-    // @ts-ignore
-    angularFireAuthSpy.authState = of(userMock);
+    Object.defineProperty(angularFireAuthSpy, 'authState', { get: () => of(userMock) });
     service.initAuthListener().subscribe((isuser) => {
       expect(isuser).toBeTruthy();
     });
   });
 
   it('initAuthListener should return false if user not exists', () => {
-    // @ts-ignore
-    angularFireAuthSpy.authState = of(undefined);
+    Object.defineProperty(angularFireAuthSpy, 'authState', { get: () => of(undefined) });
     service.initAuthListener().subscribe((isuser) => {
       expect(isuser).toBeFalsy();
     });
   });
 
   it('isDemoUser should return true with user has the demo email', () => {
-    const user = { ...userMock, email: 'test@mail.com' };
-    service.currentUser = user;
+    service.currentUser = {...userMock, email: 'test@mail.com'};
     expect(service.isDemoUser).toBeTruthy();
   });
 

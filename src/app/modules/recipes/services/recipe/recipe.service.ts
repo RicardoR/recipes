@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Router} from '@angular/router';
 import {deleteObject, FirebaseStorage, getDownloadURL, ref, Storage, uploadBytesResumable} from '@angular/fire/storage';
 import {from, Observable, of, ReplaySubject, Subject,} from 'rxjs';
@@ -37,15 +37,12 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
   providedIn: 'root'
 })
 export class RecipeService {
-  private categoryList?: ElementModel[] = undefined;
+  private firestore = inject(Firestore);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private storage = inject(Storage);
 
-  constructor(
-    private firestore: Firestore,
-    private authService: AuthService,
-    private router: Router,
-    private storage: Storage
-  ) {
-  }
+  private categoryList?: ElementModel[] = undefined;
 
   getOwnRecipes(): Observable<Recipe[]> {
     const result = new ReplaySubject<Recipe[]>();

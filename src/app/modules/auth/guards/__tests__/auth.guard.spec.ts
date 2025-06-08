@@ -1,8 +1,8 @@
-import { TestBed, waitForAsync } from '@angular/core/testing';
-import { BehaviorSubject } from 'rxjs';
+import {TestBed} from '@angular/core/testing';
+import {BehaviorSubject} from 'rxjs';
 
-import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { AuthGuard } from '../auth.guard';
+import {AuthService} from 'src/app/modules/auth/services/auth.service';
+import {AuthGuard} from '../auth.guard';
 
 describe('AuthGuard', () => {
   let service: AuthGuard;
@@ -10,7 +10,7 @@ describe('AuthGuard', () => {
     'initAuthListener',
   ]);
 
-  beforeEach(waitForAsync(() => {
+  beforeEach((() => {
     TestBed.configureTestingModule({
       providers: [{ provide: AuthService, useValue: authServiceSpy }],
     });

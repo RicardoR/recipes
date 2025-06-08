@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth.service';
   providedIn: 'root',
 })
 export class AuthReadyGuard {
-  constructor(private authService: AuthService) {}
+  private authService = inject(AuthService);
 
   canActivate(): Observable<boolean> {
     return this.authService.authServiceReady();

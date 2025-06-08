@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Router} from '@angular/router';
 import {AngularFireAuth} from '@angular/fire/compat/auth';
 import {Observable, ReplaySubject, Subject} from 'rxjs';
@@ -14,10 +14,11 @@ export const FAKE_USER_EMAIL = 'test@mail.com';
   providedIn: 'root',
 })
 export class AuthService {
+  private auth = inject(AngularFireAuth);
+  private router = inject(Router);
+
   private _currentUser?: AuthData;
   logoutSuccess$ = new Subject<void>();
-
-  constructor(private auth: AngularFireAuth, private router: Router) {}
 
   get currentUser(): AuthData | undefined {
     return this._currentUser;
