@@ -6,11 +6,10 @@ import { AnalyticsService } from './modules/shared/services/Analytics/analytics.
   providedIn: 'root',
 })
 export class AppErrorHandler implements ErrorHandler {
+  private injector = inject(Injector);
+
   private messagesService: MessagesService = inject(MessagesService);
   private zone: NgZone = inject(NgZone);
-
-  constructor(private injector: Injector) {}
-
 
   handleError(error: Error) {
     this.zone.run(() =>

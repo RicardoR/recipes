@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -8,7 +8,7 @@ import { RecipeService } from '../recipe/recipe.service';
   providedIn: 'root'
 })
 export class RecipeDetailsResolve {
-  constructor(private service: RecipeService) {}
+  private service = inject(RecipeService);
 
   resolve(
     route: ActivatedRouteSnapshot,

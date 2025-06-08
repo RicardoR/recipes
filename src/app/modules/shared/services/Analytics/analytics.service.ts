@@ -1,13 +1,15 @@
-import {Injectable, Injector} from '@angular/core';
+import { Injectable, Injector, inject } from '@angular/core';
 import {Analytics, isSupported, logEvent} from '@angular/fire/analytics';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AnalyticsService {
+  private injector = inject(Injector);
+
   private analytics!: Analytics;
 
-  constructor(private injector: Injector) {
+  constructor() {
     isSupported().then((isSupported: any) => {
       if (isSupported) {
         this.analytics = this.injector.get(Analytics);
