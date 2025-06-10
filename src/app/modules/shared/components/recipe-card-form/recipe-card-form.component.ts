@@ -66,6 +66,8 @@ export class RecipeCardFormComponent implements OnInit {
   @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
   @Output() seeReceipt$: EventEmitter<void> = new EventEmitter();
 
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set recipeDetails(value: Recipe) {
     if (value) {
       this._recipeDetails = value;
@@ -74,6 +76,8 @@ export class RecipeCardFormComponent implements OnInit {
     }
   }
 
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set isFormSending(value: boolean) {
     this.isSending = value;
   }

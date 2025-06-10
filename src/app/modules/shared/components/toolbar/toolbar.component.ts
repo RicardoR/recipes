@@ -5,10 +5,10 @@ import {
   ElementRef,
   EventEmitter,
   inject,
-  Input,
   OnInit,
   Output,
   ViewChild,
+  input
 } from '@angular/core';
 import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -41,8 +41,8 @@ import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
   ]
 })
 export class ToolbarComponent implements OnInit {
-  @Input() displayListButton = false;
-  @Input() displaySearchButton = true;
+  readonly displayListButton = input(false);
+  readonly displaySearchButton = input(true);
   @Output() searchText$: EventEmitter<string> = new EventEmitter();
 
   @ViewChild('search') searchElement: ElementRef | undefined;

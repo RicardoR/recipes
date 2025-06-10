@@ -1,5 +1,5 @@
 import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
-import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output,} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, input} from '@angular/core';
 import {tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
@@ -29,14 +29,16 @@ import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes
   ]
 })
 export class RecipeListComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set recipes(recipeList: Recipe[]) {
     this._recipes = recipeList;
     this.filterRecipes(this.categoryFilter.value);
   }
 
-  @Input() userId?: string;
-  @Input() ribbonTitle = 'Privada';
-  @Input() publicList = true;
+  readonly userId = input<string>();
+  readonly ribbonTitle = input('Privada');
+  readonly publicList = input(true);
   @Output() goToRecipe$: EventEmitter<Recipe> = new EventEmitter();
   @Output() deleteRecipe$: EventEmitter<Recipe> = new EventEmitter();
   @Output() cloneRecipe$: EventEmitter<Recipe> = new EventEmitter();

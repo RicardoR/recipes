@@ -1,5 +1,5 @@
 <mat-form-field appearance="fill">
-  <mat-label>{{ label }}</mat-label>
+  <mat-label>{{ label() }}</mat-label>
   <mat-select #matmat [formControl]="elementSelectControl" multiple [compareWith]="compareElements">
     <mat-select-trigger>
       {{ elementSelectControl.value ? elementSelectControl.value[0]?.detail : '' }}
@@ -9,7 +9,7 @@
         </span>
       }
     </mat-select-trigger>
-    @for (element of options; track element) {
+    @for (element of options(); track element) {
       <mat-option [value]="element">{{element.detail}}</mat-option>
     }
   </mat-select>

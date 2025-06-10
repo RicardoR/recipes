@@ -11,13 +11,14 @@ describe('RecipesSelectComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [RecipesMultipleSelectComponent],
-    }).overrideTemplate(RecipesMultipleSelectComponent, '');
+      providers: [],
+    }).compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipesMultipleSelectComponent);
+    fixture.componentRef.setInput('options', categoriesMock);
     component = fixture.componentInstance;
-    component.options = categoriesMock;
     fixture.detectChanges();
   });
 
