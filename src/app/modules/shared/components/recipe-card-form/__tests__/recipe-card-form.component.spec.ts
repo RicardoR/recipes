@@ -51,7 +51,7 @@ describe('RecipeCardFormComponent', () => {
     fixture = TestBed.createComponent(RecipeCardFormComponent);
     component = fixture.componentInstance;
     recipeChangeSpy = spyOn(component.recipeChanged$, 'emit');
-    seeReceiptSpy = spyOn(component.seeReceipt$, 'next');
+    seeReceiptSpy = spyOn(component.seeReceipt$, 'emit');
     recipeServiceSpy.getCategories.and.returnValue(of(categoriesMock));
     fixture.detectChanges();
   });

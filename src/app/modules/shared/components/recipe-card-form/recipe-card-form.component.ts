@@ -1,5 +1,5 @@
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray,} from '@angular/cdk/drag-drop';
-import {ChangeDetectorRef, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output,} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, inject, Input, OnInit, output} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -63,8 +63,8 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
   ]
 })
 export class RecipeCardFormComponent implements OnInit {
-  @Output() recipeChanged$: EventEmitter<Recipe> = new EventEmitter();
-  @Output() seeReceipt$: EventEmitter<void> = new EventEmitter();
+  readonly recipeChanged$ = output<Recipe>();
+  readonly seeReceipt$ = output<void>();
 
   // TODO: Skipped for migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
@@ -192,7 +192,7 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   seeReceipt(): void {
-    this.seeReceipt$.next();
+    this.seeReceipt$.emit();
   }
 
   private initForm(): void {

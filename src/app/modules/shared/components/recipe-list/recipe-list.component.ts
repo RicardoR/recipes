@@ -1,5 +1,5 @@
 import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
-import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, input} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnInit, input, output} from '@angular/core';
 import {tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
@@ -39,9 +39,9 @@ export class RecipeListComponent implements OnInit {
   readonly userId = input<string>();
   readonly ribbonTitle = input('Privada');
   readonly publicList = input(true);
-  @Output() goToRecipe$: EventEmitter<Recipe> = new EventEmitter();
-  @Output() deleteRecipe$: EventEmitter<Recipe> = new EventEmitter();
-  @Output() cloneRecipe$: EventEmitter<Recipe> = new EventEmitter();
+  readonly goToRecipe$ = output<Recipe>();
+  readonly deleteRecipe$ = output<Recipe>();
+  readonly cloneRecipe$ = output<Recipe>();
 
   private destroyRef = inject(DestroyRef);
   private recipeService = inject(RecipeService);
