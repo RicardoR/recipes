@@ -70,7 +70,7 @@ describe('RecipeCardFormComponent', () => {
   });
 
   it('should be creation data at first', () => {
-    expect(component.edittingMode).toBeFalsy();
+    expect(component.editingMode).toBeFalsy();
     expect(component.isOwnRecipe).toBeFalsy();
     expect(component.recipeImage).toBeUndefined();
   });
@@ -82,13 +82,15 @@ describe('RecipeCardFormComponent', () => {
 
   describe('when retrieve data', () => {
     beforeEach(() => {
-      component.recipeDetails = recipeMock;
+      const componentRef = fixture.componentRef
+      componentRef.setInput('recipeDetails', recipeMock);
+      fixture.detectChanges();
     });
 
     it('should put in editing mode', () => {
       const isOwnRecipe = recipeMock.ownerId === userMock.uid;
 
-      expect(component.edittingMode).toBeTruthy();
+      expect(component.editingMode).toBeTruthy();
       expect(component.isOwnRecipe).toBe(isOwnRecipe);
       expect(component.recipeImage).toBe(recipeMock.imgSrc);
     });
@@ -210,11 +212,5 @@ describe('RecipeCardFormComponent', () => {
     expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 0');
     component.dropElement(cdkDragDropEvent, component.steps.controls);
     expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 1');
-  });
-
-  it('isFormSending should update the isSending status', () => {
-    expect(component.isSending).toBeFalsy();
-    component.isFormSending = true;
-    expect(component.isSending).toBeTruthy();
   });
 });

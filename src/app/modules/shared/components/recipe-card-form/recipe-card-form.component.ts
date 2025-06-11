@@ -1,5 +1,16 @@
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray,} from '@angular/cdk/drag-drop';
-import {ChangeDetectorRef, Component, DestroyRef, inject, Input, OnInit, output} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -65,22 +76,8 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
 export class RecipeCardFormComponent implements OnInit {
   readonly recipeChanged$ = output<Recipe>();
   readonly seeReceipt$ = output<void>();
-
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() set recipeDetails(value: Recipe) {
-    if (value) {
-      this._recipeDetails = value;
-      this.fillEditingData();
-      this.fillForm();
-    }
-  }
-
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() set isFormSending(value: boolean) {
-    this.isSending = value;
-  }
+  readonly recipeDetails = input<Recipe>();
+  readonly isFormSending = input<boolean>();
 
   private fileToUpload!: File;
   private imageRoute: string = '';
@@ -92,7 +89,6 @@ export class RecipeCardFormComponent implements OnInit {
   private utilService = inject(UtilService);
   private messageService = inject(MessagesService);
 
-  private _recipeDetails!: Recipe;
 
   form!: FormGroup;
   recipeImage: string | ArrayBuffer | undefined;
@@ -101,8 +97,11 @@ export class RecipeCardFormComponent implements OnInit {
   submitted = false;
   uploadProgress$!: Observable<number | undefined>;
   isOwnRecipe!: boolean;
-  edittingMode: boolean = false;
-  isSending = false;
+  editingMode: boolean = false;
+  isSending = signal(false);
+  disabled = computed(() => {
+    return this.isFormSending() || this.isSending();
+  });
   categories?: ElementModel[] = undefined;
 
   get steps(): FormArray {
@@ -114,6 +113,13 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   constructor() {
+    effect(() => {
+      const recipeDetails = this.recipeDetails();
+      if (recipeDetails) {
+        this.fillEditingData();
+        this.fillForm();
+      }
+    });
     this.initForm();
   }
 
@@ -124,26 +130,27 @@ export class RecipeCardFormComponent implements OnInit {
 
   sendRecipe(): void {
     if (this.form.valid) {
-      this.isSending = true;
+      this.isSending.set(true);
 
       const imageRoute = this.imageRoute
         ? this.imageRoute
-        : this._recipeDetails?.imgSrc;
+        : this.recipeDetails()?.imgSrc;
 
       const recipe: Recipe = {
         title: this.form.controls.title.getRawValue(),
         description: this.form.controls.description.getRawValue(),
-        date: this._recipeDetails ? this._recipeDetails.date : new Date(),
+        date: this.recipeDetails()?.date ?? new Date(),
         ownerId: this.authService.currentUser?.uid,
         steps: this.steps.getRawValue(),
         ingredients: this.ingredients.getRawValue(),
-        id: this._recipeDetails ? this._recipeDetails.id : '',
+        id: this.recipeDetails()?.id ?? '',
         imgSrc: imageRoute ? imageRoute : '',
         private: this.form.controls.isPrivate.getRawValue(),
         categories: this.form.controls.categorySelect.getRawValue() ?? [],
       };
 
       this.recipeChanged$.emit(recipe);
+      this.isSending.set(false);
     }
   }
 
@@ -239,27 +246,27 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   private fillEditingData(): void {
-    this.edittingMode = true;
-    this.isOwnRecipe = this._recipeDetails.ownerId === this.user?.uid;
-    this.recipeImage = this._recipeDetails.imgSrc;
+    this.editingMode = true;
+    this.isOwnRecipe = this.recipeDetails()?.ownerId === this.user?.uid;
+    this.recipeImage = this.recipeDetails()?.imgSrc;
   }
 
   private fillForm(): void {
-    this.form.controls.title.patchValue(this._recipeDetails.title);
-    this.form.controls.description.patchValue(this._recipeDetails.description);
-    this.form.controls.isPrivate.patchValue(this._recipeDetails.private);
-    this._recipeDetails.steps.forEach((step) => {
+    this.form.controls.title.patchValue(this.recipeDetails()?.title);
+    this.form.controls.description.patchValue(this.recipeDetails()?.description);
+    this.form.controls.isPrivate.patchValue(this.recipeDetails()?.private);
+    this.recipeDetails()?.steps.forEach((step) => {
       (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
     });
 
-    this._recipeDetails.ingredients.forEach((ingredient) => {
+    this.recipeDetails()?.ingredients.forEach((ingredient) => {
       (<FormArray>this.form.controls.ingredients).push(
         this.createFormItem(ingredient)
       );
     });
 
     this.form.controls.categorySelect.patchValue(
-      this._recipeDetails.categories
+      this.recipeDetails()?.categories
     );
   }
 

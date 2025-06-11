@@ -167,11 +167,11 @@
     </mat-card-content>
 
     <mat-card-actions>
-      @if (!edittingMode || (isOwnRecipe && edittingMode)) {
+      @if (!editingMode || (isOwnRecipe && editingMode)) {
         <button
           mat-raised-button
           color="primary"
-          [disabled]='form.invalid || isSending'
+          [disabled]='form.invalid || disabled()'
           (click)='sendRecipe()' >
           <ng-content select="[button-action-text]"></ng-content>
         </button>
@@ -181,7 +181,7 @@
           Sólo el propietario puede editar sus recetas
         </button>
       }
-      @if (edittingMode) {
+      @if (editingMode) {
         <button
           mat-button
           (click)='seeReceipt()' >
