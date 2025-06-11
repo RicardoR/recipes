@@ -19,6 +19,7 @@ describe('PublicRecipeListComponent', () => {
     'deleteRecipe',
     'deleteImage',
     'getPublicRecipes',
+    'cloneRecipe',
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', [
     'currentUser',
@@ -109,6 +110,20 @@ describe('PublicRecipeListComponent', () => {
       expect(recipeServiceSpy.deleteRecipe).not.toHaveBeenCalled();
       expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
       expect(recipeServiceSpy.getPublicRecipes).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('cloneRecipe', () => {
+    it('should send analytics, call cloneRecipe and navigate to edit', () => {
+      const recipe = recipesListMock[0];
+      const clonedRecipeId = 'cloned-id';
+      recipeServiceSpy.cloneRecipe.and.returnValue(of(clonedRecipeId));
+
+      component.cloneRecipe(recipe);
+
+      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('public_recipe_cloned', { recipeId: recipe.id });
+      expect(recipeServiceSpy.cloneRecipe).toHaveBeenCalledWith(recipe);
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/edit', clonedRecipeId]);
     });
   });
 
