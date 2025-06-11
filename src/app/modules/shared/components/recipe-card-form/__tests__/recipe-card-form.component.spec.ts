@@ -140,8 +140,18 @@ describe('RecipeCardFormComponent', () => {
 
       expect(component.form.valid).toBeTruthy();
       component.sendRecipe();
-      // todo: to investigate: if I try to haveBeenCalledWith the date fails but the date is the same. Weird
-      expect(recipeChangeSpy).toHaveBeenCalled();
+      expect(recipeChangeSpy).toHaveBeenCalledWith({
+        id: '',
+        imgSrc: '',
+        title: 'title',
+        description: 'description',
+        date: jasmine.any(Date),
+        steps: [{ data: 'step 0' }],
+        ingredients: [{ data: 'ingredient 0' }],
+        private: null,
+        ownerId: userMock.uid,
+        categories: [],
+      });
     });
   });
 
