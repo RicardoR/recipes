@@ -52,6 +52,8 @@ export class ToolbarComponent implements OnInit {
 
   userId?: string;
   displaySearchControl = false;
+
+  // todo: type me, please
   searchFormControl = new UntypedFormControl('', []);
 
   ngOnInit(): void {
