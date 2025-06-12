@@ -1,5 +1,5 @@
 import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
-import {Component, DestroyRef, inject, Input, OnInit, input, output} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, input, output, signal, effect} from '@angular/core';
 import {tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
@@ -29,13 +29,7 @@ import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes
   ]
 })
 export class RecipeListComponent implements OnInit {
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() set recipes(recipeList: Recipe[]) {
-    this._recipes = recipeList;
-    this.filterRecipes(this.categoryFilter.value);
-  }
-
+  readonly recipes = input.required<Recipe[]>();
   readonly userId = input<string>();
   readonly ribbonTitle = input('Privada');
   readonly publicList = input(true);
@@ -45,11 +39,15 @@ export class RecipeListComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   private recipeService = inject(RecipeService);
-  private _recipes: Recipe[] = [];
 
-  categories?: ElementModel[] = undefined;
+  categories: ElementModel[] = [];
+  // todo: type me, please
   categoryFilter = new UntypedFormControl();
-  recipesFiltered: Recipe[] = [];
+  recipesFiltered = signal<Recipe[]>([]);
+
+  constructor() {
+    effect(() => this.recipesFiltered.set(this.recipes()));
+  }
 
   ngOnInit(): void {
     this.getCategories();
@@ -86,23 +84,22 @@ export class RecipeListComponent implements OnInit {
 
   private filterRecipes(categoriesSelected: ElementModel[]): void {
     if (!categoriesSelected || categoriesSelected?.length === 0) {
-      this.recipesFiltered = [...this._recipes];
+      this.recipesFiltered.set(this.recipes());
       return;
     }
 
-    this.recipesFiltered = this._recipes.filter((recipe) => {
-      return recipe.categories?.some((category) =>
-        this.filterCategories(categoriesSelected, category)
-      );
-    });
+    this.recipesFiltered.set(this.findRecipesByCategory(categoriesSelected));
   }
 
-  private filterCategories(
-    categoriesSelected: ElementModel[],
-    category: ElementModel
-  ): boolean {
-    return categoriesSelected?.some(
-      (categorySelected) => categorySelected.id === category.id
-    );
+  private findRecipesByCategory(categoriesSelected: ElementModel[]): Recipe[] {
+    return this.recipes().filter(recipe => this.filterRecipesByCategories(recipe, categoriesSelected));
+  }
+
+  private filterRecipesByCategories(recipe: Recipe, categoriesSelected: ElementModel[]) {
+    return recipe.categories?.some(category => this.filterCategories(categoriesSelected, category));
+  }
+
+  private filterCategories(categoriesSelected: ElementModel[], category: ElementModel): boolean {
+    return categoriesSelected?.some(categorySelected => categorySelected.id === category.id);
   }
 }

@@ -1,14 +1,12 @@
 <div class="p-2">
-  @if (categories && categories.length) {
     <div class="mt-1">
       <app-recipes-multiple-select [formControl]="categoryFilter"
                                    label='Filtrar por categoría(s)'
                                    [options]="categories">
       </app-recipes-multiple-select>
     </div>
-  }
   <div class="recipe-list-wrapper">
-    @for (recipe of recipesFiltered; track recipe) {
+    @for (recipe of recipesFiltered(); track recipe) {
       <div>
         <mat-card class="mat-elevation-z4">
           @if ((publicList() && recipe.ownerId === userId()) || recipe.private) {
