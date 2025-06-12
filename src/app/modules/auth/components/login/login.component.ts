@@ -66,6 +66,7 @@ export class LoginComponent implements OnInit {
   }
 
   private buildLoginForm(): void {
+    // todo: type me, please
     this.form = this.fb.group({
       email: new UntypedFormControl(FAKE_USER_EMAIL, [
         Validators.required,

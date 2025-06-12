@@ -5,7 +5,7 @@
     </ng-content>
   }
   <span class="horizontal-spacer"></span>
-  @if (displaySearchButton) {
+  @if (displaySearchButton()) {
     <mat-icon
       (click)="switchSearchControl()"
       class="search-icon cursor-pointer mr-1"
@@ -52,7 +52,7 @@
     </mat-menu>
   }
 
-  @if (!userId && displayListButton) {
+  @if (!userId && displayListButton()) {
     <button mat-icon-button
       (click)="goToPublicList()">
       <mat-icon>list</mat-icon>

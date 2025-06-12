@@ -3,12 +3,11 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  EventEmitter,
   inject,
-  Input,
   OnInit,
-  Output,
   ViewChild,
+  input,
+  output
 } from '@angular/core';
 import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -41,9 +40,9 @@ import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
   ]
 })
 export class ToolbarComponent implements OnInit {
-  @Input() displayListButton = false;
-  @Input() displaySearchButton = true;
-  @Output() searchText$: EventEmitter<string> = new EventEmitter();
+  readonly displayListButton = input(false);
+  readonly displaySearchButton = input(true);
+  readonly searchText$ = output<string>();
 
   @ViewChild('search') searchElement: ElementRef | undefined;
 
@@ -53,6 +52,8 @@ export class ToolbarComponent implements OnInit {
 
   userId?: string;
   displaySearchControl = false;
+
+  // todo: type me, please
   searchFormControl = new UntypedFormControl('', []);
 
   ngOnInit(): void {

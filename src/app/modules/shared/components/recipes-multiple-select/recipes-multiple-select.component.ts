@@ -1,5 +1,5 @@
 import {filter, tap} from 'rxjs/operators';
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, Input, OnInit,} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, UntypedFormControl,} from '@angular/forms';
 import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
@@ -29,11 +29,12 @@ import {ElementModel} from '../../../recipes/models/element.model';
 })
 export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnInit
 {
-  @Input() label: string = 'Select';
-  @Input() options: ElementModel[] = [];
+  readonly label = input<string>('Select');
+  readonly options = input<ElementModel[]>([]);
 
   private destroyRef = inject(DestroyRef);
 
+  // todo: type me, please
   elementSelectControl = new UntypedFormControl();
   value: ElementModel[] = [];
   touched = false;

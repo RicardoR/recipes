@@ -1,11 +1,11 @@
-import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mock';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { RecipeService } from 'src/app/modules/recipes/services/recipe/recipe.service';
-import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
-import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
+import {recipesListMock} from 'src/app/testing-resources/mocks/recipes-list-mock';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {of} from 'rxjs';
+import {RecipeService} from 'src/app/modules/recipes/services/recipe/recipe.service';
+import {categoriesMock} from 'src/app/testing-resources/mocks/categories-mock';
+import {recipeMock} from 'src/app/testing-resources/mocks/recipe-mock';
 
-import { RecipeListComponent } from '../recipe-list.component';
+import {RecipeListComponent} from '../recipe-list.component';
 
 describe('RecipeListComponent', () => {
   let component: RecipeListComponent;
@@ -18,14 +18,14 @@ describe('RecipeListComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [RecipeListComponent],
-      providers: [{ provide: RecipeService, useValue: recipeServiceSpy }],
+      providers: [{provide: RecipeService, useValue: recipeServiceSpy}],
     }).overrideTemplate(RecipeListComponent, '');
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipeListComponent);
     component = fixture.componentInstance;
-    component.recipes = recipesListMock;
+    fixture.componentRef.setInput('recipes', recipesListMock);
     recipeServiceSpy.getCategories.and.returnValue(of(categoriesMock));
     fixture.detectChanges();
   });
@@ -49,27 +49,27 @@ describe('RecipeListComponent', () => {
 
   describe('filter', () => {
     it('should return all recipes when filter is empty', () => {
-      expect(component.recipesFiltered).toEqual(recipesListMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
       component.categoryFilter.patchValue([]);
-      expect(component.recipesFiltered).toEqual(recipesListMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
     });
 
     it('should filter by one category', () => {
-      expect(component.recipesFiltered).toEqual(recipesListMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
       component.categoryFilter.patchValue([categoriesMock[0]]);
-      expect(component.recipesFiltered).toEqual([recipesListMock[0]]);
+      expect(component.recipesFiltered()).toEqual([recipesListMock[0]]);
     });
 
     it('should filter by more than one category', () => {
-      expect(component.recipesFiltered).toEqual(recipesListMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
       component.categoryFilter.patchValue(categoriesMock);
-      expect(component.recipesFiltered).toEqual(recipesListMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
     });
 
     it('should return an emtpy array when category selected doesnt exists in the recipes', () => {
-      expect(component.recipesFiltered).toEqual(recipesListMock);
-      component.categoryFilter.patchValue([{ id: -1, detail: 'test' }]);
-      expect(component.recipesFiltered).toEqual([]);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
+      component.categoryFilter.patchValue([{id: -1, detail: 'test'}]);
+      expect(component.recipesFiltered()).toEqual([]);
     });
   });
 });

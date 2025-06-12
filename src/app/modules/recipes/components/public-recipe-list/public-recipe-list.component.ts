@@ -84,7 +84,6 @@ export class PublicRecipeListComponent implements OnInit {
     }
   }
 
-  //todo: add test
   cloneRecipe(recipe: Recipe): void {
     this.analytics.sendToAnalytics('public_recipe_cloned', {
       recipeId: recipe.id,
