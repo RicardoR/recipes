@@ -1,5 +1,5 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Component, DestroyRef, inject, input, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {of} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
@@ -16,18 +16,18 @@ import {AnalyticsService} from '../../../shared/services/Analytics/analytics.ser
 
 @NgLog()
 @Component({
-    selector: 'app-edit-recipe',
-    templateUrl: './edit-recipe.component.html',
-    styleUrls: ['./edit-recipe.component.scss'],
-    imports: [ToolbarComponent, RecipeCardFormComponent]
+  selector: 'app-edit-recipe',
+  templateUrl: './edit-recipe.component.html',
+  styleUrls: ['./edit-recipe.component.scss'],
+  imports: [ToolbarComponent, RecipeCardFormComponent]
 })
 export class EditRecipeComponent implements OnInit {
+  id = input.required<string>()
   recipeDetails!: Recipe;
   isSending = false;
 
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute);
   private recipesService = inject(RecipeService);
   private messagesService = inject(MessagesService);
   private analytics = inject(AnalyticsService);
@@ -72,8 +72,8 @@ export class EditRecipeComponent implements OnInit {
   }
 
   private getRecipeDetails(): void {
-    this.activatedRoute.data
+    this.recipesService.getRecipeDetail(this.id())
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => (this.recipeDetails = data.recipe));
+      .subscribe((data) => (this.recipeDetails = data));
   }
 }

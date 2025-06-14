@@ -1,8 +1,8 @@
 import {ApplicationConfig, ErrorHandler, importProvidersFrom, LOCALE_ID} from '@angular/core';
 import {
-  InMemoryScrollingFeature,
   InMemoryScrollingOptions,
   provideRouter,
+  withComponentInputBinding,
   withInMemoryScrolling
 } from '@angular/router';
 
@@ -26,9 +26,6 @@ const scrollConfig: InMemoryScrollingOptions = {
   anchorScrolling: 'enabled',
 };
 
-const inMemoryScrollingFeature: InMemoryScrollingFeature =
-  withInMemoryScrolling(scrollConfig);
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),
@@ -37,7 +34,7 @@ export const appConfig: ApplicationConfig = {
     provideAuth(() => getAuth()),
     provideStorage(() => getStorage()),
     { provide: FIREBASE_OPTIONS, useValue: environment.firebase },
-    provideRouter(APP_ROUTES, inMemoryScrollingFeature),
+    provideRouter(APP_ROUTES, withInMemoryScrolling(scrollConfig), withComponentInputBinding()),
     importProvidersFrom(
       BrowserModule,
       MatSnackBarModule,

@@ -1,13 +1,12 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { EditRecipeComponent } from './components/edit-recipe/edit-recipe.component';
-import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
-import { NewRecipeComponent } from './components/new-recipe/new-recipe.component';
-import { PublicRecipeListComponent } from './components/public-recipe-list/public-recipe-list.component';
-import { MyRecipesComponent } from './components/my-recipes/my-recipes.component';
-import { AuthGuard } from '../auth/guards/auth.guard';
-import { PrivateRecipeGuard } from './guards/private-recipe.guard';
-import { RecipeDetailsResolve } from './services/resolvers/recipe-details.resolver';
+import {EditRecipeComponent} from './components/edit-recipe/edit-recipe.component';
+import {RecipeDetailsComponent} from './components/recipe-details/recipe-details.component';
+import {NewRecipeComponent} from './components/new-recipe/new-recipe.component';
+import {PublicRecipeListComponent} from './components/public-recipe-list/public-recipe-list.component';
+import {MyRecipesComponent} from './components/my-recipes/my-recipes.component';
+import {AuthGuard} from '../auth/guards/auth.guard';
+import {PrivateRecipeGuard} from './guards/private-recipe.guard';
 
 export const RecipesRoutingNames = {
   edit: 'edit',
@@ -35,13 +34,11 @@ export const RECIPE_ROUTES: Routes = [
     path: `${RecipesRoutingNames.details}/:id`,
     component: RecipeDetailsComponent,
     canActivate: [PrivateRecipeGuard],
-    resolve: { recipe: RecipeDetailsResolve },
   },
   {
     path: `${RecipesRoutingNames.edit}/:id`,
     component: EditRecipeComponent,
     canActivate: [AuthGuard],
-    resolve: { recipe: RecipeDetailsResolve },
   },
 ];
 
