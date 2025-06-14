@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
-import {of, BehaviorSubject} from 'rxjs';
+import {of} from 'rxjs';
 
 import {RecipeService} from '../../../services/recipe/recipe.service';
 import {RecipeDetailsComponent} from '../recipe-details.component';
@@ -17,10 +17,9 @@ describe('RecipeDetailsComponent', () => {
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
     'deleteRecipe',
     'deleteImage',
+    'getRecipeDetail'
   ]);
 
-  const recipeStub = new BehaviorSubject<any>({recipe: recipeMock});
-  const activatedRouteStub = {data: recipeStub};
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -31,7 +30,6 @@ describe('RecipeDetailsComponent', () => {
       imports: [RecipeDetailsComponent],
       providers: [
         {provide: RecipeService, useValue: recipeServiceSpy},
-        {provide: ActivatedRoute, useValue: activatedRouteStub},
         {provide: Router, useValue: routerSpy},
         {provide: AuthService, useValue: authServiceSpy},
         {provide: MatDialog, useValue: matDialogSpy},
@@ -43,6 +41,8 @@ describe('RecipeDetailsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipeDetailsComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('id', recipeMock.id);
+    recipeServiceSpy.getRecipeDetail.and.returnValue(of(recipeMock));
     authServiceSpy.currentUser = userMock;
     fixture.detectChanges();
   });

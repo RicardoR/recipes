@@ -1,6 +1,6 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, input, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatListModule} from '@angular/material/list';
@@ -37,6 +37,7 @@ import {AnalyticsService} from "../../../shared/services/Analytics/analytics.ser
   ]
 })
 export class RecipeDetailsComponent implements OnInit {
+  id = input.required<string>()
   recipeDetails$!: Observable<Recipe>;
   isOwnRecipe = false;
   currentUserId?: string;
@@ -45,7 +46,6 @@ export class RecipeDetailsComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   private recipesService = inject(RecipeService);
-  private activatedRoute = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
@@ -95,12 +95,12 @@ export class RecipeDetailsComponent implements OnInit {
   }
 
   private getRecipeDetails(): void {
-    this.recipeDetails$ = this.activatedRoute.data.pipe(
+    this.recipeDetails$ = this.recipesService.getRecipeDetail(this.id()).pipe(
       tap((data) => {
-        this.isOwnRecipe = data.recipe.ownerId === this.currentUserId;
-        this.recipeDetails = data.recipe;
+        this.isOwnRecipe = data.ownerId === this.currentUserId;
+        this.recipeDetails = data;
       }),
-      map((data) => data.recipe)
+      map((data) => data)
     );
   }
 
