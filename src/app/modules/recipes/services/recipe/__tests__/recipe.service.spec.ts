@@ -12,6 +12,7 @@ import {AngularFireModule, FIREBASE_APP_NAME, FIREBASE_OPTIONS} from "@angular/f
 import {connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {firstValueFrom, switchMap} from 'rxjs';
 import {userMock} from "../../../../../testing-resources/mocks/user-mock";
+import {Recipe} from "../../../models/recipes.model";
 
 
 describe('RecipeService E2E', () => {
@@ -92,6 +93,28 @@ describe('RecipeService E2E', () => {
           (recipe) => recipe.ownerId === auth.currentUser?.uid
         );
         expect(hasCurrentUser).toBeTrue();
+        done();
+      });
+  });
+
+
+  it('should clone a recipe and assign it to the current user (E2E with Firestore emulator)', (done) => {
+    const originalRecipe: Recipe = { ...recipeMock2, ownerId: 'external-user-id', id: '', private: false };
+    service.createRecipe(originalRecipe)
+      .pipe(
+        switchMap(() => service.cloneRecipe(originalRecipe)),
+        switchMap(() => service.getOwnRecipes())
+      )
+      .subscribe((recipes) => {
+        const cloned = recipes.find(r => r.title === originalRecipe.title && r.ownerId === auth.currentUser?.uid);
+        expect(cloned).toBeDefined();
+        expect(cloned?.id).not.toEqual(originalRecipe.id);
+        expect(cloned?.title).toEqual(originalRecipe.title);
+        expect(cloned?.description).toEqual(originalRecipe.description);
+        expect(cloned?.steps).toEqual(originalRecipe.steps);
+        expect(cloned?.ingredients).toEqual(originalRecipe.ingredients);
+        expect(cloned?.imgSrc).toEqual('assets/images/verduras.jpeg');
+        expect(cloned?.private).toEqual(originalRecipe.private);
         done();
       });
   });
