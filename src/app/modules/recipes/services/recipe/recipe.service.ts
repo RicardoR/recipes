@@ -1,6 +1,14 @@
 import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {deleteObject, FirebaseStorage, getDownloadURL, ref, Storage, uploadBytesResumable} from '@angular/fire/storage';
+import {
+  connectStorageEmulator,
+  deleteObject,
+  FirebaseStorage,
+  getDownloadURL,
+  ref,
+  Storage,
+  uploadBytesResumable
+} from '@angular/fire/storage';
 import {from, Observable, of, ReplaySubject, Subject,} from 'rxjs';
 
 import {Recipe} from '../../models/recipes.model';
@@ -49,6 +57,7 @@ export class RecipeService {
   constructor() {
     if (environment.useEmulators) {
       connectFirestoreEmulator(this.firestore, 'localhost', 8080);
+      connectStorageEmulator(this.storage, 'localhost', 9199);
     }
   }
 
@@ -300,4 +309,3 @@ export class RecipeService {
     };
   }
 }
-

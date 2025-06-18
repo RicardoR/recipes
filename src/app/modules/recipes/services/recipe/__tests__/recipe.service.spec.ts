@@ -189,6 +189,35 @@ describe('RecipeService E2E', () => {
   });
 
 
+  it('should upload a file and get metadata', (done) => {
+    const file = new File([new Blob(['test content'], { type: 'text/plain' })], 'test.txt', { type: 'text/plain' });
+    const folder = 'test-uploads';
+    const { uploadProgress$, downloadUrl$ } = service.uploadFileAndGetMetadata(folder, file);
+
+    let progressEmitted = false;
+    let urlEmitted = false;
+
+    uploadProgress$.subscribe({
+      next: (progress) => {
+        progressEmitted = true;
+        expect(progress).toBeGreaterThanOrEqual(0);
+        expect(progress).toBeLessThanOrEqual(100);
+      },
+      error: (err) => fail(err)
+    });
+
+    downloadUrl$.subscribe({
+      next: (url) => {
+        urlEmitted = true;
+        expect(typeof url).toBe('string');
+        expect(url.length).toBeGreaterThan(0);
+        if (progressEmitted && urlEmitted) done();
+      },
+      error: (err) => fail(err)
+    });
+  });
+
+
   async function userSetup() {
     auth = getAuth();
     connectAuthEmulator(auth, 'http://localhost:9099');
@@ -204,3 +233,4 @@ describe('RecipeService E2E', () => {
   }
 
 });
+
