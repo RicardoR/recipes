@@ -55,9 +55,7 @@ describe('RecipeService E2E', () => {
       .subscribe((recipes) => {
         expect(Array.isArray(recipes)).toBeTrue();
         expect(recipes.length).toBeGreaterThan(0);
-        recipes.forEach((recipe) => {
-          expect(recipe.ownerId).toEqual(auth.currentUser?.uid);
-        });
+        expect(recipes.every(recipe => recipe.ownerId === auth.currentUser?.uid)).toBeTrue();
         done();
       });
   });
@@ -71,6 +69,31 @@ describe('RecipeService E2E', () => {
     expect(categories.length).toBeGreaterThan(0);
     expect(categories[0].id).toBeDefined();
     expect(categories[0].detail).toBeDefined();
+  });
+
+  it('should get public recipes with at least one recipe not owned by current user and at least one owned by current user (E2E with Firestore emulator)', (done) => {
+    const myRecipe = { ...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false };
+    const otherRecipe = { ...recipeMock2, ownerId: 'a5690465-5e1b-459a-9798-cdf856bae7bd', id: '', private: false };
+
+    service
+      .createRecipe(myRecipe)
+      .pipe(
+        switchMap(() => service.createRecipe(otherRecipe)),
+        switchMap(() => service.getPublicRecipes())
+      )
+      .subscribe((recipes) => {
+        expect(Array.isArray(recipes)).toBeTrue();
+        expect(recipes.length).toBeGreaterThan(0);
+        const hasOtherOwner = recipes.some(
+          (recipe) => recipe.ownerId !== auth.currentUser?.uid
+        );
+        expect(hasOtherOwner).toBeTrue();
+        const hasCurrentUser = recipes.some(
+          (recipe) => recipe.ownerId === auth.currentUser?.uid
+        );
+        expect(hasCurrentUser).toBeTrue();
+        done();
+      });
   });
 
 
