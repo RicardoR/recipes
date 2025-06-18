@@ -13,6 +13,7 @@ import {connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWith
 import {firstValueFrom, switchMap} from 'rxjs';
 import {userMock} from "../../../../../testing-resources/mocks/user-mock";
 import {Recipe} from "../../../models/recipes.model";
+import {RecipeListComponent} from "../../../../shared/components/recipe-list/recipe-list.component";
 
 
 describe('RecipeService E2E', () => {
@@ -24,7 +25,7 @@ describe('RecipeService E2E', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterModule.forRoot([]),
+        RouterModule.forRoot([{path: 'recipes', component: RecipeListComponent}]),
         AngularFireModule.initializeApp(environment.firebase)
       ],
       providers: [
@@ -158,6 +159,32 @@ describe('RecipeService E2E', () => {
         expect(recipe.description).toEqual(myRecipe.description);
         expect(recipe.ownerId).toEqual(myRecipe.ownerId);
         done();
+      });
+  });
+
+
+  it('should delete a recipe', (done) => {
+    const myRecipe = { ...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false };
+    let createdId: string;
+    service.createRecipe(myRecipe)
+      .pipe(
+        switchMap((id) => {
+          createdId = id;
+          return service.deleteRecipe(createdId);
+        }),
+        switchMap(() => service.getRecipeDetail(createdId))
+      )
+      .subscribe({
+        next: () => {
+          fail('Recipe should have been deleted');
+          done();
+        },
+        error: (err) => {
+          expect(err).toBeDefined();
+          expect(err.message).toContain('Recipe does not exists');
+
+          done();
+        }
       });
   });
 

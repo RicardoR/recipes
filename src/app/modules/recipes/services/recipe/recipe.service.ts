@@ -184,7 +184,8 @@ export class RecipeService {
     getDocs(queryData).then((querySnapshot) => {
       if (querySnapshot.empty) {
         this.router.navigate([AppRoutingNames.recipes]);
-        throw new Error('Recipe does not exists');
+        result.error(new Error('Recipe does not exists'));
+        return;
       }
 
       const doc = querySnapshot.docs[0];
@@ -299,3 +300,4 @@ export class RecipeService {
     };
   }
 }
+
