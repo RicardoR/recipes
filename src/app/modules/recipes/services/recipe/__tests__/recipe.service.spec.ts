@@ -120,6 +120,27 @@ describe('RecipeService E2E', () => {
   });
 
 
+  it('should update a recipe (E2E with Firestore emulator)', (done) => {
+    const myRecipe = { ...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false };
+    let createdId: string;
+    service.createRecipe(myRecipe)
+      .pipe(
+        switchMap((id) => {
+          createdId = id;
+          const updatedRecipe = { ...myRecipe, id, title: 'Updated Title', description: 'Updated Description' };
+          return service.updateRecipe(updatedRecipe);
+        }),
+        switchMap(() => service.getRecipeDetail(createdId))
+      )
+      .subscribe((updated) => {
+        expect(updated.title).toEqual('Updated Title');
+        expect(updated.description).toEqual('Updated Description');
+        expect(updated.id).toEqual(createdId);
+        done();
+      });
+  });
+
+
   async function userSetup() {
     auth = getAuth();
     connectAuthEmulator(auth, 'http://localhost:9099');
