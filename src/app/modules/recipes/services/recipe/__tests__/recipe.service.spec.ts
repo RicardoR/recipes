@@ -43,7 +43,7 @@ describe('RecipeService E2E', () => {
     await userSetup();
   });
 
-  it('should get only own recipes (E2E with Firestore emulator)', (done) => {
+  it('should get only own recipes', (done) => {
     const myRecipe = {...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: ''};
     const otherRecipe = {...recipeMock2, ownerId: "a5690465-5e1b-459a-9798-cdf856bae7bd", id: ''};
 
@@ -61,7 +61,7 @@ describe('RecipeService E2E', () => {
       });
   });
 
-  it('should get categories (E2E with Firestore emulator)', async () => {
+  it('should get categories', async () => {
     const firestore = getFirestore();
     const category = {id: 'cat1', name: 'Verduras', detail: 'Categoria de verduras'};
     await addDoc(collection(firestore, 'categories'), category);
@@ -72,7 +72,7 @@ describe('RecipeService E2E', () => {
     expect(categories[0].detail).toBeDefined();
   });
 
-  it('should get public recipes with at least one recipe not owned by current user and at least one owned by current user (E2E with Firestore emulator)', (done) => {
+  it('should get public recipes with at least one recipe not owned by current user and at least one owned by current user', (done) => {
     const myRecipe = { ...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false };
     const otherRecipe = { ...recipeMock2, ownerId: 'a5690465-5e1b-459a-9798-cdf856bae7bd', id: '', private: false };
 
@@ -98,7 +98,7 @@ describe('RecipeService E2E', () => {
   });
 
 
-  it('should clone a recipe and assign it to the current user (E2E with Firestore emulator)', (done) => {
+  it('should clone a recipe and assign it to the current user', (done) => {
     const originalRecipe: Recipe = { ...recipeMock2, ownerId: 'external-user-id', id: '', private: false };
     service.createRecipe(originalRecipe)
       .pipe(
@@ -120,7 +120,7 @@ describe('RecipeService E2E', () => {
   });
 
 
-  it('should update a recipe (E2E with Firestore emulator)', (done) => {
+  it('should update a recipe', (done) => {
     const myRecipe = { ...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false };
     let createdId: string;
     service.createRecipe(myRecipe)
@@ -136,6 +136,27 @@ describe('RecipeService E2E', () => {
         expect(updated.title).toEqual('Updated Title');
         expect(updated.description).toEqual('Updated Description');
         expect(updated.id).toEqual(createdId);
+        done();
+      });
+  });
+
+
+  it('should get recipe detail', (done) => {
+    const myRecipe = { ...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false };
+    let createdId: string;
+    service.createRecipe(myRecipe)
+      .pipe(
+        switchMap((id) => {
+          createdId = id;
+          return service.getRecipeDetail(createdId);
+        })
+      )
+      .subscribe((recipe) => {
+        expect(recipe).toBeDefined();
+        expect(recipe.id).toEqual(createdId);
+        expect(recipe.title).toEqual(myRecipe.title);
+        expect(recipe.description).toEqual(myRecipe.description);
+        expect(recipe.ownerId).toEqual(myRecipe.ownerId);
         done();
       });
   });
