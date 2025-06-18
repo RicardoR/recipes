@@ -9,7 +9,8 @@
     "deploy": "ng build && firebase deploy",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --code-coverage=true",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "firebase:emulators:start": "firebase emulators:start"
   },
   "private": true,
   "dependencies": {

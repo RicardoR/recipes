@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {deleteObject, FirebaseStorage, getDownloadURL, ref, Storage, uploadBytesResumable} from '@angular/fire/storage';
 import {from, Observable, of, ReplaySubject, Subject,} from 'rxjs';
@@ -10,6 +10,7 @@ import {AppRoutingNames} from 'src/app/app.routes';
 import {
   addDoc,
   collection,
+  connectFirestoreEmulator,
   deleteDoc,
   doc,
   Firestore,
@@ -20,6 +21,7 @@ import {
   updateDoc,
   where
 } from '@angular/fire/firestore';
+import {environment} from 'src/environments/environment';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
@@ -43,6 +45,12 @@ export class RecipeService {
   private storage = inject(Storage);
 
   private categoryList?: ElementModel[] = undefined;
+
+  constructor() {
+    if (environment.useEmulators) {
+      connectFirestoreEmulator(this.firestore, 'localhost', 8080);
+    }
+  }
 
   getOwnRecipes(): Observable<Recipe[]> {
     const result = new ReplaySubject<Recipe[]>();
@@ -291,4 +299,3 @@ export class RecipeService {
     };
   }
 }
-
