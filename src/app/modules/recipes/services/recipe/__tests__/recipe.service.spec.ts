@@ -218,6 +218,50 @@ describe('RecipeService E2E', () => {
   });
 
 
+  it('should delete an image from storage', (done) => {
+    const file = new File([new Blob(['test content'], { type: 'text/plain' })], 'test.txt', { type: 'text/plain' });
+    const folder = 'test-uploads';
+    const { downloadUrl$ } = service.uploadFileAndGetMetadata(folder, file);
+
+    downloadUrl$
+      .pipe(
+        switchMap((url) => service.deleteImage(url))
+      )
+      .subscribe({
+        next: (res) => {
+          expect(res).toBeUndefined();
+          done();
+        },
+        error: (err) => fail(err)
+      });
+  });
+
+
+  it('should filter recipes by title or description', () => {
+    const recipes = [
+      { title: 'Tarta de Verduras', description: 'Rica tarta', id: '1', ownerId: 'a', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+      { title: 'Ensalada', description: 'Fresca y saludable', id: '2', ownerId: 'b', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+      { title: 'Pizza', description: 'Con mucha verdura', id: '3', ownerId: 'c', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+    ];
+
+    let filtered = service.filterRecipes(recipes, 'tarta');
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].title).toBe('Tarta de Verduras');
+
+    filtered = service.filterRecipes(recipes, 'saludable');
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].title).toBe('Ensalada');
+
+    filtered = service.filterRecipes(recipes, 'verdura');
+    expect(filtered.length).toBe(2);
+    expect(filtered.some(r => r.title === 'Tarta de Verduras')).toBeTrue();
+    expect(filtered.some(r => r.title === 'Pizza')).toBeTrue();
+
+    filtered = service.filterRecipes(recipes, '');
+    expect(filtered.length).toBe(3);
+  });
+
+
   async function userSetup() {
     auth = getAuth();
     connectAuthEmulator(auth, 'http://localhost:9099');
@@ -233,4 +277,3 @@ describe('RecipeService E2E', () => {
   }
 
 });
-
