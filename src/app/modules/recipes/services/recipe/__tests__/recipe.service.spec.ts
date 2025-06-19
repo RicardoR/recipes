@@ -293,6 +293,48 @@ describe('RecipeService E2E', () => {
 
   });
 
+  describe('When user is demo', () => {
+    beforeEach(() => {
+      authService.currentUser = { ...userMock, email: 'test@mail.com', uid: 'demo-user' };
+    });
+
+    it('should throw error when trying to create a recipe', (done) => {
+      expect(() => service.createRecipe(recipeMock)).toThrowError('You can not create a recipe with demo user');
+      done();
+    });
+
+    it('should throw error when trying to update a recipe', (done) => {
+      expect(() => service.updateRecipe(recipeMock)).toThrowError('You can not update a recipe with demo user');
+      done();
+    });
+
+    it('should throw error when trying to delete a recipe', (done) => {
+      expect(() => service.deleteRecipe('some-id')).toThrowError('You can not delete a recipe with demo user');
+      done();
+    });
+
+    it('should throw error when trying to upload a file', (done) => {
+      const file = new File([new Blob(['test content'], { type: 'text/plain' })], 'test.txt', { type: 'text/plain' });
+      expect(() => service.uploadFileAndGetMetadata('folder', file)).toThrowError('You can not upload a picture with demo user');
+      done();
+    });
+
+    it('should throw error when trying to delete an image', (done) => {
+      expect(() => service.deleteImage('some-url')).toThrowError('You can not do this with demo user');
+      done();
+    });
+
+    it('should allow filtering recipes', () => {
+      const recipes = [
+        { title: 'Tarta de Verduras', description: 'Rica tarta', id: '1', ownerId: 'a', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+        { title: 'Ensalada', description: 'Fresca y saludable', id: '2', ownerId: 'b', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+      ];
+      const filtered = service.filterRecipes(recipes, 'tarta');
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].title).toBe('Tarta de Verduras');
+    });
+  });
+
   async function userSetup() {
     auth = getAuth();
     connectAuthEmulator(auth, 'http://localhost:9099');
