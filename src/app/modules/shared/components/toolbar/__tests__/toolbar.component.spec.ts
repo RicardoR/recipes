@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
@@ -53,4 +53,22 @@ describe('ToolbarComponent', () => {
     component.logout();
     expect(authServiceSpy.logout).toHaveBeenCalled();
   });
+
+  it('should toggle displaySearchControl and focus input, and clear value when hiding', fakeAsync(() => {
+    const focusSpy = jasmine.createSpy('focus');
+    component.searchElement = { nativeElement: { focus: focusSpy } } as any;
+    component.displaySearchControl = false;
+    component.searchFormControl.setValue('algo');
+
+    component.switchSearchControl();
+    tick();
+    expect(component.displaySearchControl).toBeTrue();
+    expect(focusSpy).toHaveBeenCalled();
+    expect(component.searchFormControl.value).toBe('algo');
+
+    component.switchSearchControl();
+    tick();
+    expect(component.displaySearchControl).toBeFalse();
+    expect(component.searchFormControl.value).toBe('');
+  }));
 });
