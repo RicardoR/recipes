@@ -7,7 +7,7 @@ import {recipeMock, recipeMock2} from 'src/app/testing-resources/mocks/recipe-mo
 import {provideFirebaseApp} from '@angular/fire/app';
 import {addDoc, collection, getFirestore, provideFirestore} from '@angular/fire/firestore';
 import {getStorage, provideStorage} from '@angular/fire/storage';
-import {initializeApp} from 'firebase/app';
+import {initializeApp, getApps} from 'firebase/app';
 import {AngularFireModule, FIREBASE_APP_NAME, FIREBASE_OPTIONS} from "@angular/fire/compat";
 import {connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {firstValueFrom, switchMap} from 'rxjs';
@@ -16,13 +16,16 @@ import {Recipe} from "../../../models/recipes.model";
 import {RecipeListComponent} from "../../../../shared/components/recipe-list/recipe-list.component";
 
 
-describe('RecipeService E2E', () => {
+describe('RecipeService', () => {
   let service: RecipeService;
   let authService: AuthService;
   let auth: ReturnType<typeof getAuth>;
 
 
   beforeEach(async () => {
+    if (getApps().length === 0) {
+      initializeApp(environment.firebase);
+    }
     await TestBed.configureTestingModule({
       imports: [
         RouterModule.forRoot([{path: 'recipes', component: RecipeListComponent}]),
@@ -38,6 +41,9 @@ describe('RecipeService E2E', () => {
         provideStorage(() => getStorage())
       ]
     }).compileComponents();
+
+    auth = getAuth();
+    connectAuthEmulator(auth, 'http://localhost:9099');
 
     service = TestBed.inject(RecipeService);
     authService = TestBed.inject(AuthService);
