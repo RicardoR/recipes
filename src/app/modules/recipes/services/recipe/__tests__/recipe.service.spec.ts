@@ -8,12 +8,12 @@ import {provideFirebaseApp} from '@angular/fire/app';
 import {addDoc, collection, getFirestore, provideFirestore} from '@angular/fire/firestore';
 import {getStorage, provideStorage} from '@angular/fire/storage';
 import {initializeApp, getApps} from 'firebase/app';
-import {AngularFireModule, FIREBASE_APP_NAME, FIREBASE_OPTIONS} from "@angular/fire/compat";
+import {FIREBASE_OPTIONS} from '@angular/fire/compat';
 import {connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {firstValueFrom, switchMap} from 'rxjs';
-import {userMock} from "../../../../../testing-resources/mocks/user-mock";
-import {Recipe} from "../../../models/recipes.model";
-import {RecipeListComponent} from "../../../../shared/components/recipe-list/recipe-list.component";
+import {userMock} from '../../../../../testing-resources/mocks/user-mock';
+import {Recipe} from '../../../models/recipes.model';
+import {RecipeListComponent} from '../../../../shared/components/recipe-list/recipe-list.component';
 
 
 describe('RecipeService', () => {
@@ -29,13 +29,11 @@ describe('RecipeService', () => {
     await TestBed.configureTestingModule({
       imports: [
         RouterModule.forRoot([{path: 'recipes', component: RecipeListComponent}]),
-        AngularFireModule.initializeApp(environment.firebase)
       ],
       providers: [
         RecipeService,
         AuthService,
         {provide: FIREBASE_OPTIONS, useValue: environment.firebase},
-        {provide: FIREBASE_APP_NAME, useValue: undefined},
         provideFirebaseApp(() => initializeApp(environment.firebase)),
         provideFirestore(() => getFirestore()),
         provideStorage(() => getStorage())
