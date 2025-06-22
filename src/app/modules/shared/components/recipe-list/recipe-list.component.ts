@@ -1,6 +1,6 @@
-import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
+import {ReactiveFormsModule, FormControl} from '@angular/forms';
 import {Component, DestroyRef, inject, OnInit, input, output, signal, effect} from '@angular/core';
-import {tap} from 'rxjs/operators';
+import {filter, tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
 import {DatePipe} from '@angular/common';
@@ -41,8 +41,7 @@ export class RecipeListComponent implements OnInit {
   private recipeService = inject(RecipeService);
 
   categories: ElementModel[] = [];
-  // todo: type me, please
-  categoryFilter = new UntypedFormControl();
+  categoryFilter = new FormControl<ElementModel[] | null>(null);
   recipesFiltered = signal<Recipe[]>([]);
 
   constructor() {
@@ -78,7 +77,10 @@ export class RecipeListComponent implements OnInit {
 
   private listenCategoryFilter(): void {
     this.categoryFilter.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(value => value !== null && value !== undefined)
+      )
       .subscribe((value) => this.filterRecipes(value));
   }
 

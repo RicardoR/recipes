@@ -1,10 +1,10 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {
-  UntypedFormGroup,
-  UntypedFormControl,
   Validators,
-  UntypedFormBuilder,
+  FormBuilder,
   ReactiveFormsModule,
+  FormGroup,
+  FormControl,
 } from '@angular/forms';
 
 import {AuthData} from '../../auth-data.model';
@@ -15,6 +15,11 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatCardModule} from '@angular/material/card';
+
+interface LoginFormGroup {
+  email: FormControl<string>;
+  password: FormControl<string>;
+}
 
 @Component({
   selector: 'app-login',
@@ -31,9 +36,9 @@ import {MatCardModule} from '@angular/material/card';
 })
 export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
-  private fb = inject(UntypedFormBuilder);
+  private fb = inject(FormBuilder);
 
-  form!: UntypedFormGroup;
+  form!: FormGroup<LoginFormGroup>;
   passWordHidden = true;
 
   ngOnInit() {
@@ -66,13 +71,12 @@ export class LoginComponent implements OnInit {
   }
 
   private buildLoginForm(): void {
-    // todo: type me, please
     this.form = this.fb.group({
-      email: new UntypedFormControl(FAKE_USER_EMAIL, [
+      email: new FormControl(FAKE_USER_EMAIL, [
         Validators.required,
         Validators.email,
       ]),
-      password: new UntypedFormControl('123456', [Validators.required]),
-    });
+      password: new FormControl('123456', [Validators.required]),
+    }) as FormGroup<LoginFormGroup>;
   }
 }
