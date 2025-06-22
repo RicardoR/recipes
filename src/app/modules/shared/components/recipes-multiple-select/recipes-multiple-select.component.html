@@ -2,10 +2,10 @@
   <mat-label>{{ label() }}</mat-label>
   <mat-select #matmat [formControl]="elementSelectControl" multiple [compareWith]="compareElements">
     <mat-select-trigger>
-      {{ elementSelectControl.value ? elementSelectControl.value[0]?.detail : '' }}
-      @if (elementSelectControl.value?.length > 1) {
+      {{ selectedDetail() }}
+      @if (selectedCountText()) {
         <span class="example-additional-selection">
-          (+{{elementSelectControl.value.length - 1}} {{elementSelectControl.value?.length === 2 ? 'otro' : 'otros'}})
+          {{ selectedCountText() }}
         </span>
       }
     </mat-select-trigger>
@@ -14,4 +14,3 @@
     }
   </mat-select>
 </mat-form-field>
-

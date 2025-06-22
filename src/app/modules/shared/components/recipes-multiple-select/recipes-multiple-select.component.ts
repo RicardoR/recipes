@@ -1,14 +1,15 @@
-import {filter, tap} from 'rxjs/operators';
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, UntypedFormControl,} from '@angular/forms';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl} from '@angular/forms';
 import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-
+import {computed, signal} from '@angular/core';
+import {filter, tap} from 'rxjs/operators';
 import {ElementModel} from '../../../recipes/models/element.model';
 
-/* eslint-disable @typescript-eslint/no-empty-function */
 
 @Component({
     selector: 'app-recipes-multiple-select',
@@ -36,17 +37,37 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
 
   private destroyRef = inject(DestroyRef);
 
-  // todo: type me, please
-  elementSelectControl = new UntypedFormControl();
+  elementSelectControl = new FormControl<ElementModel[] | null>(null);
   value: ElementModel[] = [];
   touched = false;
   disabled = false;
 
-  onChange: (value: unknown) => void = () => {};
+  selectedDetail = computed(() => {
+    const value = this.elementSelectValue();
+    if (value && value.length > 0 && value[0]) {
+      return value[0].detail;
+    }
+    return '';
+  });
+
+  selectedCountText = computed(() => {
+    const value = this.elementSelectValue();
+    if (value && value.length > 1) {
+      return `(+${value.length - 1} ${value.length === 2 ? 'otro' : 'otros'})`;
+    }
+    return '';
+  });
+
+  onChange: (value: ElementModel[]) => void = () => {};
   onTouched: () => void = () => {};
+
+  elementSelectValue = signal<ElementModel[] | null>(this.elementSelectControl.value);
 
   ngOnInit(): void {
     this.listenSelectChange();
+    this.elementSelectControl.valueChanges.subscribe(value => {
+      this.elementSelectValue.set(value);
+    });
   }
 
   writeValue(value: ElementModel[]): void {
@@ -87,6 +108,7 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         tap(() => this.markAsTouched()),
+        filter((value) => value !== null),
         filter((value) => value !== this.value)
       )
       .subscribe((value: ElementModel[]) => {
