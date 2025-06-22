@@ -28,3 +28,27 @@ export const recipeMock = {
   imgSrc: 'image-url-mocked.jpg',
   private: false,
 } as Recipe;
+
+export const recipeMock2 = {
+  date: new Date(),
+  title: 'Tortilla de Patatas',
+  description: 'Tortilla española tradicional, 4 raciones, 40 minutos',
+  id: '2',
+  ownerId: '2',
+  steps: [
+    'Pelar y cortar las patatas en rodajas finas. Cortar la cebolla en juliana.\n',
+    'Freír las patatas y la cebolla en abundante aceite de oliva hasta que estén blandas.\n',
+    'Batir los huevos en un bol grande y añadir las patatas y la cebolla escurridas. Mezclar bien y salar al gusto.\n',
+    'Verter la mezcla en una sartén caliente con un poco de aceite y cuajar la tortilla por ambos lados.\n',
+    'Servir caliente o templada.\n',
+  ],
+  ingredients: [
+    '5 patatas medianas\n',
+    '1 cebolla grande\n',
+    '6 huevos\n',
+    'Aceite de oliva\n',
+    'Sal',
+  ],
+  imgSrc: 'image-url-tortilla.jpg',
+  private: false,
+} as Recipe;

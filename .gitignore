@@ -52,3 +52,6 @@ Thumbs.db
 yarn.lock
 package-lock.json
 .firebase-commands
+/database-debug.log
+/firebase-debug.log
+/firestore-debug.log

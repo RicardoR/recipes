@@ -8,6 +8,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {ElementModel} from '../../../recipes/models/element.model';
 
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 @Component({
     selector: 'app-recipes-multiple-select',
     templateUrl: './recipes-multiple-select.component.html',
@@ -40,8 +42,8 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
   touched = false;
   disabled = false;
 
-  onChange = ([]) => {};
-  onTouched = () => {};
+  onChange: (value: unknown) => void = () => {};
+  onTouched: () => void = () => {};
 
   ngOnInit(): void {
     this.listenSelectChange();
@@ -52,11 +54,11 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
     this.elementSelectControl.setValue(value);
   }
 
-  registerOnChange(onChange: any): void {
+  registerOnChange(onChange: (value: unknown) => void): void {
     this.onChange = onChange;
   }
 
-  registerOnTouched(onTouched: any): void {
+  registerOnTouched(onTouched: () => void): void {
     this.onTouched = onTouched;
   }
 

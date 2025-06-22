@@ -1,107 +1,356 @@
-import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { of } from 'rxjs';
-import { RecipeService } from '../recipe.service';
-import { AuthService } from 'src/app/modules/auth/services/auth.service';
-import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
-import { userMock } from 'src/app/testing-resources/mocks/user-mock';
-import { Firestore } from '@angular/fire/firestore';
-import { Storage } from '@angular/fire/storage';
+import {TestBed} from '@angular/core/testing';
+import {RouterModule} from '@angular/router';
+import {environment} from 'src/environments/environment.test';
+import {RecipeService} from '../recipe.service';
+import {AuthService} from 'src/app/modules/auth/services/auth.service';
+import {recipeMock, recipeMock2} from 'src/app/testing-resources/mocks/recipe-mock';
+import {provideFirebaseApp} from '@angular/fire/app';
+import {addDoc, collection, getFirestore, provideFirestore} from '@angular/fire/firestore';
+import {getStorage, provideStorage} from '@angular/fire/storage';
+import {initializeApp, getApps} from 'firebase/app';
+import {FIREBASE_OPTIONS} from '@angular/fire/compat';
+import {connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from 'firebase/auth';
+import {firstValueFrom, switchMap} from 'rxjs';
+import {userMock} from '../../../../../testing-resources/mocks/user-mock';
+import {Recipe} from '../../../models/recipes.model';
+import {RecipeListComponent} from '../../../../shared/components/recipe-list/recipe-list.component';
+
 
 describe('RecipeService', () => {
   let service: RecipeService;
-  let firestoreMock: any;
-  let storageMock: any;
-  let authServiceMock: any;
-  let routerMock: any;
+  let authService: AuthService;
+  let auth: ReturnType<typeof getAuth>;
 
-  beforeEach(() => {
-    firestoreMock = {
-      collection: jasmine.createSpy(),
-      doc: jasmine.createSpy(),
-    };
-    storageMock = {};
-    authServiceMock = {
-      currentUser: userMock,
-      isDemoUser: false,
-    };
-    routerMock = { navigate: jasmine.createSpy() };
 
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    if (getApps().length === 0) {
+      initializeApp(environment.firebase);
+    }
+    await TestBed.configureTestingModule({
+      imports: [
+        RouterModule.forRoot([{path: 'recipes', component: RecipeListComponent}]),
+      ],
       providers: [
         RecipeService,
-        { provide: Firestore, useValue: firestoreMock },
-        { provide: Storage, useValue: storageMock },
-        { provide: AuthService, useValue: authServiceMock },
-        { provide: Router, useValue: routerMock },
-      ],
-    });
+        AuthService,
+        {provide: FIREBASE_OPTIONS, useValue: environment.firebase},
+        provideFirebaseApp(() => initializeApp(environment.firebase)),
+        provideFirestore(() => getFirestore()),
+        provideStorage(() => getStorage())
+      ]
+    }).compileComponents();
+
+    auth = getAuth();
+    connectAuthEmulator(auth, 'http://localhost:9099');
+
     service = TestBed.inject(RecipeService);
+    authService = TestBed.inject(AuthService);
   });
 
-  it('should create a recipe', (done) => {
-    const addDocSpy = spyOn<any>(service, 'createRecipe').and.returnValue(of('123'));
-    service.createRecipe(recipeMock).subscribe((id) => {
-      expect(id).toBe('123');
-      expect(addDocSpy).toHaveBeenCalled();
+  describe('When user is authenticated', () => {
+    beforeEach(async () => {
+      await userSetup();
+    });
+
+    it('should get only own recipes', (done) => {
+      const myRecipe = {...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: ''};
+      const otherRecipe = {...recipeMock2, ownerId: "a5690465-5e1b-459a-9798-cdf856bae7bd", id: ''};
+
+      service
+        .createRecipe(otherRecipe)
+        .pipe(
+          switchMap(() => service.createRecipe(myRecipe)),
+          switchMap(() => service.getOwnRecipes())
+        )
+        .subscribe((recipes) => {
+          expect(Array.isArray(recipes)).toBeTrue();
+          expect(recipes.length).toBeGreaterThan(0);
+          expect(recipes.every(recipe => recipe.ownerId === auth.currentUser?.uid)).toBeTrue();
+          done();
+        });
+    });
+
+    it('should get categories', async () => {
+      const firestore = getFirestore();
+      const category = {id: 'cat1', name: 'Verduras', detail: 'Categoria de verduras'};
+      await addDoc(collection(firestore, 'categories'), category);
+      const categories = await firstValueFrom(service.getCategories());
+      expect(Array.isArray(categories)).toBeTrue();
+      expect(categories.length).toBeGreaterThan(0);
+      expect(categories[0].id).toBeDefined();
+      expect(categories[0].detail).toBeDefined();
+    });
+
+    it('should get public recipes with at least one recipe not owned by current user and at least one owned by current user', (done) => {
+      const myRecipe = {...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false};
+      const otherRecipe = {...recipeMock2, ownerId: 'a5690465-5e1b-459a-9798-cdf856bae7bd', id: '', private: false};
+
+      service
+        .createRecipe(myRecipe)
+        .pipe(
+          switchMap(() => service.createRecipe(otherRecipe)),
+          switchMap(() => service.getPublicRecipes())
+        )
+        .subscribe((recipes) => {
+          expect(Array.isArray(recipes)).toBeTrue();
+          expect(recipes.length).toBeGreaterThan(0);
+          const hasOtherOwner = recipes.some(
+            (recipe) => recipe.ownerId !== auth.currentUser?.uid
+          );
+          expect(hasOtherOwner).toBeTrue();
+          const hasCurrentUser = recipes.some(
+            (recipe) => recipe.ownerId === auth.currentUser?.uid
+          );
+          expect(hasCurrentUser).toBeTrue();
+          done();
+        });
+    });
+
+    it('should clone a recipe and assign it to the current user', (done) => {
+      const originalRecipe: Recipe = {...recipeMock2, ownerId: 'external-user-id', id: '', private: false};
+      service.createRecipe(originalRecipe)
+        .pipe(
+          switchMap(() => service.cloneRecipe(originalRecipe)),
+          switchMap(() => service.getOwnRecipes())
+        )
+        .subscribe((recipes) => {
+          const cloned = recipes.find(r => r.title === originalRecipe.title && r.ownerId === auth.currentUser?.uid);
+          expect(cloned).toBeDefined();
+          expect(cloned?.id).not.toEqual(originalRecipe.id);
+          expect(cloned?.title).toEqual(originalRecipe.title);
+          expect(cloned?.description).toEqual(originalRecipe.description);
+          expect(cloned?.steps).toEqual(originalRecipe.steps);
+          expect(cloned?.ingredients).toEqual(originalRecipe.ingredients);
+          expect(cloned?.imgSrc).toEqual('assets/images/verduras.jpeg');
+          expect(cloned?.private).toEqual(originalRecipe.private);
+          done();
+        });
+    });
+
+    it('should update a recipe', (done) => {
+      const myRecipe = {...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false};
+      let createdId: string;
+      service.createRecipe(myRecipe)
+        .pipe(
+          switchMap((id) => {
+            createdId = id;
+            const updatedRecipe = {...myRecipe, id, title: 'Updated Title', description: 'Updated Description'};
+            return service.updateRecipe(updatedRecipe);
+          }),
+          switchMap(() => service.getRecipeDetail(createdId))
+        )
+        .subscribe((updated) => {
+          expect(updated.title).toEqual('Updated Title');
+          expect(updated.description).toEqual('Updated Description');
+          expect(updated.id).toEqual(createdId);
+          done();
+        });
+    });
+
+    it('should get recipe detail', (done) => {
+      const myRecipe = {...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false};
+      let createdId: string;
+      service.createRecipe(myRecipe)
+        .pipe(
+          switchMap((id) => {
+            createdId = id;
+            return service.getRecipeDetail(createdId);
+          })
+        )
+        .subscribe((recipe) => {
+          expect(recipe).toBeDefined();
+          expect(recipe.id).toEqual(createdId);
+          expect(recipe.title).toEqual(myRecipe.title);
+          expect(recipe.description).toEqual(myRecipe.description);
+          expect(recipe.ownerId).toEqual(myRecipe.ownerId);
+          done();
+        });
+    });
+
+    it('should delete a recipe', (done) => {
+      const myRecipe = {...recipeMock, ownerId: auth.currentUser?.uid || 'test-user', id: '', private: false};
+      let createdId: string;
+      service.createRecipe(myRecipe)
+        .pipe(
+          switchMap((id) => {
+            createdId = id;
+            return service.deleteRecipe(createdId);
+          }),
+          switchMap(() => service.getRecipeDetail(createdId))
+        )
+        .subscribe({
+          next: () => {
+            fail('Recipe should have been deleted');
+            done();
+          },
+          error: (err) => {
+            expect(err).toBeDefined();
+            expect(err.message).toContain('Recipe does not exists');
+
+            done();
+          }
+        });
+    });
+
+    it('should upload a file and get metadata', (done) => {
+      const file = new File([new Blob(['test content'], {type: 'text/plain'})], 'test.txt', {type: 'text/plain'});
+      const folder = 'test-uploads';
+      const {uploadProgress$, downloadUrl$} = service.uploadFileAndGetMetadata(folder, file);
+
+      let progressEmitted = false;
+      let urlEmitted = false;
+
+      uploadProgress$.subscribe({
+        next: (progress) => {
+          progressEmitted = true;
+          expect(progress).toBeGreaterThanOrEqual(0);
+          expect(progress).toBeLessThanOrEqual(100);
+        },
+        error: (err) => fail(err)
+      });
+
+      downloadUrl$.subscribe({
+        next: (url) => {
+          urlEmitted = true;
+          expect(typeof url).toBe('string');
+          expect(url.length).toBeGreaterThan(0);
+          if (progressEmitted && urlEmitted) done();
+        },
+        error: (err) => fail(err)
+      });
+    });
+
+    it('should delete an image from storage', (done) => {
+      const file = new File([new Blob(['test content'], {type: 'text/plain'})], 'test.txt', {type: 'text/plain'});
+      const folder = 'test-uploads';
+      const {downloadUrl$} = service.uploadFileAndGetMetadata(folder, file);
+
+      downloadUrl$
+        .pipe(
+          switchMap((url) => service.deleteImage(url))
+        )
+        .subscribe({
+          next: (res) => {
+            expect(res).toBeUndefined();
+            done();
+          },
+          error: (err) => fail(err)
+        });
+    });
+
+    it('should filter recipes by title or description', () => {
+      const recipes = [
+        {
+          title: 'Tarta de Verduras',
+          description: 'Rica tarta',
+          id: '1',
+          ownerId: 'a',
+          steps: [],
+          ingredients: [],
+          imgSrc: '',
+          private: false,
+          categories: [],
+          date: new Date()
+        },
+        {
+          title: 'Ensalada',
+          description: 'Fresca y saludable',
+          id: '2',
+          ownerId: 'b',
+          steps: [],
+          ingredients: [],
+          imgSrc: '',
+          private: false,
+          categories: [],
+          date: new Date()
+        },
+        {
+          title: 'Pizza',
+          description: 'Con mucha verdura',
+          id: '3',
+          ownerId: 'c',
+          steps: [],
+          ingredients: [],
+          imgSrc: '',
+          private: false,
+          categories: [],
+          date: new Date()
+        },
+      ];
+
+      let filtered = service.filterRecipes(recipes, 'tarta');
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].title).toBe('Tarta de Verduras');
+
+      filtered = service.filterRecipes(recipes, 'saludable');
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].title).toBe('Ensalada');
+
+      filtered = service.filterRecipes(recipes, 'verdura');
+      expect(filtered.length).toBe(2);
+      expect(filtered.some(r => r.title === 'Tarta de Verduras')).toBeTrue();
+      expect(filtered.some(r => r.title === 'Pizza')).toBeTrue();
+
+      filtered = service.filterRecipes(recipes, '');
+      expect(filtered.length).toBe(3);
+    });
+
+  });
+
+  describe('When user is demo', () => {
+    beforeEach(() => {
+      authService.currentUser = { ...userMock, email: 'test@mail.com', uid: 'demo-user' };
+    });
+
+    it('should throw error when trying to create a recipe', (done) => {
+      expect(() => service.createRecipe(recipeMock)).toThrowError('You can not create a recipe with demo user');
       done();
+    });
+
+    it('should throw error when trying to update a recipe', (done) => {
+      expect(() => service.updateRecipe(recipeMock)).toThrowError('You can not update a recipe with demo user');
+      done();
+    });
+
+    it('should throw error when trying to delete a recipe', (done) => {
+      expect(() => service.deleteRecipe('some-id')).toThrowError('You can not delete a recipe with demo user');
+      done();
+    });
+
+    it('should throw error when trying to upload a file', (done) => {
+      const file = new File([new Blob(['test content'], { type: 'text/plain' })], 'test.txt', { type: 'text/plain' });
+      expect(() => service.uploadFileAndGetMetadata('folder', file)).toThrowError('You can not upload a picture with demo user');
+      done();
+    });
+
+    it('should throw error when trying to delete an image', (done) => {
+      expect(() => service.deleteImage('some-url')).toThrowError('You can not do this with demo user');
+      done();
+    });
+
+    it('should allow filtering recipes', () => {
+      const recipes = [
+        { title: 'Tarta de Verduras', description: 'Rica tarta', id: '1', ownerId: 'a', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+        { title: 'Ensalada', description: 'Fresca y saludable', id: '2', ownerId: 'b', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+      ];
+      const filtered = service.filterRecipes(recipes, 'tarta');
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].title).toBe('Tarta de Verduras');
     });
   });
 
-  it('should update a recipe', (done) => {
-    const updateDocSpy = spyOn<any>(service, 'updateRecipe').and.returnValue(of(void 0));
-    service.updateRecipe(recipeMock).subscribe(() => {
-      expect(updateDocSpy).toHaveBeenCalled();
-      done();
-    });
-  });
+  async function userSetup() {
+    auth = getAuth();
+    connectAuthEmulator(auth, 'http://localhost:9099');
 
-  it('should delete a recipe', (done) => {
-    const deleteDocSpy = spyOn<any>(service, 'deleteRecipe').and.returnValue(of(true));
-    service.deleteRecipe('id').subscribe((res) => {
-      expect(res).toBeTrue();
-      expect(deleteDocSpy).toHaveBeenCalled();
-      done();
-    });
-  });
+    try {
+      await createUserWithEmailAndPassword(auth, userMock.email, userMock.password);
+    } catch (e) {
+      if ((e as { code?: string }).code !== 'auth/email-already-in-use') throw e;
+    }
 
-  it('should get recipe detail', (done) => {
-    const recipe = { ...recipeMock, id: 'id' };
-    spyOn<any>(service, 'getRecipeDetail').and.returnValue(of(recipe));
-    service.getRecipeDetail('id').subscribe((res) => {
-      expect(res.id).toBe('id');
-      done();
-    });
-  });
+    await signInWithEmailAndPassword(auth, userMock.email, userMock.password);
+    authService.currentUser = {...userMock, uid: auth.currentUser?.uid};
+  }
 
-  it('should filter recipes', () => {
-    const recipes = [recipeMock];
-    const filtered = service.filterRecipes(recipes, recipeMock.title);
-    expect(filtered.length).toBe(1);
-  });
-
-  it('should throw error for demo user on create', () => {
-    authServiceMock.isDemoUser = true;
-    expect(() => service.createRecipe(recipeMock)).toThrow();
-  });
-
-  it('should throw error for demo user on update', () => {
-    authServiceMock.isDemoUser = true;
-    expect(() => service.updateRecipe(recipeMock)).toThrow();
-  });
-
-  it('should throw error for demo user on delete', () => {
-    authServiceMock.isDemoUser = true;
-    expect(() => service.deleteRecipe('id')).toThrow();
-  });
-
-  it('should throw error for demo user on upload', () => {
-    authServiceMock.isDemoUser = true;
-    expect(() => service.uploadFileAndGetMetadata('images', new File([], 'test.png'))).toThrow();
-  });
-
-  it('should throw error for demo user on deleteImage', () => {
-    authServiceMock.isDemoUser = true;
-    expect(() => service.deleteImage('someurl')).toThrow();
-  });
 });

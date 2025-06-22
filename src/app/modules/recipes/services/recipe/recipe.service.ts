@@ -1,6 +1,15 @@
-import { Injectable, inject } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {deleteObject, FirebaseStorage, getDownloadURL, ref, Storage, uploadBytesResumable} from '@angular/fire/storage';
+import {
+  connectStorageEmulator,
+  deleteObject,
+  FirebaseStorage,
+  getDownloadURL,
+  ref,
+  Storage,
+  uploadBytesResumable
+} from '@angular/fire/storage';
 import {from, Observable, of, ReplaySubject, Subject,} from 'rxjs';
 
 import {Recipe} from '../../models/recipes.model';
@@ -10,6 +19,7 @@ import {AppRoutingNames} from 'src/app/app.routes';
 import {
   addDoc,
   collection,
+  connectFirestoreEmulator,
   deleteDoc,
   doc,
   Firestore,
@@ -20,6 +30,7 @@ import {
   updateDoc,
   where
 } from '@angular/fire/firestore';
+import {environment} from 'src/environments/environment';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
@@ -43,6 +54,13 @@ export class RecipeService {
   private storage = inject(Storage);
 
   private categoryList?: ElementModel[] = undefined;
+
+  constructor() {
+    if (environment.useEmulators) {
+      connectFirestoreEmulator(this.firestore, 'localhost', 8080);
+      connectStorageEmulator(this.storage, 'localhost', 9199);
+    }
+  }
 
   getOwnRecipes(): Observable<Recipe[]> {
     const result = new ReplaySubject<Recipe[]>();
@@ -176,7 +194,8 @@ export class RecipeService {
     getDocs(queryData).then((querySnapshot) => {
       if (querySnapshot.empty) {
         this.router.navigate([AppRoutingNames.recipes]);
-        throw new Error('Recipe does not exists');
+        result.error(new Error('Recipe does not exists'));
+        return;
       }
 
       const doc = querySnapshot.docs[0];
@@ -238,7 +257,7 @@ export class RecipeService {
     };
   }
 
-  deleteImage(imageUrl: string): Observable<any> {
+  deleteImage(imageUrl: string): Observable<void | true> {
     if (this.authService.isDemoUser) {
       throw new Error('You can not do this with demo user');
     }
@@ -291,4 +310,3 @@ export class RecipeService {
     };
   }
 }
-

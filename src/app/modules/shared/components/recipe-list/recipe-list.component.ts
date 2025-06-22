@@ -96,6 +96,9 @@ export class RecipeListComponent implements OnInit {
   }
 
   private filterRecipesByCategories(recipe: Recipe, categoriesSelected: ElementModel[]) {
+    if (!recipe.categories) {
+      return false;
+    }
     return recipe.categories?.some(category => this.filterCategories(categoriesSelected, category));
   }
 
