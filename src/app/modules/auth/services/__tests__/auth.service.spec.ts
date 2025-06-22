@@ -2,6 +2,7 @@ import {fakeAsync, flushMicrotasks, TestBed} from '@angular/core/testing';
 import {AngularFireAuth} from '@angular/fire/compat/auth';
 import {Router} from '@angular/router';
 import {of} from 'rxjs';
+import firebase from 'firebase/compat/app';
 
 import {AuthService} from '../auth.service';
 import {userMock} from '../../../../testing-resources/mocks/user-mock';
@@ -32,8 +33,8 @@ describe('AuthService', () => {
 
     angularFireAuthSpy.signInWithEmailAndPassword.and.returnValue(
       Promise.resolve({
-        user: {} as any,
-        credential: {} as any,
+        user: {} as firebase.User,
+        credential: {} as firebase.auth.AuthCredential,
       })
     );
     angularFireAuthSpy.signOut.and.returnValue(Promise.resolve());

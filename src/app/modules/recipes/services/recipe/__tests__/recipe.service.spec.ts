@@ -345,8 +345,8 @@ describe('RecipeService', () => {
 
     try {
       await createUserWithEmailAndPassword(auth, userMock.email, userMock.password);
-    } catch (e: any) {
-      if (e.code !== 'auth/email-already-in-use') throw e;
+    } catch (e) {
+      if ((e as { code?: string }).code !== 'auth/email-already-in-use') throw e;
     }
 
     await signInWithEmailAndPassword(auth, userMock.email, userMock.password);

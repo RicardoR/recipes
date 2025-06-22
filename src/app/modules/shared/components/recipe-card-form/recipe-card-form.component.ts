@@ -80,7 +80,7 @@ export class RecipeCardFormComponent implements OnInit {
   readonly isFormSending = input<boolean>();
 
   private fileToUpload!: File;
-  private imageRoute: string = '';
+  private imageRoute = '';
   private destroyRef = inject(DestroyRef);
   private recipeService = inject(RecipeService);
   private formBuilder = inject(FormBuilder);
@@ -97,7 +97,7 @@ export class RecipeCardFormComponent implements OnInit {
   submitted = false;
   uploadProgress$!: Observable<number | undefined>;
   isOwnRecipe!: boolean;
-  editingMode: boolean = false;
+  editingMode = false;
   isSending = signal(false);
   disabled = computed(() => {
     return this.isFormSending() || this.isSending();
@@ -163,7 +163,7 @@ export class RecipeCardFormComponent implements OnInit {
     this.cdf.detectChanges();
   }
 
-  addControl(control: FormArray, $event: any): void {
+  addControl(control: FormArray, $event: Event): void {
     control.push(this.createFormItem());
     this.cdf.detectChanges();
 
@@ -221,7 +221,7 @@ export class RecipeCardFormComponent implements OnInit {
 
   private imageValidator(
     photoControl: AbstractControl
-  ): { [key: string]: boolean } | null | void {
+  ): Record<string, boolean> | null | void {
     if (photoControl.value) {
       const recipeImage = photoControl.value;
       return this.utilService.validateFile(recipeImage)
@@ -256,11 +256,11 @@ export class RecipeCardFormComponent implements OnInit {
     this.form.controls.description.patchValue(this.recipeDetails()?.description);
     this.form.controls.isPrivate.patchValue(this.recipeDetails()?.private);
     this.recipeDetails()?.steps.forEach((step) => {
-      (<FormArray>this.form.controls.steps).push(this.createFormItem(step));
+      (this.form.controls.steps as FormArray).push(this.createFormItem(step));
     });
 
     this.recipeDetails()?.ingredients.forEach((ingredient) => {
-      (<FormArray>this.form.controls.ingredients).push(
+      (this.form.controls.ingredients as FormArray).push(
         this.createFormItem(ingredient)
       );
     });

@@ -56,7 +56,7 @@ describe('ToolbarComponent', () => {
 
   it('should toggle displaySearchControl and focus input, and clear value when hiding', fakeAsync(() => {
     const focusSpy = jasmine.createSpy('focus');
-    component.searchElement = { nativeElement: { focus: focusSpy } } as any;
+    component.searchElement = { nativeElement: { focus: focusSpy } } as { nativeElement: { focus: () => void } };
     component.displaySearchControl = false;
     component.searchFormControl.setValue('algo');
 

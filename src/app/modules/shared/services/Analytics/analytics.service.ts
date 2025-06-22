@@ -10,7 +10,7 @@ export class AnalyticsService {
   private analytics!: Analytics;
 
   constructor() {
-    isSupported().then((isSupported: any) => {
+    isSupported().then((isSupported: boolean) => {
       if (isSupported) {
         this.analytics = this.injector.get(Analytics);
       }
@@ -18,7 +18,7 @@ export class AnalyticsService {
   }
 
 
-  sendToAnalytics(value: string, params?: { [key: string]: any }): void {
+  sendToAnalytics(value: string, params?: Record<string, unknown>): void {
     if (this.analytics) {
       logEvent(this.analytics, value, params);
     } else {

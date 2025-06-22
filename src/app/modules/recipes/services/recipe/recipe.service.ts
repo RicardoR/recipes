@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {
@@ -256,7 +257,7 @@ export class RecipeService {
     };
   }
 
-  deleteImage(imageUrl: string): Observable<any> {
+  deleteImage(imageUrl: string): Observable<void | true> {
     if (this.authService.isDemoUser) {
       throw new Error('You can not do this with demo user');
     }

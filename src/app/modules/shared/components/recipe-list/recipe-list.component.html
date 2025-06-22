@@ -14,16 +14,33 @@
               <span ribbon-body>{{ ribbonTitle() }}</span>
             </app-recipe-ribbon>
           }
-          <mat-card-header (click)=goToRecipe(recipe) class="cursor-pointer">
-            <mat-card-title> {{ recipe.title }}</mat-card-title>
+          <mat-card-header
+            (click)="goToRecipe(recipe)"
+            (keydown.enter)="goToRecipe(recipe)"
+            (keydown.space)="goToRecipe(recipe)"
+            tabindex="0"
+            role="button"
+            class="cursor-pointer">
+            <mat-card-title> {{ recipe.title }} </mat-card-title>
           </mat-card-header>
-          <img (click)=goToRecipe(recipe)
-               class="cursor-pointer recipe-image mb-2"
-               mat-card-image
-               loading="lazy"
-               alt="Imagen de la receta"
-               [src]="recipe.imgSrc">
-          <mat-card-content (click)=goToRecipe(recipe) class="cursor-pointer mb-2">
+          <img
+            (click)="goToRecipe(recipe)"
+            (keydown.enter)="goToRecipe(recipe)"
+            (keydown.space)="goToRecipe(recipe)"
+            tabindex="0"
+            role="button"
+            class="cursor-pointer recipe-image mb-2"
+            mat-card-image
+            loading="lazy"
+            alt="Imagen de la receta"
+            [src]="recipe.imgSrc">
+          <mat-card-content
+            (click)="goToRecipe(recipe)"
+            (keydown.enter)="goToRecipe(recipe)"
+            (keydown.space)="goToRecipe(recipe)"
+            tabindex="0"
+            role="button"
+            class="cursor-pointer mb-2">
             <p class="recipe-description"> {{ recipe.description }} </p>
             <p> {{ recipe.date | date }} </p>
           </mat-card-content>

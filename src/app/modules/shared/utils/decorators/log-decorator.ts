@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { environment } from 'src/environments/environment';
 
 export function NgLog(): ClassDecorator {
@@ -15,6 +16,7 @@ export function NgLog(): ClassDecorator {
             `color: #4CAF50; font-weight: bold`,
             ...args
           );
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           original && original.apply(this, args);
         };
       });
