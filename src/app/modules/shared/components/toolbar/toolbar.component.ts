@@ -18,6 +18,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {filter} from 'rxjs/operators';
 
 import {AppRoutingNames} from 'src/app/app.routes';
 import {AuthService} from 'src/app/modules/auth/services/auth.service';
@@ -94,12 +95,10 @@ export class ToolbarComponent implements OnInit {
 
   private listenSearchText(): void {
     this.searchFormControl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        if (value === null || value === undefined) {
-          value = '';
-        }
-        this.searchText$.emit(value)
-      });
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((value) => value !== null && value !== undefined)
+      )
+      .subscribe((value) => this.searchText$.emit(value));
   }
 }
