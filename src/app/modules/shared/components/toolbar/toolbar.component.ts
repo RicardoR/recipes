@@ -9,7 +9,7 @@ import {
   input,
   output
 } from '@angular/core';
-import {ReactiveFormsModule, UntypedFormControl} from '@angular/forms';
+import {ReactiveFormsModule, FormControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
@@ -53,8 +53,7 @@ export class ToolbarComponent implements OnInit {
   userId?: string;
   displaySearchControl = false;
 
-  // todo: type me, please
-  searchFormControl = new UntypedFormControl('', []);
+  searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
 
   ngOnInit(): void {
     this.userId = this.authService.currentUser?.uid;
@@ -96,6 +95,11 @@ export class ToolbarComponent implements OnInit {
   private listenSearchText(): void {
     this.searchFormControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => this.searchText$.emit(value));
+      .subscribe((value) => {
+        if (value === null || value === undefined) {
+          value = '';
+        }
+        this.searchText$.emit(value)
+      });
   }
 }
