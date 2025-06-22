@@ -1,7 +1,7 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {
   Validators,
-  UntypedFormBuilder,
+  FormBuilder,
   ReactiveFormsModule,
   FormGroup,
   FormControl,
@@ -36,7 +36,7 @@ interface LoginFormGroup {
 })
 export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
-  private fb = inject(UntypedFormBuilder);
+  private fb = inject(FormBuilder);
 
   form!: FormGroup<LoginFormGroup>;
   passWordHidden = true;
@@ -77,6 +77,6 @@ export class LoginComponent implements OnInit {
         Validators.email,
       ]),
       password: new FormControl('123456', [Validators.required]),
-    });
+    }) as FormGroup<LoginFormGroup>;
   }
 }
