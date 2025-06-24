@@ -1,8 +1,6 @@
 <mat-toolbar color="primary">
   @if (!displaySearchControl) {
-    <ng-content
-      select="[title]">
-    </ng-content>
+    <h1>{{title()}}</h1>
   }
   <span class="horizontal-spacer"></span>
   @if (displaySearchButton()) {
