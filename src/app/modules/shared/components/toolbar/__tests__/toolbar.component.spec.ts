@@ -83,7 +83,7 @@ fdescribe('ToolbarComponent', () => {
   it('should get the title data from route', () => {
     fixture.detectChanges();
     component.ngOnInit();
-    expect(component.title).toBe('Title 1');
+    expect(component.title()).toBe('Title 1');
   });
 
 });
