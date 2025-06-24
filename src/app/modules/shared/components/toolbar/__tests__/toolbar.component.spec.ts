@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { ToolbarComponent } from '../toolbar.component';
+import {of} from "rxjs";
 
 fdescribe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -16,11 +17,7 @@ fdescribe('ToolbarComponent', () => {
 
   beforeEach(() => {
     activatedRouteSpy = {
-      snapshot: {
-        paramMap: convertToParamMap({
-          title: 'Title 1',
-        })
-      }
+      data: of({ title: 'Title 1' }),
     };
 
 
