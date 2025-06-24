@@ -5,7 +5,7 @@ import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { ToolbarComponent } from '../toolbar.component';
 import {of} from "rxjs";
 
-fdescribe('ToolbarComponent', () => {
+describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);

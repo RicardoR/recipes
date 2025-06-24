@@ -7,10 +7,10 @@ import {
   OnInit,
   ViewChild,
   input,
-  output
+  output, signal
 } from '@angular/core';
 import {ReactiveFormsModule, FormControl} from '@angular/forms';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
@@ -50,16 +50,18 @@ export class ToolbarComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
 
   userId?: string;
   displaySearchControl = false;
-  title?: string;
+  title = signal<string>('');
 
   searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
 
   ngOnInit(): void {
     this.userId = this.authService.currentUser?.uid;
     this.listenSearchText();
+    this.getTitleFromRoute();
   }
 
   goToCreate(): void {
@@ -101,5 +103,11 @@ export class ToolbarComponent implements OnInit {
         filter((value) => value !== null && value !== undefined)
       )
       .subscribe((value) => this.searchText$.emit(value));
+  }
+
+  private getTitleFromRoute(): void {
+    this.route.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => this.title.set(data.title));
   }
 }
