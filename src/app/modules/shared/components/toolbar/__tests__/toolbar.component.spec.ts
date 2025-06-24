@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { ToolbarComponent } from '../toolbar.component';
 
-describe('ToolbarComponent', () => {
+fdescribe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -12,13 +12,24 @@ describe('ToolbarComponent', () => {
     'currentUser',
     'logout',
   ]);
+  let activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', ['snapshot']);
 
   beforeEach(() => {
+    activatedRouteSpy = {
+      snapshot: {
+        paramMap: convertToParamMap({
+          title: 'Title 1',
+        })
+      }
+    };
+
+
     TestBed.configureTestingModule({
       imports: [ToolbarComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: ActivatedRoute, useValue: activatedRouteSpy }
       ],
     }).overrideTemplate(ToolbarComponent, '');
   });
@@ -71,4 +82,11 @@ describe('ToolbarComponent', () => {
     expect(component.displaySearchControl).toBeFalse();
     expect(component.searchFormControl.value).toBe('');
   }));
+
+  it('should get the title data from route', () => {
+    fixture.detectChanges();
+    component.ngOnInit();
+    expect(component.title).toBe('Title 1');
+  });
+
 });

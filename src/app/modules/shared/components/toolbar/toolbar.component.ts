@@ -53,6 +53,7 @@ export class ToolbarComponent implements OnInit {
 
   userId?: string;
   displaySearchControl = false;
+  title?: string;
 
   searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
 
