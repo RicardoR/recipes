@@ -19,25 +19,30 @@ export const RECIPE_ROUTES: Routes = [
   {
     path: RecipesRoutingNames.myRecipes,
     component: MyRecipesComponent,
+    data: {title: 'Listado de recetas'},
     canActivate: [AuthGuard],
   },
   {
     path: '',
     component: PublicRecipeListComponent,
+    data: {title: 'Listado de recetas'},
   },
   {
     path: RecipesRoutingNames.new,
     component: NewRecipeComponent,
+    data: {title: 'Crear receta'},
     canActivate: [AuthGuard],
   },
   {
     path: `${RecipesRoutingNames.details}/:id`,
     component: RecipeDetailsComponent,
+    data: {title: 'Detalles'},
     canActivate: [PrivateRecipeGuard],
   },
   {
     path: `${RecipesRoutingNames.edit}/:id`,
     component: EditRecipeComponent,
+    data: {title: 'Editar receta'},
     canActivate: [AuthGuard],
   },
 ];
