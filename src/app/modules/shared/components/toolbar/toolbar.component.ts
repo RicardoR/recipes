@@ -42,7 +42,6 @@ import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
 })
 export class ToolbarComponent implements OnInit {
   readonly displayListButton = input(false);
-  readonly displaySearchButton = input(true);
   readonly searchText$ = output<string>();
 
   @ViewChild('search') searchElement: ElementRef | undefined;
@@ -55,6 +54,7 @@ export class ToolbarComponent implements OnInit {
   userId?: string;
   displaySearchControl = false;
   title = signal<string>('');
+  displaySearchButton = signal<boolean>(true);
 
   searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
 
@@ -108,6 +108,9 @@ export class ToolbarComponent implements OnInit {
   private getTitleFromRoute(): void {
     this.route.data
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => this.title.set(data.title));
+      .subscribe((data) => {
+        this.title.set(data.title);
+        this.displaySearchButton.set(data.displaySearchButton ?? false);
+      });
   }
 }
