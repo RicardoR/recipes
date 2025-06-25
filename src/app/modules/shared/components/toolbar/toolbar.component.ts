@@ -52,11 +52,10 @@ export class ToolbarComponent implements OnInit {
 
   userId?: string;
   displaySearchControl = false;
+  searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
   title = signal<string>('');
   displaySearchButton = signal<boolean>(true);
   displayListButton = signal<boolean>(false);
-
-  searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
 
   ngOnInit(): void {
     this.userId = this.authService.currentUser?.uid;
