@@ -20,4 +20,9 @@ describe('RecipeLayoutComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should display the toolbar', () => {
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('[data-test="toolbar"]')).toBeTruthy();
+  })
 });
