@@ -17,7 +17,10 @@ describe('ToolbarComponent', () => {
 
   beforeEach(() => {
     activatedRouteSpy = {
-      data: of({ title: 'Title 1' }),
+      data: of({
+        title: 'Title 1',
+        displaySearchButton: true
+      }),
     };
 
 
@@ -86,4 +89,19 @@ describe('ToolbarComponent', () => {
     expect(component.title()).toBe('Title 1');
   });
 
+  describe('displaySearchButton', () => {
+    it('should display the displaySearchButton when the data route is true', () => {
+      activatedRouteSpy.data = of({displaySearchButton: true});
+      fixture.detectChanges();
+      component.ngOnInit();
+      expect(component.displaySearchButton()).toBe(true);
+    });
+
+    it('should hide the displaySearchButton when the data route is false', () => {
+      activatedRouteSpy.data = of({displaySearchButton: false});
+      fixture.detectChanges();
+      component.ngOnInit();
+      expect(component.displaySearchButton()).toBe(false);
+    });
+  })
 });
