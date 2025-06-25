@@ -103,5 +103,12 @@ describe('ToolbarComponent', () => {
       component.ngOnInit();
       expect(component.displaySearchButton()).toBe(false);
     });
+
+    it('should hide the displaySearchButton when the data route is null', () => {
+      activatedRouteSpy.data = of({displaySearchButton: null});
+      fixture.detectChanges();
+      component.ngOnInit();
+      expect(component.displaySearchButton()).toBe(false);
+    });
   })
 });
