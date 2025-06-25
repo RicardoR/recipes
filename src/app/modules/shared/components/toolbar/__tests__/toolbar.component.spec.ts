@@ -111,4 +111,27 @@ describe('ToolbarComponent', () => {
       expect(component.displaySearchButton()).toBe(false);
     });
   })
+
+  describe('displayListButton', () => {
+    it('should display the public list link when the data route is true', () => {
+      activatedRouteSpy.data = of({displayListButton: true});
+      fixture.detectChanges();
+      component.ngOnInit();
+      expect(component.displayListButton()).toBe(true);
+    });
+
+    it('should hide the public list link when the data route is false', () => {
+      activatedRouteSpy.data = of({displayListButton: false});
+      fixture.detectChanges();
+      component.ngOnInit();
+      expect(component.displayListButton()).toBe(false);
+    });
+
+    it('should hide the public list link when the data route is null', () => {
+      activatedRouteSpy.data = of({displayListButton: null});
+      fixture.detectChanges();
+      component.ngOnInit();
+      expect(component.displayListButton()).toBe(false);
+    });
+  })
 });
