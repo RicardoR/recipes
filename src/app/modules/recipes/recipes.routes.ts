@@ -36,7 +36,7 @@ export const RECIPE_ROUTES: Routes = [
   {
     path: `${RecipesRoutingNames.details}/:id`,
     component: RecipeDetailsComponent,
-    data: {title: 'Detalles' },
+    data: {title: 'Detalles', displayListButton: true },
     canActivate: [PrivateRecipeGuard],
   },
   {
