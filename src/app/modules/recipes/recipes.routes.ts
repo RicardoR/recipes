@@ -19,13 +19,13 @@ export const RECIPE_ROUTES: Routes = [
   {
     path: RecipesRoutingNames.myRecipes,
     component: MyRecipesComponent,
-    data: {title: 'Listado de recetas'},
+    data: {title: 'Listado de recetas', displaySearchButton: true },
     canActivate: [AuthGuard],
   },
   {
     path: '',
     component: PublicRecipeListComponent,
-    data: {title: 'Listado de recetas'},
+    data: {title: 'Listado de recetas', displaySearchButton: true},
   },
   {
     path: RecipesRoutingNames.new,
@@ -36,7 +36,7 @@ export const RECIPE_ROUTES: Routes = [
   {
     path: `${RecipesRoutingNames.details}/:id`,
     component: RecipeDetailsComponent,
-    data: {title: 'Detalles'},
+    data: {title: 'Detalles' },
     canActivate: [PrivateRecipeGuard],
   },
   {
