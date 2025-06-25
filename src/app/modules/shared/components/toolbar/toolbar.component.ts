@@ -6,8 +6,8 @@ import {
   inject,
   OnInit,
   ViewChild,
-  input,
-  output, signal
+  output,
+  signal
 } from '@angular/core';
 import {ReactiveFormsModule, FormControl} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -41,7 +41,6 @@ import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
   ]
 })
 export class ToolbarComponent implements OnInit {
-  readonly displayListButton = input(false);
   readonly searchText$ = output<string>();
 
   @ViewChild('search') searchElement: ElementRef | undefined;
@@ -55,6 +54,7 @@ export class ToolbarComponent implements OnInit {
   displaySearchControl = false;
   title = signal<string>('');
   displaySearchButton = signal<boolean>(true);
+  displayListButton = signal<boolean>(false);
 
   searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
 
@@ -111,6 +111,7 @@ export class ToolbarComponent implements OnInit {
       .subscribe((data) => {
         this.title.set(data.title);
         this.displaySearchButton.set(data.displaySearchButton ?? false);
+        this.displayListButton.set(data.displayListButton ?? false);
       });
   }
 }
