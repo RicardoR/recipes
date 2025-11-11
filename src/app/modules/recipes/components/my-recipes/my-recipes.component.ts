@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -14,6 +14,7 @@ import {NgLog} from 'src/app/modules/shared/utils/decorators/log-decorator';
 import {AppRoutingNames} from '../../../../app.routes';
 import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe-list.component';
 import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
+import {ToolbarService} from "../../../shared/services/toolbar/toolbar.service";
 
 @NgLog()
 @Component({
@@ -33,6 +34,13 @@ export class MyRecipesComponent implements OnInit {
   private dialog = inject(MatDialog);
   private analytics = inject(AnalyticsService);
   private destroyRef = inject(DestroyRef);
+  private toolbarService = inject(ToolbarService);
+
+  constructor() {
+    effect(() => {
+      this.onSearchText(this.toolbarService.searchTerm());
+    });
+  }
 
   ngOnInit(): void {
     this.analytics.sendToAnalytics('my_recipes_component_opened');
@@ -70,7 +78,6 @@ export class MyRecipesComponent implements OnInit {
     }
   }
 
-  // todo: filter logic should be called when search service is ready
   onSearchText(searchText: string): void {
     if (searchText?.trim()) {
       this.recipesFiltered = this.recipeService.filterRecipes(

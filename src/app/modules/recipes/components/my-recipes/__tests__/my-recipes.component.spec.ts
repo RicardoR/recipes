@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -21,6 +21,7 @@ describe('MyRecipesComponent', () => {
     'deleteRecipe',
     'deleteImage',
     'getOwnRecipes',
+    'filterRecipes'
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -116,8 +117,9 @@ describe('MyRecipesComponent', () => {
     expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('my_recipes_component_opened');
   });
 
-  it('should trigger the search query when toolbarService emits a change', () => {
-    toolbarService.onSearch(recipesListMock[0].title);
-    expect(component.recipesFiltered).toEqual([recipesListMock[0]]);
-  });
+  it('should trigger the search query when toolbarService emits a change', fakeAsync(() => {
+    toolbarService.onSearch('my recipe');
+    fixture.detectChanges();
+    expect(recipeServiceSpy.filterRecipes).toHaveBeenCalled();
+  }));
 });
