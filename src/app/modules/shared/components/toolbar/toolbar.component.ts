@@ -6,7 +6,6 @@ import {
   inject,
   OnInit,
   ViewChild,
-  output,
   signal
 } from '@angular/core';
 import {ReactiveFormsModule, FormControl} from '@angular/forms';
@@ -23,6 +22,7 @@ import {filter} from 'rxjs/operators';
 import {AppRoutingNames} from 'src/app/app.routes';
 import {AuthService} from 'src/app/modules/auth/services/auth.service';
 import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
+import {ToolbarService} from "../../services/toolbar/toolbar.service";
 
 
 @Component({
@@ -41,14 +41,13 @@ import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
   ]
 })
 export class ToolbarComponent implements OnInit {
-  readonly searchText$ = output<string>();
-
   @ViewChild('search') searchElement: ElementRef | undefined;
 
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private toolbarService = inject(ToolbarService);
 
   userId?: string;
   displaySearchControl = false;
@@ -101,7 +100,7 @@ export class ToolbarComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         filter((value) => value !== null && value !== undefined)
       )
-      .subscribe((value) => this.searchText$.emit(value));
+      .subscribe((value) => this.toolbarService.onSearch(value));
   }
 
   private getDataFromRoute(): void {
