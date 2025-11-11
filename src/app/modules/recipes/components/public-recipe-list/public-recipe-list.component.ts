@@ -13,7 +13,6 @@ import {RecipesRoutingNames} from '../../recipes.routes';
 import {RecipeService} from '../../services/recipe/recipe.service';
 import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe-list.component';
-import {ToolbarComponent} from '../../../shared/components/toolbar/toolbar.component';
 import {AnalyticsService} from '../../../shared/services/Analytics/analytics.service';
 
 @NgLog()
@@ -21,7 +20,7 @@ import {AnalyticsService} from '../../../shared/services/Analytics/analytics.ser
     selector: 'app-public-recipe-list',
     templateUrl: './public-recipe-list.component.html',
     styleUrls: ['./public-recipe-list.component.scss'],
-    imports: [ToolbarComponent, RecipeListComponent]
+    imports: [RecipeListComponent]
 })
 export class PublicRecipeListComponent implements OnInit {
   recipesFiltered: Recipe[] = [];
@@ -73,6 +72,7 @@ export class PublicRecipeListComponent implements OnInit {
     }
   }
 
+  // todo: filter logic should be called when search service is ready
   onSearchText(searchText: string): void {
     if (searchText?.trim()) {
       this.recipesFiltered = this.recipeService.filterRecipes(
