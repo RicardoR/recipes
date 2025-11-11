@@ -3,12 +3,13 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { ToolbarComponent } from '../toolbar.component';
-import {of} from "rxjs";
+import { of } from 'rxjs';
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
-  const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+  const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'events']);
+  routerSpy.events = of();
   const authServiceSpy = jasmine.createSpyObj('AuthService', [
     'currentUser',
     'logout',
@@ -17,10 +18,15 @@ describe('ToolbarComponent', () => {
 
   beforeEach(() => {
     activatedRouteSpy = {
-      data: of({
-        title: 'Title 1',
-        displaySearchButton: true
-      }),
+      snapshot: {
+        firstChild: {
+          data: {
+            title: 'Title 1',
+            displaySearchButton: true,
+            displayListButton: false
+          }
+        }
+      }
     };
 
 
@@ -91,21 +97,21 @@ describe('ToolbarComponent', () => {
 
   describe('displaySearchButton', () => {
     it('should display the displaySearchButton when the data route is true', () => {
-      activatedRouteSpy.data = of({displaySearchButton: true});
+      activatedRouteSpy.snapshot.firstChild.data.displaySearchButton = true;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displaySearchButton()).toBe(true);
     });
 
     it('should hide the displaySearchButton when the data route is false', () => {
-      activatedRouteSpy.data = of({displaySearchButton: false});
+      activatedRouteSpy.snapshot.firstChild.data.displaySearchButton = false;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displaySearchButton()).toBe(false);
     });
 
     it('should hide the displaySearchButton when the data route is null', () => {
-      activatedRouteSpy.data = of({displaySearchButton: null});
+      activatedRouteSpy.snapshot.firstChild.data.displaySearchButton = null;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displaySearchButton()).toBe(false);
@@ -114,21 +120,21 @@ describe('ToolbarComponent', () => {
 
   describe('displayListButton', () => {
     it('should display the public list link when the data route is true', () => {
-      activatedRouteSpy.data = of({displayListButton: true});
+      activatedRouteSpy.snapshot.firstChild.data.displayListButton = true;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displayListButton()).toBe(true);
     });
 
     it('should hide the public list link when the data route is false', () => {
-      activatedRouteSpy.data = of({displayListButton: false});
+      activatedRouteSpy.snapshot.firstChild.data.displayListButton = false;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displayListButton()).toBe(false);
     });
 
     it('should hide the public list link when the data route is null', () => {
-      activatedRouteSpy.data = of({displayListButton: null});
+      activatedRouteSpy.snapshot.firstChild.data.displayListButton = null;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displayListButton()).toBe(false);

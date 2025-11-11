@@ -10,7 +10,7 @@ import {
   signal
 } from '@angular/core';
 import {ReactiveFormsModule, FormControl} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
@@ -60,7 +60,7 @@ export class ToolbarComponent implements OnInit {
   ngOnInit(): void {
     this.userId = this.authService.currentUser?.uid;
     this.listenSearchText();
-    this.getTitleFromRoute();
+    this.getDataFromRoute();
   }
 
   goToCreate(): void {
@@ -104,13 +104,19 @@ export class ToolbarComponent implements OnInit {
       .subscribe((value) => this.searchText$.emit(value));
   }
 
-  private getTitleFromRoute(): void {
-    this.route.data
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        this.title.set(data.title);
-        this.displaySearchButton.set(data.displaySearchButton ?? false);
-        this.displayListButton.set(data.displayListButton ?? false);
-      });
+  private getDataFromRoute(): void {
+    this.fillPropertiesFromRouteData();
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.fillPropertiesFromRouteData();
+      }
+    });
+  }
+
+  private fillPropertiesFromRouteData() {
+    const data = this.route.snapshot.firstChild?.data;
+    this.title.set(data?.title);
+    this.displaySearchButton.set(data?.displaySearchButton ?? false);
+    this.displayListButton.set(data?.displayListButton ?? false);
   }
 }

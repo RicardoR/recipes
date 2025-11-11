@@ -1,14 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RecipeLayoutComponent } from '../recipe-layout.component';
+import {AuthService} from "../../../../auth/services/auth.service";
+import {ActivatedRoute} from "@angular/router";
 
 describe('RecipeLayoutComponent', () => {
   let component: RecipeLayoutComponent;
   let fixture: ComponentFixture<RecipeLayoutComponent>;
+  const authServiceSpy = jasmine.createSpyObj('AuthService', [
+    'currentUser',
+    'logout',
+  ]);
+  const activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', ['snapshot']);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RecipeLayoutComponent]
+      imports: [RecipeLayoutComponent],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: ActivatedRoute, useValue: activatedRouteSpy }
+      ],
     })
     .compileComponents();
 
