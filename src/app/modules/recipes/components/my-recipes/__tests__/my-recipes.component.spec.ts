@@ -9,10 +9,12 @@ import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { MyRecipesComponent } from '../my-recipes.component';
 import { AnalyticsService } from '../../../../shared/services/Analytics/analytics.service';
+import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.service";
 
 describe('MyRecipesComponent', () => {
   let component: MyRecipesComponent;
   let fixture: ComponentFixture<MyRecipesComponent>;
+  let toolbarService: ToolbarService;
 
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
@@ -40,6 +42,7 @@ describe('MyRecipesComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(MyRecipesComponent);
     component = fixture.componentInstance;
+    toolbarService = TestBed.inject(ToolbarService);
 
     recipeServiceSpy.getOwnRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
@@ -111,5 +114,10 @@ describe('MyRecipesComponent', () => {
   it('should send my_recipes_component_opened event to analytics', () => {
     component.ngOnInit();
     expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('my_recipes_component_opened');
+  });
+
+  it('should trigger the search query when toolbarService emits a change', () => {
+    toolbarService.onSearch(recipesListMock[0].title);
+    expect(component.recipesFiltered).toEqual([recipesListMock[0]]);
   });
 });
