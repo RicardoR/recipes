@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { ToolbarService } from '../toolbar.service';
 
-fdescribe('ToolbarService', () => {
+describe('ToolbarService', () => {
   let service: ToolbarService;
 
   beforeEach(() => {

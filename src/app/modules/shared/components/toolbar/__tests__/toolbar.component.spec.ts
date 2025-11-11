@@ -4,6 +4,7 @@ import { AuthService } from 'src/app/modules/auth/services/auth.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { ToolbarComponent } from '../toolbar.component';
 import { of } from 'rxjs';
+import {ToolbarService} from "../../../services/toolbar/toolbar.service";
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -15,6 +16,7 @@ describe('ToolbarComponent', () => {
     'logout',
   ]);
   let activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', ['snapshot']);
+  let toolbarService: ToolbarService;
 
   beforeEach(() => {
     activatedRouteSpy = {
@@ -35,13 +37,14 @@ describe('ToolbarComponent', () => {
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: ActivatedRoute, useValue: activatedRouteSpy }
+        { provide: ActivatedRoute, useValue: activatedRouteSpy },
       ],
     }).overrideTemplate(ToolbarComponent, '');
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ToolbarComponent);
+    toolbarService = TestBed.inject(ToolbarService);
     component = fixture.componentInstance;
     authServiceSpy.currentUser = userMock;
     fixture.detectChanges();
@@ -140,4 +143,12 @@ describe('ToolbarComponent', () => {
       expect(component.displayListButton()).toBe(false);
     });
   })
+
+  describe('searchControl', () => {
+    it('should call to toolbar service when control is updated', () => {
+      spyOn(toolbarService, 'onSearch');
+      component.searchFormControl.setValue('my recipe');
+      expect(toolbarService.onSearch).toHaveBeenCalledWith('my recipe');
+    });
+  });
 });
