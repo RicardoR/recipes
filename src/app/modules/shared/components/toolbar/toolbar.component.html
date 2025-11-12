@@ -1,8 +1,6 @@
 <mat-toolbar color="primary">
   @if (!displaySearchControl) {
-    <ng-content
-      select="[title]">
-    </ng-content>
+    <h1>{{title()}}</h1>
   }
   <span class="horizontal-spacer"></span>
   @if (displaySearchButton()) {
@@ -49,11 +47,19 @@
         <span>Ver todas las recetas</span>
       </button>
     </mat-menu>
+  } @else {
+    <button mat-icon-button
+            (click)="goToLogin()"
+            title="Login"
+            aria-label="Ir a la página de inicio de sesión">
+      <mat-icon>login</mat-icon>
+    </button>
   }
 
   @if (!userId && displayListButton()) {
     <button mat-icon-button
-      (click)="goToPublicList()">
+            (click)="goToPublicList()"
+            title="Ver todas las recetas">
       <mat-icon>list</mat-icon>
     </button>
   }

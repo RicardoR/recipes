@@ -7,6 +7,7 @@ import {PublicRecipeListComponent} from './components/public-recipe-list/public-
 import {MyRecipesComponent} from './components/my-recipes/my-recipes.component';
 import {AuthGuard} from '../auth/guards/auth.guard';
 import {PrivateRecipeGuard} from './guards/private-recipe.guard';
+import {RecipeLayoutComponent} from "./components/recipe-layout/recipe-layout.component";
 
 export const RecipesRoutingNames = {
   edit: 'edit',
@@ -17,28 +18,39 @@ export const RecipesRoutingNames = {
 
 export const RECIPE_ROUTES: Routes = [
   {
-    path: RecipesRoutingNames.myRecipes,
-    component: MyRecipesComponent,
-    canActivate: [AuthGuard],
-  },
-  {
     path: '',
-    component: PublicRecipeListComponent,
-  },
-  {
-    path: RecipesRoutingNames.new,
-    component: NewRecipeComponent,
-    canActivate: [AuthGuard],
-  },
-  {
-    path: `${RecipesRoutingNames.details}/:id`,
-    component: RecipeDetailsComponent,
-    canActivate: [PrivateRecipeGuard],
-  },
-  {
-    path: `${RecipesRoutingNames.edit}/:id`,
-    component: EditRecipeComponent,
-    canActivate: [AuthGuard],
+    component: RecipeLayoutComponent,
+    children: [
+      {
+        path: RecipesRoutingNames.myRecipes,
+        component: MyRecipesComponent,
+        data: {title: 'Listado de recetas', displaySearchButton: true},
+        canActivate: [AuthGuard],
+      },
+      {
+        path: '',
+        component: PublicRecipeListComponent,
+        data: {title: 'Listado de recetas', displaySearchButton: true},
+      },
+      {
+        path: RecipesRoutingNames.new,
+        component: NewRecipeComponent,
+        data: {title: 'Crear receta'},
+        canActivate: [AuthGuard],
+      },
+      {
+        path: `${RecipesRoutingNames.details}/:id`,
+        component: RecipeDetailsComponent,
+        data: {title: 'Detalles', displayListButton: true},
+        canActivate: [PrivateRecipeGuard],
+      },
+      {
+        path: `${RecipesRoutingNames.edit}/:id`,
+        component: EditRecipeComponent,
+        data: {title: 'Editar receta'},
+        canActivate: [AuthGuard],
+      },
+    ]
   },
 ];
 

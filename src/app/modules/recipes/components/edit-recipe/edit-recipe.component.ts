@@ -11,7 +11,6 @@ import {Recipe} from '../../models/recipes.model';
 import {RecipesRoutingNames} from '../../recipes.routes';
 import {RecipeService} from '../../services/recipe/recipe.service';
 import {RecipeCardFormComponent} from '../../../shared/components/recipe-card-form/recipe-card-form.component';
-import {ToolbarComponent} from '../../../shared/components/toolbar/toolbar.component';
 import {AnalyticsService} from '../../../shared/services/Analytics/analytics.service';
 
 @NgLog()
@@ -19,7 +18,7 @@ import {AnalyticsService} from '../../../shared/services/Analytics/analytics.ser
   selector: 'app-edit-recipe',
   templateUrl: './edit-recipe.component.html',
   styleUrls: ['./edit-recipe.component.scss'],
-  imports: [ToolbarComponent, RecipeCardFormComponent]
+  imports: [RecipeCardFormComponent]
 })
 export class EditRecipeComponent implements OnInit {
   id = input.required<string>()

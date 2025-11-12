@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -9,16 +9,19 @@ import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { RecipeService } from '../../../services/recipe/recipe.service';
 import { MyRecipesComponent } from '../my-recipes.component';
 import { AnalyticsService } from '../../../../shared/services/Analytics/analytics.service';
+import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.service";
 
 describe('MyRecipesComponent', () => {
   let component: MyRecipesComponent;
   let fixture: ComponentFixture<MyRecipesComponent>;
+  let toolbarService: ToolbarService;
 
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
     'deleteRecipe',
     'deleteImage',
     'getOwnRecipes',
+    'filterRecipes'
   ]);
   const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
   const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -40,6 +43,7 @@ describe('MyRecipesComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(MyRecipesComponent);
     component = fixture.componentInstance;
+    toolbarService = TestBed.inject(ToolbarService);
 
     recipeServiceSpy.getOwnRecipes.and.returnValue(of(recipesListMock));
     authServiceSpy.currentUser = userMock;
@@ -112,4 +116,10 @@ describe('MyRecipesComponent', () => {
     component.ngOnInit();
     expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('my_recipes_component_opened');
   });
+
+  it('should trigger the search query when toolbarService emits a change', fakeAsync(() => {
+    toolbarService.onSearch('my recipe');
+    fixture.detectChanges();
+    expect(recipeServiceSpy.filterRecipes).toHaveBeenCalled();
+  }));
 });

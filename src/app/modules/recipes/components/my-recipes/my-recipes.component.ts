@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -13,15 +13,15 @@ import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe
 import {NgLog} from 'src/app/modules/shared/utils/decorators/log-decorator';
 import {AppRoutingNames} from '../../../../app.routes';
 import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe-list.component';
-import {ToolbarComponent} from '../../../shared/components/toolbar/toolbar.component';
 import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
+import {ToolbarService} from "../../../shared/services/toolbar/toolbar.service";
 
 @NgLog()
 @Component({
     selector: 'app-my-recipes',
     templateUrl: './my-recipes.component.html',
     styleUrls: ['./my-recipes.component.scss'],
-    imports: [ToolbarComponent, RecipeListComponent]
+    imports: [RecipeListComponent]
 })
 export class MyRecipesComponent implements OnInit {
   recipesFiltered: Recipe[] = [];
@@ -34,6 +34,13 @@ export class MyRecipesComponent implements OnInit {
   private dialog = inject(MatDialog);
   private analytics = inject(AnalyticsService);
   private destroyRef = inject(DestroyRef);
+  private toolbarService = inject(ToolbarService);
+
+  constructor() {
+    effect(() => {
+      this.onSearchText(this.toolbarService.searchTerm());
+    });
+  }
 
   ngOnInit(): void {
     this.analytics.sendToAnalytics('my_recipes_component_opened');

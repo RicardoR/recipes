@@ -17,7 +17,6 @@ import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe
 import {AuthService} from '../../../auth/services/auth.service';
 import {Recipe} from '../../models/recipes.model';
 import {RecipeService} from '../../services/recipe/recipe.service';
-import {ToolbarComponent} from '../../../shared/components/toolbar/toolbar.component';
 import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
 
 @NgLog()
@@ -27,7 +26,6 @@ import {AnalyticsService} from "../../../shared/services/Analytics/analytics.ser
   templateUrl: './recipe-details.component.html',
   styleUrls: ['./recipe-details.component.scss'],
   imports: [
-    ToolbarComponent,
     MatCardModule,
     MatExpansionModule,
     MatListModule,

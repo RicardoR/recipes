@@ -6,11 +6,10 @@ import {
   inject,
   OnInit,
   ViewChild,
-  input,
-  output
+  signal
 } from '@angular/core';
 import {ReactiveFormsModule, FormControl} from '@angular/forms';
-import {Router} from '@angular/router';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
@@ -23,6 +22,7 @@ import {filter} from 'rxjs/operators';
 import {AppRoutingNames} from 'src/app/app.routes';
 import {AuthService} from 'src/app/modules/auth/services/auth.service';
 import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
+import {ToolbarService} from "../../services/toolbar/toolbar.service";
 
 
 @Component({
@@ -41,24 +41,25 @@ import {RecipesRoutingNames} from 'src/app/modules/recipes/recipes.routes';
   ]
 })
 export class ToolbarComponent implements OnInit {
-  readonly displayListButton = input(false);
-  readonly displaySearchButton = input(true);
-  readonly searchText$ = output<string>();
-
   @ViewChild('search') searchElement: ElementRef | undefined;
 
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
+  private toolbarService = inject(ToolbarService);
 
   userId?: string;
   displaySearchControl = false;
-
   searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
+  title = signal<string>('');
+  displaySearchButton = signal<boolean>(true);
+  displayListButton = signal<boolean>(false);
 
   ngOnInit(): void {
     this.userId = this.authService.currentUser?.uid;
     this.listenSearchText();
+    this.getDataFromRoute();
   }
 
   goToCreate(): void {
@@ -75,6 +76,11 @@ export class ToolbarComponent implements OnInit {
 
   goToPublicList(): void {
     this.router.navigate([`${AppRoutingNames.recipes}`]);
+  }
+
+
+  goToLogin(): void {
+    this.router.navigate([`${AppRoutingNames.login}`]);
   }
 
   logout(): void {
@@ -99,6 +105,22 @@ export class ToolbarComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         filter((value) => value !== null && value !== undefined)
       )
-      .subscribe((value) => this.searchText$.emit(value));
+      .subscribe((value) => this.toolbarService.onSearch(value));
+  }
+
+  private getDataFromRoute(): void {
+    this.fillPropertiesFromRouteData();
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.fillPropertiesFromRouteData();
+      }
+    });
+  }
+
+  private fillPropertiesFromRouteData(): void {
+    const data = this.route.snapshot.firstChild?.data;
+    this.title.set(data?.title);
+    this.displaySearchButton.set(data?.displaySearchButton ?? false);
+    this.displayListButton.set(data?.displayListButton ?? false);
   }
 }
