@@ -78,6 +78,11 @@ export class ToolbarComponent implements OnInit {
     this.router.navigate([`${AppRoutingNames.recipes}`]);
   }
 
+
+  goToLogin(): void {
+    this.router.navigate([`${AppRoutingNames.login}`]);
+  }
+
   logout(): void {
     this.authService.logout();
     this.userId = undefined;
@@ -112,7 +117,7 @@ export class ToolbarComponent implements OnInit {
     });
   }
 
-  private fillPropertiesFromRouteData() {
+  private fillPropertiesFromRouteData(): void {
     const data = this.route.snapshot.firstChild?.data;
     this.title.set(data?.title);
     this.displaySearchButton.set(data?.displaySearchButton ?? false);
