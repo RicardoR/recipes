@@ -69,6 +69,11 @@ describe('ToolbarComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes']);
   });
 
+  it('goToLogin should navigate to login', () => {
+    component.goToLogin();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['login']);
+  });
+
   it('logout should call to logout method from authService', () => {
     component.logout();
     expect(authServiceSpy.logout).toHaveBeenCalled();
