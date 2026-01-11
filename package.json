@@ -49,16 +49,5 @@
     "karma-jasmine-html-reporter": "2.1.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.52.0"
-  },
-  "overrides": {
-    "@ngxmc/file-input": {
-      "@angular/cdk": "^21",
-      "@angular/common": "^21",
-      "@angular/core": "^21",
-      "@angular/forms": "^21",
-      "@angular/material": "^21",
-      "@angular/platform-browser": "^21",
-      "rxjs": "^7.8"
-    }
   }
 }
