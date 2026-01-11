@@ -57,8 +57,12 @@ export class RecipeService {
 
   constructor() {
     if (environment.useEmulators) {
-      connectFirestoreEmulator(this.firestore, 'localhost', 8080);
-      connectStorageEmulator(this.storage, 'localhost', 9199);
+      try {
+        connectFirestoreEmulator(this.firestore, 'localhost', 8080);
+        connectStorageEmulator(this.storage, 'localhost', 9199);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -92,18 +96,18 @@ export class RecipeService {
 
     const collectionRef = collection(this.firestore, DatabaseCollectionsNames.categories);
 
-    getDocs(collectionRef).then((querySnapshot) => {
-      const categories: ElementModel[] = [];
-      querySnapshot.forEach((doc) => {
-        const docData = doc.data();
-        categories.push(this.elementModelConverter(docData));
-      });
-      this.categoryList = categories;
-      result.next(categories);
-    })
+  getDocs(collectionRef).then((querySnapshot) => {
+    const categories: ElementModel[] = [];
+    querySnapshot.forEach((doc) => {
+      const docData = doc.data();
+      categories.push(this.elementModelConverter(docData));
+    });
+    this.categoryList = categories;
+    result.next(categories);
+  })
 
-    return result;
-  }
+  return result;
+}
 
   getPublicRecipes(): Observable<Recipe[]> {
     const userId = this.authService.currentUser?.uid ?? '-1';
