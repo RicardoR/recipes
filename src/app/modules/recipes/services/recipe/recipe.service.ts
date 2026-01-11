@@ -57,8 +57,12 @@ export class RecipeService {
 
   constructor() {
     if (environment.useEmulators) {
-      connectFirestoreEmulator(this.firestore, 'localhost', 8080);
-      connectStorageEmulator(this.storage, 'localhost', 9199);
+      try {
+        connectFirestoreEmulator(this.firestore, 'localhost', 8080);
+        connectStorageEmulator(this.storage, 'localhost', 9199);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
