@@ -6,10 +6,10 @@ import { of, BehaviorSubject } from 'rxjs';
 import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mock';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
-import { RecipeService } from '../../../services/recipe/recipe.service';
-import { PublicRecipeListComponent } from '../public-recipe-list.component';
-import { AnalyticsService } from '../../../../../shared/services/Analytics/analytics.service';
-import {ToolbarService} from "../../../../../shared/services/toolbar/toolbar.service";
+import { RecipeService } from '../../services/recipe/recipe.service';
+import { PublicRecipeListComponent } from './public-recipe-list.component';
+import { AnalyticsService } from '../../../../shared/services/analytics/analytics.service';
+import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.service";
 
 describe('PublicRecipeListComponent', () => {
   let component: PublicRecipeListComponent;

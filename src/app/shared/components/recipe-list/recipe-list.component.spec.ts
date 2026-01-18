@@ -5,7 +5,7 @@ import {RecipeService} from 'src/app/features/recipes/services/recipe/recipe.ser
 import {categoriesMock} from 'src/app/testing-resources/mocks/categories-mock';
 import {recipeMock} from 'src/app/testing-resources/mocks/recipe-mock';
 
-import {RecipeListComponent} from '../recipe-list.component';
+import {RecipeListComponent} from './recipe-list.component';
 
 describe('RecipeListComponent', () => {
   let component: RecipeListComponent;

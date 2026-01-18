@@ -9,9 +9,9 @@ import { AuthService } from 'src/app/core/auth/services/auth.service';
 import {
   MEDIA_STORAGE_PATH,
   RecipeCardFormComponent,
-} from '../recipe-card-form.component';
-import { UtilService } from '../../../utils/utils.service';
-import { MessagesService } from '../../../services/messages/messages.service';
+} from './recipe-card-form.component';
+import { UtilService } from '../../utils/utils.service';
+import { MessagesService } from '../../services/messages/messages.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
 import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';

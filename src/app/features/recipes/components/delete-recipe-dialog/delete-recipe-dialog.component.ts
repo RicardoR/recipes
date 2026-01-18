@@ -1,7 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
-import { AnalyticsService } from '../../../../shared/services/Analytics/analytics.service';
+import { AnalyticsService } from '../../../../shared/services/analytics/analytics.service';
 
 @Component({
     selector: 'app-delete-recipe-dialog',

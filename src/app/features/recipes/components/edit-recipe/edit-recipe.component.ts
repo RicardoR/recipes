@@ -11,7 +11,7 @@ import {Recipe} from '../../models/recipes.model';
 import {RecipesRoutingNames} from '../../recipes.routes';
 import {RecipeService} from '../../services/recipe/recipe.service';
 import {RecipeCardFormComponent} from '../../../../shared/components/recipe-card-form/recipe-card-form.component';
-import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
+import {AnalyticsService} from '../../../../shared/services/analytics/analytics.service';
 
 @NgLog()
 @Component({

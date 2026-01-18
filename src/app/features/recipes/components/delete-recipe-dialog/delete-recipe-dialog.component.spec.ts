@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DeleteRecipeDialogComponent } from '../delete-recipe-dialog.component';
-import {AnalyticsService} from "../../../../../shared/services/Analytics/analytics.service";
+import { DeleteRecipeDialogComponent } from './delete-recipe-dialog.component';
+import {AnalyticsService} from "../../../../shared/services/analytics/analytics.service";
 
 describe('DeleteRecipeDialogComponent', () => {
   let component: DeleteRecipeDialogComponent;

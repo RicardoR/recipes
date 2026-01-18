@@ -2,11 +2,11 @@ import {TestBed} from '@angular/core/testing';
 import {Router} from '@angular/router';
 import {Firestore} from '@angular/fire/firestore';
 import {Storage} from '@angular/fire/storage';
-import {RecipeService} from '../recipe.service';
+import {RecipeService} from './recipe.service';
 import {AuthService} from 'src/app/core/auth/services/auth.service';
 import {recipeMock, recipeMock2} from 'src/app/testing-resources/mocks/recipe-mock';
-import {userMock} from '../../../../../testing-resources/mocks/user-mock';
-import {Recipe} from '../../../models/recipes.model';
+import {userMock} from '../../../../testing-resources/mocks/user-mock';
+import {Recipe} from '../../models/recipes.model';
 import {of} from 'rxjs';
 
 describe('RecipeService', () => {

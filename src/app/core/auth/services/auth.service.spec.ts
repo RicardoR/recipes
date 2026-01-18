@@ -4,8 +4,8 @@ import {Router} from '@angular/router';
 import {of} from 'rxjs';
 import firebase from 'firebase/compat/app';
 
-import {AuthService} from '../auth.service';
-import {userMock} from '../../../../testing-resources/mocks/user-mock';
+import {AuthService} from './auth.service';
+import {userMock} from '../../../testing-resources/mocks/user-mock';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -1,13 +1,13 @@
-import {MessagesService} from '../../../../shared/services/messages/messages.service';
+import {MessagesService} from '../../../shared/services/messages/messages.service';
 import {TestBed} from '@angular/core/testing';
 import {ActivatedRouteSnapshot, RouterModule} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 
 import {AuthService} from 'src/app/core/auth/services/auth.service';
-import {RecipeService} from '../../services/recipe/recipe.service';
-import {Recipe} from '../../models/recipes.model';
-import {PrivateRecipeGuard} from '../private-recipe.guard';
-import {RecipeListComponent} from '../../../../shared/components/recipe-list/recipe-list.component';
+import {RecipeService} from '../services/recipe/recipe.service';
+import {Recipe} from '../models/recipes.model';
+import {PrivateRecipeGuard} from './private-recipe.guard';
+import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe-list.component';
 
 describe('PrivateRecipeGuard', () => {
   let service: PrivateRecipeGuard;

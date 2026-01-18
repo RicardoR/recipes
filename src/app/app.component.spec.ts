@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import {AnalyticsService} from "./shared/services/Analytics/analytics.service";
+import {AnalyticsService} from "./shared/services/analytics/analytics.service";
 import {RouterModule} from "@angular/router";
 
 describe('AppComponent', () => {

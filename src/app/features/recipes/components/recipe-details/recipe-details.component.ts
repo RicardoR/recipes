@@ -17,7 +17,7 @@ import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe
 import {AuthService} from '../../../../core/auth/services/auth.service';
 import {Recipe} from '../../models/recipes.model';
 import {RecipeService} from '../../services/recipe/recipe.service';
-import {AnalyticsService} from "../../../../shared/services/Analytics/analytics.service";
+import {AnalyticsService} from "../../../../shared/services/analytics/analytics.service";
 
 @NgLog()
 @Component({

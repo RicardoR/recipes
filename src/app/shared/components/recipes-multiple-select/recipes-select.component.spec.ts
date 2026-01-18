@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RecipesMultipleSelectComponent } from '../recipes-multiple-select.component';
+import { RecipesMultipleSelectComponent } from './recipes-multiple-select.component';
 import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
 import { ElementModel } from 'src/app/features/recipes/models/element.model';
 

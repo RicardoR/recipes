@@ -3,9 +3,9 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
-import { RecipeService } from '../../../services/recipe/recipe.service';
-import { NewRecipeComponent } from '../new-recipe.component';
-import {AnalyticsService} from '../../../../../shared/services/Analytics/analytics.service';
+import { RecipeService } from '../../services/recipe/recipe.service';
+import { NewRecipeComponent } from './new-recipe.component';
+import {AnalyticsService} from '../../../../shared/services/analytics/analytics.service';
 
 describe('NewRecipeComponent', () => {
   let component: NewRecipeComponent;

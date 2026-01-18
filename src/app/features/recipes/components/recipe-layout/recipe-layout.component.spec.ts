@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RecipeLayoutComponent } from '../recipe-layout.component';
-import {AuthService} from "../../../../../core/auth/services/auth.service";
+import { RecipeLayoutComponent } from './recipe-layout.component';
+import {AuthService} from "../../../../core/auth/services/auth.service";
 import {ActivatedRoute} from "@angular/router";
 
 describe('RecipeLayoutComponent', () => {

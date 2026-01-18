@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {BehaviorSubject} from 'rxjs';
 
 import {AuthService} from 'src/app/core/auth/services/auth.service';
-import {AuthGuard} from '../auth.guard';
+import {AuthGuard} from './auth.guard';
 
 describe('AuthGuard', () => {
   let service: AuthGuard;

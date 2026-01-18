@@ -13,7 +13,7 @@ import {RecipesRoutingNames} from '../../recipes.routes';
 import {RecipeService} from '../../services/recipe/recipe.service';
 import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe-dialog.component';
 import {RecipeListComponent} from '../../../../shared/components/recipe-list/recipe-list.component';
-import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
+import {AnalyticsService} from '../../../../shared/services/analytics/analytics.service';
 import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.service";
 
 @NgLog()

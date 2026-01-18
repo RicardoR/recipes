@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {BehaviorSubject} from 'rxjs';
 
-import {AuthReadyGuard} from '../auth-ready.guard';
+import {AuthReadyGuard} from './auth-ready.guard';
 import {AuthService} from 'src/app/core/auth/services/auth.service';
 
 describe('AuthReadyGuard', () => {

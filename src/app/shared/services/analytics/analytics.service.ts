@@ -22,7 +22,7 @@ export class AnalyticsService {
     if (this.analytics) {
       logEvent(this.analytics, value, params);
     } else {
-      console.warn('Analytics not initialized, event not sent:', value);
+      console.warn('analytics not initialized, event not sent:', value);
     }
   }
 }

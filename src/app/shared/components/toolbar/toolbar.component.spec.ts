@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import {ActivatedRoute, Router} from '@angular/router';
 import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
-import { ToolbarComponent } from '../toolbar.component';
+import { ToolbarComponent } from './toolbar.component';
 import { of } from 'rxjs';
-import {ToolbarService} from "../../../services/toolbar/toolbar.service";
+import {ToolbarService} from "../../services/toolbar/toolbar.service";
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
