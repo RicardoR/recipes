@@ -36,14 +36,14 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {EMPTY, Observable} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 
-import {AuthData} from 'src/app/features/auth/auth-data.model';
-import {AuthService} from 'src/app/features/auth/services/auth.service';
+import {AuthData} from 'src/app/core/auth/auth-data.model';
+import {AuthService} from 'src/app/core/auth/services/auth.service';
 import {Recipe} from 'src/app/features/recipes/models/recipes.model';
 import {RecipeService} from 'src/app/features/recipes/services/recipe/recipe.service';
 import {MessagesService} from '../../services/messages/messages.service';
 import {UtilService} from '../../utils/utils.service';
 import {NgLog} from '../../utils/decorators/log-decorator';
-import {ElementModel} from '../../../recipes/models/element.model';
+import {ElementModel} from '../../../features/recipes/models/element.model';
 import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes-multiple-select.component';
 
 

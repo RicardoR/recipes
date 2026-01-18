@@ -11,13 +11,13 @@ import {EMPTY, Observable} from 'rxjs';
 import {concatMap, map, tap} from 'rxjs/operators';
 
 import {AppRoutingNames} from 'src/app/app.routes';
-import {NgLog} from 'src/app/features/shared/utils/decorators/log-decorator';
+import {NgLog} from 'src/app/shared/utils/decorators/log-decorator';
 import {RecipesRoutingNames} from '../../recipes.routes';
 import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe-dialog.component';
-import {AuthService} from '../../../auth/services/auth.service';
+import {AuthService} from '../../../../core/auth/services/auth.service';
 import {Recipe} from '../../models/recipes.model';
 import {RecipeService} from '../../services/recipe/recipe.service';
-import {AnalyticsService} from "../../../shared/services/Analytics/analytics.service";
+import {AnalyticsService} from "../../../../shared/services/Analytics/analytics.service";
 
 @NgLog()
 @Component({

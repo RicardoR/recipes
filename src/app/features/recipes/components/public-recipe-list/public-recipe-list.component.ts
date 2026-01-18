@@ -6,15 +6,15 @@ import {EMPTY} from 'rxjs';
 import {concatMap, switchMap, tap} from 'rxjs/operators';
 
 import {AppRoutingNames} from 'src/app/app.routes';
-import {AuthService} from 'src/app/features/auth/services/auth.service';
-import {NgLog} from 'src/app/features/shared/utils/decorators/log-decorator';
+import {AuthService} from 'src/app/core/auth/services/auth.service';
+import {NgLog} from 'src/app/shared/utils/decorators/log-decorator';
 import {Recipe} from '../../models/recipes.model';
 import {RecipesRoutingNames} from '../../recipes.routes';
 import {RecipeService} from '../../services/recipe/recipe.service';
 import {DeleteRecipeDialogComponent} from '../delete-recipe-dialog/delete-recipe-dialog.component';
-import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe-list.component';
-import {AnalyticsService} from '../../../shared/services/Analytics/analytics.service';
-import {ToolbarService} from "../../../shared/services/toolbar/toolbar.service";
+import {RecipeListComponent} from '../../../../shared/components/recipe-list/recipe-list.component';
+import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
+import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.service";
 
 @NgLog()
 @Component({

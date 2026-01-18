@@ -4,8 +4,8 @@ import { RecipeService } from 'src/app/features/recipes/services/recipe/recipe.s
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Observable, ReplaySubject } from 'rxjs';
-import { AuthService } from '../../auth/services/auth.service';
-import { MessagesService } from '../../shared/services/messages/messages.service';
+import { AuthService } from '../../../core/auth/services/auth.service';
+import { MessagesService } from '../../../shared/services/messages/messages.service';
 
 @Injectable({
   providedIn: 'root',

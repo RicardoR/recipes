@@ -3,12 +3,12 @@ import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {AppRoutingNames} from 'src/app/app.routes';
-import {NgLog} from 'src/app/features/shared/utils/decorators/log-decorator';
+import {NgLog} from 'src/app/shared/utils/decorators/log-decorator';
 import {RecipesRoutingNames} from '../../recipes.routes';
 import {RecipeService} from '../../services/recipe/recipe.service';
 import {Recipe} from '../../models/recipes.model';
-import {RecipeCardFormComponent} from '../../../shared/components/recipe-card-form/recipe-card-form.component';
-import {AnalyticsService} from '../../../shared/services/Analytics/analytics.service';
+import {RecipeCardFormComponent} from '../../../../shared/components/recipe-card-form/recipe-card-form.component';
+import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
 
 @NgLog()
 @Component({

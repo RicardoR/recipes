@@ -2,11 +2,11 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {Router} from '@angular/router';
 import {of} from 'rxjs';
 
-import {MessagesService} from 'src/app/features/shared/services/messages/messages.service';
+import {MessagesService} from 'src/app/shared/services/messages/messages.service';
 import {RecipeService} from '../../../services/recipe/recipe.service';
 import {EditRecipeComponent} from '../edit-recipe.component';
 import {recipeMock} from '../../../../../testing-resources/mocks/recipe-mock';
-import {AnalyticsService} from "../../../../shared/services/Analytics/analytics.service";
+import {AnalyticsService} from "../../../../../shared/services/Analytics/analytics.service";
 
 describe('EditRecipeComponent', () => {
   let component: EditRecipeComponent;

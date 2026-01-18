@@ -1,4 +1,4 @@
-import { AuthData } from 'src/app/features/auth/auth-data.model';
+import { AuthData } from 'src/app/core/auth/auth-data.model';
 
 export const userMock: AuthData = {
   uid: '2',

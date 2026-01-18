@@ -20,7 +20,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs/operators';
 
 import {AppRoutingNames} from 'src/app/app.routes';
-import {AuthService} from 'src/app/features/auth/services/auth.service';
+import {AuthService} from 'src/app/core/auth/services/auth.service';
 import {RecipesRoutingNames} from 'src/app/features/recipes/recipes.routes';
 import {ToolbarService} from "../../services/toolbar/toolbar.service";
 

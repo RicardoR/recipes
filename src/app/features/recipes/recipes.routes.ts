@@ -5,7 +5,7 @@ import {RecipeDetailsComponent} from './components/recipe-details/recipe-details
 import {NewRecipeComponent} from './components/new-recipe/new-recipe.component';
 import {PublicRecipeListComponent} from './components/public-recipe-list/public-recipe-list.component';
 import {MyRecipesComponent} from './components/my-recipes/my-recipes.component';
-import {AuthGuard} from '../auth/guards/auth.guard';
+import {AuthGuard} from '../../core/auth/guards/auth.guard';
 import {PrivateRecipeGuard} from './guards/private-recipe.guard';
 import {RecipeLayoutComponent} from "./components/recipe-layout/recipe-layout.component";
 

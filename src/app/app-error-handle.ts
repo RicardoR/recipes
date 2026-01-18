@@ -1,6 +1,6 @@
 import {ErrorHandler, inject, Injectable, Injector, NgZone} from '@angular/core';
-import { MessagesService } from './features/shared/services/messages/messages.service';
-import { AnalyticsService } from './features/shared/services/Analytics/analytics.service';
+import { MessagesService } from './shared/services/messages/messages.service';
+import { AnalyticsService } from './shared/services/Analytics/analytics.service';
 
 @Injectable({
   providedIn: 'root',

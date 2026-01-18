@@ -1,5 +1,5 @@
 import {Routes} from '@angular/router';
-import {AuthReadyGuard} from './features/auth/guards/auth-ready.guard';
+import {AuthReadyGuard} from './core/auth/guards/auth-ready.guard';
 
 export const AppRoutingNames = {
   recipes: 'recipes',
@@ -16,7 +16,7 @@ export const APP_ROUTES: Routes = [
   {
     path: AppRoutingNames.login,
     loadChildren: () =>
-      import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+      import('./core/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   { path: '**', redirectTo: AppRoutingNames.recipes },
 ];

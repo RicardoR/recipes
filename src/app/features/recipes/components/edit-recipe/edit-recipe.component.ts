@@ -5,13 +5,13 @@ import {of} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 
 import {AppRoutingNames} from 'src/app/app.routes';
-import {MessagesService} from 'src/app/features/shared/services/messages/messages.service';
-import {NgLog} from 'src/app/features/shared/utils/decorators/log-decorator';
+import {MessagesService} from 'src/app/shared/services/messages/messages.service';
+import {NgLog} from 'src/app/shared/utils/decorators/log-decorator';
 import {Recipe} from '../../models/recipes.model';
 import {RecipesRoutingNames} from '../../recipes.routes';
 import {RecipeService} from '../../services/recipe/recipe.service';
-import {RecipeCardFormComponent} from '../../../shared/components/recipe-card-form/recipe-card-form.component';
-import {AnalyticsService} from '../../../shared/services/Analytics/analytics.service';
+import {RecipeCardFormComponent} from '../../../../shared/components/recipe-card-form/recipe-card-form.component';
+import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
 
 @NgLog()
 @Component({

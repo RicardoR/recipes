@@ -5,7 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { RecipeService } from 'src/app/features/recipes/services/recipe/recipe.service';
-import { AuthService } from 'src/app/features/auth/services/auth.service';
+import { AuthService } from 'src/app/core/auth/services/auth.service';
 import {
   MEDIA_STORAGE_PATH,
   RecipeCardFormComponent,

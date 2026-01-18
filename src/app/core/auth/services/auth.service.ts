@@ -6,7 +6,7 @@ import {map, take} from 'rxjs/operators';
 
 import {AuthData} from '../auth-data.model';
 import {AppRoutingNames} from 'src/app/app.routes';
-import {RecipesRoutingNames} from '../../recipes/recipes.routes';
+import {RecipesRoutingNames} from '../../../features/recipes/recipes.routes';
 
 export const FAKE_USER_EMAIL = 'test@mail.com';
 

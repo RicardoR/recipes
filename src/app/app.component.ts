@@ -2,7 +2,7 @@ import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
 import {Component, inject} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {AnalyticsService} from "./features/shared/services/Analytics/analytics.service";
+import {AnalyticsService} from "./shared/services/Analytics/analytics.service";
 
 @Component({
     selector: 'app-root',

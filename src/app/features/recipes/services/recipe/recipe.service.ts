@@ -13,7 +13,7 @@ import {
 import {from, Observable, of, ReplaySubject, Subject,} from 'rxjs';
 
 import {Recipe} from '../../models/recipes.model';
-import {AuthService} from '../../../auth/services/auth.service';
+import {AuthService} from '../../../../core/auth/services/auth.service';
 import {ElementModel} from '../../models/element.model';
 import {AppRoutingNames} from 'src/app/app.routes';
 import {

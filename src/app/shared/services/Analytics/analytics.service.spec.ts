@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { AnalyticsService } from './analytics.service';
 import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { environment } from '../../../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;

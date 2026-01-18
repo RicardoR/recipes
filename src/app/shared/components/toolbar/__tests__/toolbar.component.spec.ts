@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import {ActivatedRoute, Router} from '@angular/router';
-import { AuthService } from 'src/app/features/auth/services/auth.service';
+import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { userMock } from 'src/app/testing-resources/mocks/user-mock';
 import { ToolbarComponent } from '../toolbar.component';
 import { of } from 'rxjs';

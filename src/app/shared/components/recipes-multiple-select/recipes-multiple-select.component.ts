@@ -8,7 +8,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {computed, signal} from '@angular/core';
 import {filter, tap} from 'rxjs/operators';
-import {ElementModel} from '../../../recipes/models/element.model';
+import {ElementModel} from '../../../features/recipes/models/element.model';
 
 
 @Component({

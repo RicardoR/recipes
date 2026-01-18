@@ -9,7 +9,7 @@ import {ElementModel} from 'src/app/features/recipes/models/element.model';
 import {RecipeService} from 'src/app/features/recipes/services/recipe/recipe.service';
 import {NgLog} from '../../utils/decorators/log-decorator';
 
-import {Recipe} from '../../../recipes/models/recipes.model';
+import {Recipe} from '../../../features/recipes/models/recipes.model';
 import {MatButtonModule} from '@angular/material/button';
 import {RecipeRibbonComponent} from '../recipe-ribbon/recipe-ribbon.component';
 import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes-multiple-select.component';

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {ToolbarComponent} from "../../../shared/components/toolbar/toolbar.component";
+import {ToolbarComponent} from "../../../../shared/components/toolbar/toolbar.component";
 import {RouterOutlet} from "@angular/router";
 
 @Component({

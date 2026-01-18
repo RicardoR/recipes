@@ -5,10 +5,10 @@ import {of} from 'rxjs';
 
 import {RecipeService} from '../../../services/recipe/recipe.service';
 import {RecipeDetailsComponent} from '../recipe-details.component';
-import {AuthService} from 'src/app/features/auth/services/auth.service';
+import {AuthService} from 'src/app/core/auth/services/auth.service';
 import {recipeMock} from 'src/app/testing-resources/mocks/recipe-mock';
 import {userMock} from 'src/app/testing-resources/mocks/user-mock';
-import {AnalyticsService} from '../../../../shared/services/Analytics/analytics.service';
+import {AnalyticsService} from '../../../../../shared/services/Analytics/analytics.service';
 
 describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;
