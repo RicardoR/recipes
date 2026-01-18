@@ -1,5 +1,5 @@
 import { categoriesMock } from './categories-mock';
-import { Recipe } from 'src/app/modules/recipes/models/recipes.model';
+import { Recipe } from 'src/app/features/recipes/models/recipes.model';
 
 export const recipesListMock = [
   {
