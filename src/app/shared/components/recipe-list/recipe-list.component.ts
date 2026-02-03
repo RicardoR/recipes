@@ -3,6 +3,7 @@ import {Component, DestroyRef, inject, OnInit, input, output, signal, effect} fr
 import {filter, tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {DatePipe} from '@angular/common';
 
 import {ElementModel} from 'src/app/features/recipes/models/element.model';
@@ -23,6 +24,7 @@ import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes
     RecipesMultipleSelectComponent,
     ReactiveFormsModule,
     MatCardModule,
+    MatProgressSpinnerModule,
     RecipeRibbonComponent,
     MatButtonModule,
     DatePipe
