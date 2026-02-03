@@ -50,7 +50,6 @@ Thumbs.db
 /src/environments/
 .firebaserc
 yarn.lock
-package-lock.json
 .firebase-commands
 /database-debug.log
 /firebase-debug.log
