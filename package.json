@@ -42,15 +42,15 @@
     "angular-eslint": "21.1.0",
     "eslint": "9.39.2",
     "jasmine-core": "5.8.0",
-    "jsdom": "^28.0.0",
+    "jsdom": "28.0.0",
     "karma": "6.4.4",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.1",
-    "karma-jasmine": "~5.1.0",
+    "karma-chrome-launcher": "3.2.0",
+    "karma-coverage": "2.2.1",
+    "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.52.0",
-    "vitest": "^4.0.18"
+    "vitest": "4.0.18"
   },
   "overrides": {
     "@ngxmc/file-input": {
