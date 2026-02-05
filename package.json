@@ -34,7 +34,7 @@
     "zone.js": "0.15.1"
   },
   "devDependencies": {
-    "@angular/build": "^21.0.5",
+    "@angular/build": "21.0.5",
     "@angular/cli": "21.0.5",
     "@angular/compiler-cli": "21.0.8",
     "@types/jasmine": "5.1.8",
@@ -42,12 +42,24 @@
     "angular-eslint": "21.1.0",
     "eslint": "9.39.2",
     "jasmine-core": "5.8.0",
+    "jsdom": "^28.0.0",
     "karma": "6.4.4",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.52.0"
+    "typescript-eslint": "8.52.0",
+    "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "@ngxmc/file-input": {
+      "@angular/cdk": "21.0.6",
+      "@angular/common": "21.0.8",
+      "@angular/core": "21.0.8",
+      "@angular/forms": "21.0.8",
+      "@angular/material": "21.0.6",
+      "@angular/platform-browser": "21.0.8"
+    }
   }
 }
