@@ -8,6 +8,7 @@ const testFile = "environment.debugMode.ts";
 
 const content_env_prod = `${process.env.FIREBASE_DETAILS}`;
 const content_env_test = `${process.env.FIREBASE_DETAILS_TEST}`;
+console.log(content_env_test);
 
 fs.access(dir, fs.constants.F_OK, (err) => {
   if (err) {
@@ -32,7 +33,7 @@ fs.access(dir, fs.constants.F_OK, (err) => {
       console.log("Env Prod File is created", path.resolve(dir + "/" + prodFile));
     }
     if (fs.existsSync(dir + "/" + testFile)) {
-      console.log("Env Prod File is created", path.resolve(dir + "/" + testFile));
+      console.log("Env debug File is created", path.resolve(dir + "/" + testFile));
     }
   } catch (error) {
     console.error(error);
