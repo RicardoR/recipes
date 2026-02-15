@@ -1,4 +1,4 @@
-import { ElementModel } from '../../features/recipes/models/element.model';
+import {ElementModel} from '../../features/recipes/models/element.model';
 
 export const categoriesMock: ElementModel[] = [
   {

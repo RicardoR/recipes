@@ -1,10 +1,10 @@
 <div class="p-2">
-    <div class="mt-1">
-      <app-recipes-multiple-select [formControl]="categoryFilter"
-                                   label='Filtrar por categoría(s)'
-                                   [options]="categories">
-      </app-recipes-multiple-select>
-    </div>
+  <div class="mt-1">
+    <app-recipes-multiple-select [formControl]="categoryFilter"
+                                 label='Filtrar por categoría(s)'
+                                 [options]="categories">
+    </app-recipes-multiple-select>
+  </div>
   <div class="recipe-list-wrapper">
     @for (recipe of recipesFiltered(); track recipe.id) {
       @defer (on viewport) {
@@ -22,7 +22,7 @@
               tabindex="0"
               role="button"
               class="cursor-pointer">
-              <mat-card-title> {{ recipe.title }} </mat-card-title>
+              <mat-card-title> {{ recipe.title }}</mat-card-title>
             </mat-card-header>
             <img
               (click)="goToRecipe(recipe)"

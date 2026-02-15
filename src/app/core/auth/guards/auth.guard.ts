@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 
-import { Observable } from 'rxjs';
+import {Observable} from 'rxjs';
 
-import { AuthService } from '../services/auth.service';
+import {AuthService} from '../services/auth.service';
 
 @Injectable({
   providedIn: 'root',

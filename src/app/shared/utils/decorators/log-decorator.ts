@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { environment } from 'src/environments/environment';
+import {environment} from 'src/environments/environment';
 
 export function NgLog(): ClassDecorator {
   return function (constructor: any) {

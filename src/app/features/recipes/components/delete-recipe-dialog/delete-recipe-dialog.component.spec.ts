@@ -1,38 +1,38 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
 
-import { DeleteRecipeDialogComponent } from './delete-recipe-dialog.component';
-import { AnalyticsService } from "../../../../shared/services/analytics/analytics.service";
+import {DeleteRecipeDialogComponent} from './delete-recipe-dialog.component';
+import {AnalyticsService} from "../../../../shared/services/analytics/analytics.service";
 
 describe('DeleteRecipeDialogComponent', () => {
-    let component: DeleteRecipeDialogComponent;
-    let fixture: ComponentFixture<DeleteRecipeDialogComponent>;
-    const analyticsSpy = {
-        sendToAnalytics: vi.fn().mockName("AnalyticsService.sendToAnalytics")
-    };
+  let component: DeleteRecipeDialogComponent;
+  let fixture: ComponentFixture<DeleteRecipeDialogComponent>;
+  const analyticsSpy = {
+    sendToAnalytics: vi.fn().mockName("AnalyticsService.sendToAnalytics")
+  };
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            imports: [DeleteRecipeDialogComponent],
-            providers: [
-                { provide: AnalyticsService, useValue: analyticsSpy }
-            ],
-        }).overrideTemplate(DeleteRecipeDialogComponent, '');
-    });
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [DeleteRecipeDialogComponent],
+      providers: [
+        {provide: AnalyticsService, useValue: analyticsSpy}
+      ],
+    }).overrideTemplate(DeleteRecipeDialogComponent, '');
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(DeleteRecipeDialogComponent);
+  beforeEach(() => {
+    fixture = TestBed.createComponent(DeleteRecipeDialogComponent);
 
-        component = fixture.componentInstance;
+    component = fixture.componentInstance;
 
-        fixture.detectChanges();
-    });
+    fixture.detectChanges();
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
-    it('should log delete_recipe_dialog_opened event in analytics', () => {
-        expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('delete_recipe_dialog_opened');
-    });
+  it('should log delete_recipe_dialog_opened event in analytics', () => {
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('delete_recipe_dialog_opened');
+  });
 });

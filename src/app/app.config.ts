@@ -33,7 +33,7 @@ export const appConfig: ApplicationConfig = {
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
     provideStorage(() => getStorage()),
-    { provide: FIREBASE_OPTIONS, useValue: environment.firebase },
+    {provide: FIREBASE_OPTIONS, useValue: environment.firebase},
     provideRouter(APP_ROUTES, withInMemoryScrolling(scrollConfig), withComponentInputBinding()),
     importProvidersFrom(
       BrowserModule,

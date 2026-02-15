@@ -1,4 +1,4 @@
-import { Recipe } from '../../features/recipes/models/recipes.model';
+import {Recipe} from '../../features/recipes/models/recipes.model';
 
 export const recipeMock = {
   date: new Date(),

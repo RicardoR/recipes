@@ -1,37 +1,35 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl} from '@angular/forms';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, signal} from '@angular/core';
+import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule} from '@angular/forms';
 import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {computed, signal} from '@angular/core';
 import {filter, tap} from 'rxjs/operators';
 import {ElementModel} from '../../../features/recipes/models/element.model';
 
 
 @Component({
-    selector: 'app-recipes-multiple-select',
-    templateUrl: './recipes-multiple-select.component.html',
-    styleUrls: ['./recipes-multiple-select.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            multi: true,
-            useExisting: RecipesMultipleSelectComponent,
-        },
-    ],
-    imports: [
+  selector: 'app-recipes-multiple-select',
+  templateUrl: './recipes-multiple-select.component.html',
+  styleUrls: ['./recipes-multiple-select.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: RecipesMultipleSelectComponent,
+    },
+  ],
+  imports: [
     MatFormFieldModule,
     MatSelectModule,
     ReactiveFormsModule,
     MatOptionModule
-]
+  ]
 })
-export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnInit
-{
+export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnInit {
   readonly label = input<string>('Select');
   readonly options = input<ElementModel[]>([]);
 
@@ -58,8 +56,10 @@ export class RecipesMultipleSelectComponent implements ControlValueAccessor, OnI
     return '';
   });
 
-  onChange: (value: ElementModel[]) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: (value: ElementModel[]) => void = () => {
+  };
+  onTouched: () => void = () => {
+  };
 
   elementSelectValue = signal<ElementModel[] | null>(this.elementSelectControl.value);
 

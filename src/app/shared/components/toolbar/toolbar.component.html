@@ -1,6 +1,6 @@
 <mat-toolbar color="primary">
   @if (!displaySearchControl) {
-    <h1>{{title()}}</h1>
+    <h1>{{ title() }}</h1>
   }
   <span class="horizontal-spacer"></span>
   @if (displaySearchButton()) {
@@ -15,18 +15,18 @@
     <div class="w-100 d-flex">
       <mat-form-field class="w-50 form-field__transparent">
         <input #search
-          matInput
-          type="search"
-          autocomplete="off"
-          [formControl]="searchFormControl">
+               matInput
+               type="search"
+               autocomplete="off"
+               [formControl]="searchFormControl">
       </mat-form-field>
     </div>
   }
 
   @if (userId) {
     <button mat-icon-button
-      [matMenuTriggerFor]="menu"
-      aria-label="Example icon-button with a menu">
+            [matMenuTriggerFor]="menu"
+            aria-label="Example icon-button with a menu">
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">

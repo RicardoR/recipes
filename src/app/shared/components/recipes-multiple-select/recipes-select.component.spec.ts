@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { RecipesMultipleSelectComponent } from './recipes-multiple-select.component';
-import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
-import { ElementModel } from 'src/app/features/recipes/models/element.model';
+import {RecipesMultipleSelectComponent} from './recipes-multiple-select.component';
+import {categoriesMock} from 'src/app/testing-resources/mocks/categories-mock';
+import {ElementModel} from 'src/app/features/recipes/models/element.model';
 
 describe('RecipesSelectComponent', () => {
   let component: RecipesMultipleSelectComponent;
@@ -37,8 +37,8 @@ describe('RecipesSelectComponent', () => {
   });
 
   it('should compare by id', () => {
-    const option: ElementModel = { id: 1, detail: 'test' };
-    const optionNew: ElementModel = { id: 90, detail: 'test' };
+    const option: ElementModel = {id: 1, detail: 'test'};
+    const optionNew: ElementModel = {id: 90, detail: 'test'};
 
     const expectedResultOne = component.compareElements(
       option,

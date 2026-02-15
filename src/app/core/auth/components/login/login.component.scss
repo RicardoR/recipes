@@ -26,11 +26,10 @@
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
-input:-webkit-autofill:active
-{
- background-color: transparent !important;
- color: #fff !important;
- outline-color: #fff !important;
+input:-webkit-autofill:active {
+  background-color: transparent !important;
+  color: #fff !important;
+  outline-color: #fff !important;
   -webkit-box-shadow: 0 0 0 50px #555555 inset;
   box-shadow: 0 0 0 50px #555555 inset;
 }

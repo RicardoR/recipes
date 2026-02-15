@@ -1,69 +1,69 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { vi } from 'vitest';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ReactiveFormsModule} from '@angular/forms';
+import {vi} from 'vitest';
 
-import { AuthService } from '../../services/auth.service';
-import { LoginComponent } from './login.component';
+import {AuthService} from '../../services/auth.service';
+import {LoginComponent} from './login.component';
 
 describe('LoginComponent', () => {
-    let component: LoginComponent;
-    let fixture: ComponentFixture<LoginComponent>;
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
 
-    const authServiceSpy = {
-        login: vi.fn().mockName("AuthService.login")
-    };
+  const authServiceSpy = {
+    login: vi.fn().mockName("AuthService.login")
+  };
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [ReactiveFormsModule, LoginComponent],
-            providers: [{ provide: AuthService, useValue: authServiceSpy }],
-        })
-          .overrideTemplate(LoginComponent, '')
-          .compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ReactiveFormsModule, LoginComponent],
+      providers: [{provide: AuthService, useValue: authServiceSpy}],
+    })
+      .overrideTemplate(LoginComponent, '')
+      .compileComponents();
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create the login form at beginning', () => {
+    expect(component.form).toBeTruthy();
+    expect(component.form.get('email')).toBeTruthy();
+    expect(component.form.get('password')).toBeTruthy();
+  });
+
+  describe('#login', () => {
+    it('should not call the login method of the auth service if the form is not valid', () => {
+      authServiceSpy.login.mockClear();
+      component.form.get('email')?.setValue('not-valid-email');
+      component.login();
+      expect(authServiceSpy.login).not.toHaveBeenCalled();
     });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(LoginComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    it('should call the login method of the auth service if the form is valid', () => {
+      component.form.get('email')?.setValue('email@domain.com');
+      component.form.get('password')?.setValue('valid-password');
+      component.login();
+      expect(authServiceSpy.login).toHaveBeenCalled();
+    });
+  });
+
+  describe('#getErrorMessage', () => {
+    it('should return "Not a valid email" for an invalid email', () => {
+      component.form.get('email')?.setValue('not-valid-email');
+      expect(component.getErrorMessage()).toEqual('Not a valid email');
     });
 
-    it('should create the login form at beginning', () => {
-        expect(component.form).toBeTruthy();
-        expect(component.form.get('email')).toBeTruthy();
-        expect(component.form.get('password')).toBeTruthy();
+    it('should return "You must enter a value" when email is empty', () => {
+      component.form.get('email')?.setValue('');
+      expect(component.getErrorMessage()).toEqual('You must enter a value');
     });
 
-    describe('#login', () => {
-        it('should not call the login method of the auth service if the form is not valid', () => {
-            authServiceSpy.login.mockClear();
-            component.form.get('email')?.setValue('not-valid-email');
-            component.login();
-            expect(authServiceSpy.login).not.toHaveBeenCalled();
-        });
-
-        it('should call the login method of the auth service if the form is valid', () => {
-            component.form.get('email')?.setValue('email@domain.com');
-            component.form.get('password')?.setValue('valid-password');
-            component.login();
-            expect(authServiceSpy.login).toHaveBeenCalled();
-        });
+    it('should return an empty string if the form is valid', () => {
+      component.form.get('email')?.setValue('email@domain.com');
+      expect(component.getErrorMessage()).toEqual('');
     });
-
-    describe('#getErrorMessage', () => {
-        it('should return "Not a valid email" for an invalid email', () => {
-            component.form.get('email')?.setValue('not-valid-email');
-            expect(component.getErrorMessage()).toEqual('Not a valid email');
-        });
-
-        it('should return "You must enter a value" when email is empty', () => {
-            component.form.get('email')?.setValue('');
-            expect(component.getErrorMessage()).toEqual('You must enter a value');
-        });
-
-        it('should return an empty string if the form is valid', () => {
-            component.form.get('email')?.setValue('email@domain.com');
-            expect(component.getErrorMessage()).toEqual('');
-        });
-    });
+  });
 });

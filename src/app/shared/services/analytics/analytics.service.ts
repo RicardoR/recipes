@@ -1,4 +1,4 @@
-import { Injectable, Injector, inject } from '@angular/core';
+import {inject, Injectable, Injector} from '@angular/core';
 import {Analytics, isSupported, logEvent} from '@angular/fire/analytics';
 
 @Injectable({

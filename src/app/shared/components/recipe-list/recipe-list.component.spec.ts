@@ -1,78 +1,78 @@
-import { recipesListMock } from 'src/app/testing-resources/mocks/recipes-list-mock';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
-import { of } from 'rxjs';
-import { RecipeService } from 'src/app/features/recipes/services/recipe/recipe.service';
-import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
-import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
+import {recipesListMock} from 'src/app/testing-resources/mocks/recipes-list-mock';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
+import {of} from 'rxjs';
+import {RecipeService} from 'src/app/features/recipes/services/recipe/recipe.service';
+import {categoriesMock} from 'src/app/testing-resources/mocks/categories-mock';
+import {recipeMock} from 'src/app/testing-resources/mocks/recipe-mock';
 
-import { RecipeListComponent } from './recipe-list.component';
+import {RecipeListComponent} from './recipe-list.component';
 
 describe('RecipeListComponent', () => {
-    let component: RecipeListComponent;
-    let fixture: ComponentFixture<RecipeListComponent>;
+  let component: RecipeListComponent;
+  let fixture: ComponentFixture<RecipeListComponent>;
 
-    const recipeServiceSpy = {
-        getCategories: vi.fn().mockName("RecipeService.getCategories")
-    };
+  const recipeServiceSpy = {
+    getCategories: vi.fn().mockName("RecipeService.getCategories")
+  };
 
-    beforeEach(async() => {
-        await TestBed.configureTestingModule({
-            imports: [RecipeListComponent],
-            providers: [{ provide: RecipeService, useValue: recipeServiceSpy }],
-        })
-          .overrideTemplate(RecipeListComponent, '')
-          .compileComponents()
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [RecipeListComponent],
+      providers: [{provide: RecipeService, useValue: recipeServiceSpy}],
+    })
+      .overrideTemplate(RecipeListComponent, '')
+      .compileComponents()
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(RecipeListComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('recipes', recipesListMock);
+    recipeServiceSpy.getCategories.mockReturnValue(of(categoriesMock));
+    fixture.detectChanges();
+  });
+
+  it('goToRecipe should emit the action to navigate', () => {
+    const goToRecipeSpy = vi.spyOn(component.goToRecipe$, 'emit');
+    component.goToRecipe(recipeMock);
+    expect(goToRecipeSpy).toHaveBeenCalledWith(recipeMock);
+  });
+
+  it('deleteRecipe should emit the action to delete a recipe', () => {
+    const deteRecipeSpy = vi.spyOn(component.deleteRecipe$, 'emit');
+    component.deleteRecipe(recipeMock);
+    expect(deteRecipeSpy).toHaveBeenCalledWith(recipeMock);
+  });
+
+  it('should retrieve the categories', () => {
+    expect(recipeServiceSpy.getCategories).toHaveBeenCalled();
+    expect(component.categories).toEqual(categoriesMock);
+  });
+
+  describe('filter', () => {
+    it('should return all recipes when filter is empty', () => {
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
+      component.categoryFilter.patchValue([]);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
     });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(RecipeListComponent);
-        component = fixture.componentInstance;
-        fixture.componentRef.setInput('recipes', recipesListMock);
-        recipeServiceSpy.getCategories.mockReturnValue(of(categoriesMock));
-        fixture.detectChanges();
+    it('should filter by one category', () => {
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
+      component.categoryFilter.patchValue([categoriesMock[0]]);
+      expect(component.recipesFiltered()).toEqual([recipesListMock[0]]);
     });
 
-    it('goToRecipe should emit the action to navigate', () => {
-        const goToRecipeSpy = vi.spyOn(component.goToRecipe$, 'emit');
-        component.goToRecipe(recipeMock);
-        expect(goToRecipeSpy).toHaveBeenCalledWith(recipeMock);
+    it('should filter by more than one category', () => {
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
+      component.categoryFilter.patchValue(categoriesMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
     });
 
-    it('deleteRecipe should emit the action to delete a recipe', () => {
-        const deteRecipeSpy = vi.spyOn(component.deleteRecipe$, 'emit');
-        component.deleteRecipe(recipeMock);
-        expect(deteRecipeSpy).toHaveBeenCalledWith(recipeMock);
+    it('should return an emtpy array when category selected doesnt exists in the recipes', () => {
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
+      component.categoryFilter.patchValue([{id: -1, detail: 'test'}]);
+      expect(component.recipesFiltered()).toEqual([]);
     });
-
-    it('should retrieve the categories', () => {
-        expect(recipeServiceSpy.getCategories).toHaveBeenCalled();
-        expect(component.categories).toEqual(categoriesMock);
-    });
-
-    describe('filter', () => {
-        it('should return all recipes when filter is empty', () => {
-            expect(component.recipesFiltered()).toEqual(recipesListMock);
-            component.categoryFilter.patchValue([]);
-            expect(component.recipesFiltered()).toEqual(recipesListMock);
-        });
-
-        it('should filter by one category', () => {
-            expect(component.recipesFiltered()).toEqual(recipesListMock);
-            component.categoryFilter.patchValue([categoriesMock[0]]);
-            expect(component.recipesFiltered()).toEqual([recipesListMock[0]]);
-        });
-
-        it('should filter by more than one category', () => {
-            expect(component.recipesFiltered()).toEqual(recipesListMock);
-            component.categoryFilter.patchValue(categoriesMock);
-            expect(component.recipesFiltered()).toEqual(recipesListMock);
-        });
-
-        it('should return an emtpy array when category selected doesnt exists in the recipes', () => {
-            expect(component.recipesFiltered()).toEqual(recipesListMock);
-            component.categoryFilter.patchValue([{ id: -1, detail: 'test' }]);
-            expect(component.recipesFiltered()).toEqual([]);
-        });
-    });
+  });
 });

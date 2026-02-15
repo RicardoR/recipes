@@ -1,5 +1,5 @@
-import {ReactiveFormsModule, FormControl} from '@angular/forms';
-import {Component, DestroyRef, inject, OnInit, input, output, signal, effect} from '@angular/core';
+import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {Component, DestroyRef, effect, inject, input, OnInit, output, signal} from '@angular/core';
 import {filter, tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';

@@ -1,11 +1,5 @@
-import {Component, OnInit, inject} from '@angular/core';
-import {
-  Validators,
-  FormBuilder,
-  ReactiveFormsModule,
-  FormGroup,
-  FormControl,
-} from '@angular/forms';
+import {Component, inject, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
 
 import {AuthData} from '../../auth-data.model';
 import {AuthService, FAKE_USER_EMAIL} from '../../services/auth.service';

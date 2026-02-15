@@ -2,7 +2,7 @@
   <app-recipe-list [recipes]="recipesFiltered"
                    [userId]="userId"
                    [ribbonTitle]="'Privada'"
-                   [publicList]= false
+                   [publicList]=false
                    (goToRecipe$)="goToRecipe($event)"
                    (deleteRecipe$)="deleteRecipe($event)">
   </app-recipe-list>
