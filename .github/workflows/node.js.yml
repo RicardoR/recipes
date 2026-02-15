@@ -26,6 +26,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: node server.js
+      env:
+        FIREBASE_DETAILS: ${{ secrets.FIREBASE_DETAILS }}
+        FIREBASE_DETAILS_TEST: ${{ secrets.FIREBASE_DETAILS_TEST }}
     - run: npm ci --legacy-peer-deps
     - run: npm run build --if-present
     - run: npm test
