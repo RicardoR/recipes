@@ -4,9 +4,10 @@ const path = require('path');
 const dir = "src/environments";
 const file = "environment.ts";
 const prodFile = "environment.prod.ts";
+const testFile = "environment.debugMode.ts";
 
-const content = `${process.env.FIREBASE_DETAILS}`;
-console.log(content);
+const content_env_prod = `${process.env.FIREBASE_DETAILS}`;
+const content_env_test = `${process.env.FIREBASE_DETAILS_TEST}`;
 
 fs.access(dir, fs.constants.F_OK, (err) => {
   if (err) {
@@ -20,18 +21,18 @@ fs.access(dir, fs.constants.F_OK, (err) => {
     }
   }
   try {
-    fs.writeFileSync(dir + "/" + file, content);
-    fs.writeFileSync(dir + "/" + prodFile, content);
+    fs.writeFileSync(dir + "/" + file, content_env_prod);
+    fs.writeFileSync(dir + "/" + prodFile, content_env_prod);
+    fs.writeFileSync(dir + "/" + testFile, content_env_test);
     console.log("Created successfully in", process.cwd());
     if (fs.existsSync(dir + "/" + file)) {
       console.log("Env File is created", path.resolve(dir + "/" + file));
-      const str = fs.readFileSync(dir + "/" + file).toString();
-      console.log(str);
     }
     if (fs.existsSync(dir + "/" + prodFile)) {
       console.log("Env Prod File is created", path.resolve(dir + "/" + prodFile));
-      const str = fs.readFileSync(dir + "/" + prodFile).toString();
-      console.log(str);
+    }
+    if (fs.existsSync(dir + "/" + testFile)) {
+      console.log("Env Prod File is created", path.resolve(dir + "/" + testFile));
     }
   } catch (error) {
     console.error(error);
