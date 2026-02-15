@@ -1,18 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
+import {AppComponent} from './app.component';
 import {AnalyticsService} from "./shared/services/analytics/analytics.service";
 import {RouterModule} from "@angular/router";
 
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
-  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
+  const analyticsSpy = {
+    sendToAnalytics: vi.fn().mockName("AnalyticsService.sendToAnalytics")
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [RouterModule.forRoot([]), AppComponent],
       providers: [
-        { provide: AnalyticsService, useValue: analyticsSpy },
+        {provide: AnalyticsService, useValue: analyticsSpy},
       ],
     }).overrideTemplate(AppComponent, '');
   });

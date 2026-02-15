@@ -1,5 +1,6 @@
 import {MessagesService} from '../../../shared/services/messages/messages.service';
 import {TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
 import {ActivatedRouteSnapshot, RouterModule} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 
@@ -11,13 +12,15 @@ import {RecipeListComponent} from '../../../shared/components/recipe-list/recipe
 
 describe('PrivateRecipeGuard', () => {
   let service: PrivateRecipeGuard;
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
-  const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
-    'getRecipeDetail',
-  ]);
-  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
-    'showSnackBar',
-  ]);
+  const authServiceSpy = {
+    currentUser: {} as never
+  };
+  const recipeServiceSpy = {
+    getRecipeDetail: vi.fn().mockName("RecipeService.getRecipeDetail")
+  };
+  const messagesServiceSpy = {
+    showSnackBar: vi.fn().mockName("MessagesService.showSnackBar")
+  };
 
   const route = {
     params: {},
@@ -50,15 +53,15 @@ describe('PrivateRecipeGuard', () => {
       title: 'test',
       private: false,
     } as Recipe;
-    recipeServiceSpy.getRecipeDetail.and.returnValue(
-      new BehaviorSubject(recipeMocked)
-    );
+    recipeServiceSpy.getRecipeDetail.mockReturnValue(new BehaviorSubject(recipeMocked));
     service.canActivate(route).subscribe((res) => {
       expect(res).toBeTruthy();
     });
   });
 
   it('If the user is the owner should allow', () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     authServiceSpy.currentUser = {uid: '1'};
     const recipeMocked = {
       id: '1',
@@ -67,16 +70,16 @@ describe('PrivateRecipeGuard', () => {
       ownerId: '1',
     } as Recipe;
 
-    recipeServiceSpy.getRecipeDetail.and.returnValue(
-      new BehaviorSubject(recipeMocked)
-    );
+    recipeServiceSpy.getRecipeDetail.mockReturnValue(new BehaviorSubject(recipeMocked));
 
     service.canActivate(route).subscribe((res) => {
       expect(res).toBeTruthy();
     });
   });
 
-  it('If the recipe is private and the user is not the owner should not allow', (done) => {
+  it('If the recipe is private and the user is not the owner should not allow', async () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     authServiceSpy.currentUser = {uid: '2'};
     const recipeMocked = {
       id: '1',
@@ -85,10 +88,7 @@ describe('PrivateRecipeGuard', () => {
       ownerId: '1',
     } as Recipe;
 
-    recipeServiceSpy.getRecipeDetail.and.returnValue(
-      new BehaviorSubject(recipeMocked)
-    );
-    done();
+    recipeServiceSpy.getRecipeDetail.mockReturnValue(new BehaviorSubject(recipeMocked));
 
     service.canActivate(route).subscribe((res) => {
       expect(res).toBeFalsy();

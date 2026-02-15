@@ -18,10 +18,10 @@ import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.servic
 
 @NgLog()
 @Component({
-    selector: 'app-public-recipe-list',
-    templateUrl: './public-recipe-list.component.html',
-    styleUrls: ['./public-recipe-list.component.scss'],
-    imports: [RecipeListComponent]
+  selector: 'app-public-recipe-list',
+  templateUrl: './public-recipe-list.component.html',
+  styleUrls: ['./public-recipe-list.component.scss'],
+  imports: [RecipeListComponent]
 })
 export class PublicRecipeListComponent implements OnInit {
   recipesFiltered: Recipe[] = [];

@@ -2,21 +2,24 @@
 @use "styles/am-components/am";
 @use '../node_modules/@angular/material/prebuilt-themes/purple-green.css';
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+}
+
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: rgb(48, 48, 48);
- }
+}
 
 .cursor-default {
-   cursor: auto!important;
- }
+  cursor: auto !important;
+}
 
 .cursor-pointer {
   cursor: pointer;
 }
 
 .cursor-move {
-  cursor: move!important;
+  cursor: move !important;
 }

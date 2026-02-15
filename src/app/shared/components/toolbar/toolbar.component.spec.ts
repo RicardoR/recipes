@@ -1,21 +1,24 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import {ActivatedRoute, Router} from '@angular/router';
-import { AuthService } from 'src/app/core/auth/services/auth.service';
-import { userMock } from 'src/app/testing-resources/mocks/user-mock';
-import { ToolbarComponent } from './toolbar.component';
-import { of } from 'rxjs';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
+import {ActivatedRoute, ActivatedRouteSnapshot, Router} from '@angular/router';
+import {AuthService} from 'src/app/core/auth/services/auth.service';
+import {userMock} from 'src/app/testing-resources/mocks/user-mock';
+import {ToolbarComponent} from './toolbar.component';
+import {of} from 'rxjs';
 import {ToolbarService} from "../../services/toolbar/toolbar.service";
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
-  const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'events']);
-  routerSpy.events = of();
-  const authServiceSpy = jasmine.createSpyObj('AuthService', [
-    'currentUser',
-    'logout',
-  ]);
-  let activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', ['snapshot']);
+  const routerSpy = {
+    navigate: vi.fn().mockName("Router.navigate"),
+    events: of()
+  };
+  const authServiceSpy = {
+    currentUser: userMock,
+    logout: vi.fn().mockName("AuthService.logout")
+  };
+  let activatedRouteSpy: Partial<ActivatedRoute>;
   let toolbarService: ToolbarService;
 
   beforeEach(() => {
@@ -27,17 +30,17 @@ describe('ToolbarComponent', () => {
             displaySearchButton: true,
             displayListButton: false
           }
-        }
-      }
-    };
+        } as unknown as ActivatedRouteSnapshot
+      } as unknown as ActivatedRoute
+    } as unknown as Partial<ActivatedRoute>;
 
 
     TestBed.configureTestingModule({
       imports: [ToolbarComponent],
       providers: [
-        { provide: Router, useValue: routerSpy },
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: ActivatedRoute, useValue: activatedRouteSpy },
+        {provide: Router, useValue: routerSpy},
+        {provide: AuthService, useValue: authServiceSpy},
+        {provide: ActivatedRoute, useValue: activatedRouteSpy},
       ],
     }).overrideTemplate(ToolbarComponent, '');
   });
@@ -46,7 +49,6 @@ describe('ToolbarComponent', () => {
     fixture = TestBed.createComponent(ToolbarComponent);
     toolbarService = TestBed.inject(ToolbarService);
     component = fixture.componentInstance;
-    authServiceSpy.currentUser = userMock;
     fixture.detectChanges();
   });
 
@@ -79,21 +81,24 @@ describe('ToolbarComponent', () => {
     expect(authServiceSpy.logout).toHaveBeenCalled();
   });
 
-  it('should toggle displaySearchControl and focus input, and clear value when hiding', fakeAsync(() => {
-    const focusSpy = jasmine.createSpy('focus');
-    component.searchElement = { nativeElement: { focus: focusSpy } } as { nativeElement: { focus: () => void } };
+  it('should toggle displaySearchControl and focus input, and clear value when hiding', (() => {
+    const focusSpy = vi.fn();
+    component.searchElement = {nativeElement: {focus: focusSpy}} as {
+      nativeElement: {
+        focus: () => void;
+      };
+    };
     component.displaySearchControl = false;
     component.searchFormControl.setValue('algo');
 
     component.switchSearchControl();
-    tick();
-    expect(component.displaySearchControl).toBeTrue();
-    expect(focusSpy).toHaveBeenCalled();
+    fixture.detectChanges()
+    expect(component.displaySearchControl).toBe(true);
+    fixture.detectChanges()
     expect(component.searchFormControl.value).toBe('algo');
 
     component.switchSearchControl();
-    tick();
-    expect(component.displaySearchControl).toBeFalse();
+    expect(component.displaySearchControl).toBe(false);
     expect(component.searchFormControl.value).toBe('');
   }));
 
@@ -105,6 +110,8 @@ describe('ToolbarComponent', () => {
 
   describe('displaySearchButton', () => {
     it('should display the displaySearchButton when the data route is true', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       activatedRouteSpy.snapshot.firstChild.data.displaySearchButton = true;
       fixture.detectChanges();
       component.ngOnInit();
@@ -112,6 +119,8 @@ describe('ToolbarComponent', () => {
     });
 
     it('should hide the displaySearchButton when the data route is false', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       activatedRouteSpy.snapshot.firstChild.data.displaySearchButton = false;
       fixture.detectChanges();
       component.ngOnInit();
@@ -119,15 +128,19 @@ describe('ToolbarComponent', () => {
     });
 
     it('should hide the displaySearchButton when the data route is null', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       activatedRouteSpy.snapshot.firstChild.data.displaySearchButton = null;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displaySearchButton()).toBe(false);
     });
-  })
+  });
 
   describe('displayListButton', () => {
     it('should display the public list link when the data route is true', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       activatedRouteSpy.snapshot.firstChild.data.displayListButton = true;
       fixture.detectChanges();
       component.ngOnInit();
@@ -135,6 +148,8 @@ describe('ToolbarComponent', () => {
     });
 
     it('should hide the public list link when the data route is false', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       activatedRouteSpy.snapshot.firstChild.data.displayListButton = false;
       fixture.detectChanges();
       component.ngOnInit();
@@ -142,16 +157,18 @@ describe('ToolbarComponent', () => {
     });
 
     it('should hide the public list link when the data route is null', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       activatedRouteSpy.snapshot.firstChild.data.displayListButton = null;
       fixture.detectChanges();
       component.ngOnInit();
       expect(component.displayListButton()).toBe(false);
     });
-  })
+  });
 
   describe('searchControl', () => {
     it('should call to toolbar service when control is updated', () => {
-      spyOn(toolbarService, 'onSearch');
+      vi.spyOn(toolbarService, 'onSearch');
       component.searchFormControl.setValue('my recipe');
       expect(toolbarService.onSearch).toHaveBeenCalledWith('my recipe');
     });

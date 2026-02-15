@@ -1,7 +1,7 @@
 <app-recipe-card-form
   (seeReceipt$)="goToRecipe()"
   (recipeChanged$)="updateRecipe($event)"
-  [isFormSending] = "isSending"
+  [isFormSending]="isSending"
   [recipeDetails]="recipeDetails"
 >
   <h2 title>Editar receta</h2>

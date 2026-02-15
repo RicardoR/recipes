@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
+
 @Component({
   selector: 'app-recipe-ribbon',
   templateUrl: './recipe-ribbon.component.html',
@@ -6,4 +7,5 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
 })
-export class RecipeRibbonComponent {}
+export class RecipeRibbonComponent {
+}

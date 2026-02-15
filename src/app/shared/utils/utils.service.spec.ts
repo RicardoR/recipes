@@ -1,5 +1,5 @@
-import { TestBed } from '@angular/core/testing';
-import { UtilService } from './utils.service';
+import {TestBed} from '@angular/core/testing';
+import {UtilService} from './utils.service';
 
 describe('UtilService', () => {
   let service: UtilService;

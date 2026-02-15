@@ -1,4 +1,5 @@
 import {TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
 import {Router} from '@angular/router';
 import {Firestore} from '@angular/fire/firestore';
 import {Storage} from '@angular/fire/storage';
@@ -19,7 +20,9 @@ describe('RecipeService', () => {
   };
   const mockFirestore = {} as Firestore;
   const mockStorage = {} as Storage;
-  const mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+  const mockRouter = {
+    navigate: vi.fn().mockName("Router.navigate")
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,63 +41,56 @@ describe('RecipeService', () => {
 
   describe('When user is authenticated', () => {
     beforeEach(() => {
-      authService.currentUser = { ...userMock, email: 'test@mail.com', uid: 'test-user-123' };
+      authService.currentUser = {...userMock, email: 'test@mail.com', uid: 'test-user-123'};
     });
 
-    it('should get only own recipes', (done) => {
-      spyOn(service, 'getOwnRecipes').and.returnValue(
-        of([
-          {...recipeMock, ownerId: authService.currentUser?.uid, id: 'recipe-1'}
-        ])
-      );
+    it('should get only own recipes', async () => {
+      vi.spyOn(service, 'getOwnRecipes').mockReturnValue(of([
+        {...recipeMock, ownerId: authService.currentUser?.uid, id: 'recipe-1'}
+      ]));
 
       service.getOwnRecipes().subscribe((recipes) => {
         expect(recipes.length).toBeGreaterThan(0);
-        expect(recipes.every(recipe => recipe.ownerId === authService.currentUser?.uid)).toBeTrue();
-        done();
+        expect(recipes.every(recipe => recipe.ownerId === authService.currentUser?.uid)).toBe(true);
       });
     });
 
-    it('should get categories', (done) => {
-      spyOn(service, 'getCategories').and.returnValue(
-        of([
-          {id: 1, detail: 'Categoria de verduras'},
-          {id: 2, detail: 'Categoria de frutas'}
-        ])
-      );
+    it('should get categories', async () => {
+      vi.spyOn(service, 'getCategories').mockReturnValue(of([
+        {id: 1, detail: 'Categoria de verduras'},
+        {id: 2, detail: 'Categoria de frutas'}
+      ]));
 
       service.getCategories().subscribe((categories) => {
-        expect(Array.isArray(categories)).toBeTrue();
+        expect(Array.isArray(categories)).toBe(true);
         expect(categories.length).toBeGreaterThan(0);
         expect(categories[0].id).toBeDefined();
         expect(categories[0].detail).toBeDefined();
-        done();
       });
     });
 
-    it('should get public recipes with at least one recipe not owned by current user and at least one owned by current user', (done) => {
+    it('should get public recipes with at least one recipe not owned by current user and at least one owned by current user', async () => {
       const myRecipe = {...recipeMock, ownerId: authService.currentUser?.uid, id: 'recipe-1', private: false};
       const otherRecipe = {...recipeMock2, ownerId: 'other-user-id', id: 'recipe-2', private: false};
 
-      spyOn(service, 'getPublicRecipes').and.returnValue(of([myRecipe, otherRecipe]));
+      vi.spyOn(service, 'getPublicRecipes').mockReturnValue(of([myRecipe, otherRecipe]));
 
       service.getPublicRecipes().subscribe((recipes) => {
-        expect(Array.isArray(recipes)).toBeTrue();
+        expect(Array.isArray(recipes)).toBe(true);
         expect(recipes.length).toBeGreaterThan(0);
         const hasOtherOwner = recipes.some(recipe => recipe.ownerId !== authService.currentUser?.uid);
-        expect(hasOtherOwner).toBeTrue();
+        expect(hasOtherOwner).toBe(true);
         const hasCurrentUser = recipes.some(recipe => recipe.ownerId === authService.currentUser?.uid);
-        expect(hasCurrentUser).toBeTrue();
-        done();
+        expect(hasCurrentUser).toBe(true);
       });
     });
 
-    it('should clone a recipe and assign it to the current user', (done) => {
+    it('should clone a recipe and assign it to the current user', async () => {
       const originalRecipe: Recipe = {...recipeMock2, ownerId: 'external-user-id', id: 'recipe-2', private: false};
       const clonedRecipe = {...originalRecipe, ownerId: authService.currentUser?.uid, id: 'cloned-recipe'};
 
-      spyOn(service, 'cloneRecipe').and.returnValue(of('cloned-recipe'));
-      spyOn(service, 'getOwnRecipes').and.returnValue(of([clonedRecipe]));
+      vi.spyOn(service, 'cloneRecipe').mockReturnValue(of('cloned-recipe'));
+      vi.spyOn(service, 'getOwnRecipes').mockReturnValue(of([clonedRecipe]));
 
       service.cloneRecipe(originalRecipe).subscribe((id) => {
         expect(id).toBeDefined();
@@ -104,32 +100,30 @@ describe('RecipeService', () => {
           expect(cloned?.id).not.toEqual(originalRecipe.id);
           expect(cloned?.title).toEqual(originalRecipe.title);
           expect(cloned?.description).toEqual(originalRecipe.description);
-          done();
         });
       });
     });
 
-    it('should update a recipe', (done) => {
+    it('should update a recipe', async () => {
       const myRecipe = {...recipeMock, ownerId: authService.currentUser?.uid, id: 'recipe-1', private: false};
       const updatedRecipe = {...myRecipe, title: 'Updated Title', description: 'Updated Description'};
 
-      spyOn(service, 'updateRecipe').and.returnValue(of(void 0));
-      spyOn(service, 'getRecipeDetail').and.returnValue(of(updatedRecipe));
+      vi.spyOn(service, 'updateRecipe').mockReturnValue(of(void 0));
+      vi.spyOn(service, 'getRecipeDetail').mockReturnValue(of(updatedRecipe));
 
       service.updateRecipe(updatedRecipe).subscribe(() => {
         service.getRecipeDetail('recipe-1').subscribe((updated) => {
           expect(updated.title).toEqual('Updated Title');
           expect(updated.description).toEqual('Updated Description');
           expect(updated.id).toEqual('recipe-1');
-          done();
         });
       });
     });
 
-    it('should get recipe detail', (done) => {
+    it('should get recipe detail', async () => {
       const myRecipe = {...recipeMock, ownerId: authService.currentUser?.uid, id: 'recipe-1', private: false};
 
-      spyOn(service, 'getRecipeDetail').and.returnValue(of(myRecipe));
+      vi.spyOn(service, 'getRecipeDetail').mockReturnValue(of(myRecipe));
 
       service.getRecipeDetail('recipe-1').subscribe((recipe) => {
         expect(recipe).toBeDefined();
@@ -137,53 +131,45 @@ describe('RecipeService', () => {
         expect(recipe.title).toEqual(myRecipe.title);
         expect(recipe.description).toEqual(myRecipe.description);
         expect(recipe.ownerId).toEqual(myRecipe.ownerId);
-        done();
       });
     });
 
-    it('should delete a recipe', (done) => {
-      spyOn(service, 'deleteRecipe').and.returnValue(of(true));
+    it('should delete a recipe', async () => {
+      vi.spyOn(service, 'deleteRecipe').mockReturnValue(of(true));
 
       service.deleteRecipe('recipe-1').subscribe((result) => {
-        expect(result).toBeTrue();
-        done();
+        expect(result).toBe(true);
       });
     });
 
-    it('should upload a file and get metadata', (done) => {
+    it('should upload a file and get metadata', async () => {
       const file = new File([new Blob(['test content'], {type: 'text/plain'})], 'test.txt', {type: 'text/plain'});
       const mockUrl = 'https://example.com/image.jpg';
 
-      spyOn(service, 'uploadFileAndGetMetadata').and.returnValue({
+      vi.spyOn(service, 'uploadFileAndGetMetadata').mockReturnValue({
         uploadProgress$: of(100),
         downloadUrl$: of(mockUrl)
       });
 
       const {uploadProgress$, downloadUrl$} = service.uploadFileAndGetMetadata('test-folder', file);
 
-      let progressEmitted = false;
-      let urlEmitted = false;
 
       uploadProgress$.subscribe((progress) => {
-        progressEmitted = true;
         expect(progress).toBeGreaterThanOrEqual(0);
         expect(progress).toBeLessThanOrEqual(100);
       });
 
       downloadUrl$.subscribe((url) => {
-        urlEmitted = true;
         expect(typeof url).toBe('string');
         expect(url.length).toBeGreaterThan(0);
-        if (progressEmitted && urlEmitted) done();
       });
     });
 
-    it('should delete an image from storage', (done) => {
-      spyOn(service, 'deleteImage').and.returnValue(of(void 0));
+    it('should delete an image from storage', async () => {
+      vi.spyOn(service, 'deleteImage').mockReturnValue(of(void 0));
 
       service.deleteImage('https://example.com/image.jpg').subscribe((res) => {
         expect(res).toBeUndefined();
-        done();
       });
     });
 
@@ -237,8 +223,8 @@ describe('RecipeService', () => {
 
       filtered = service.filterRecipes(recipes, 'verdura');
       expect(filtered.length).toBe(2);
-      expect(filtered.some(r => r.title === 'Tarta de Verduras')).toBeTrue();
-      expect(filtered.some(r => r.title === 'Pizza')).toBeTrue();
+      expect(filtered.some(r => r.title === 'Tarta de Verduras')).toBe(true);
+      expect(filtered.some(r => r.title === 'Pizza')).toBe(true);
 
       filtered = service.filterRecipes(recipes, '');
       expect(filtered.length).toBe(3);
@@ -247,7 +233,7 @@ describe('RecipeService', () => {
 
   describe('When user is demo', () => {
     beforeEach(() => {
-      authService.currentUser = { ...userMock, email: 'test@mail.com', uid: 'demo-user' };
+      authService.currentUser = {...userMock, email: 'test@mail.com', uid: 'demo-user'};
       mockAuthService.isDemoUser = true;
     });
 
@@ -264,7 +250,7 @@ describe('RecipeService', () => {
     });
 
     it('should throw error when trying to upload a file', () => {
-      const file = new File([new Blob(['test content'], { type: 'text/plain' })], 'test.txt', { type: 'text/plain' });
+      const file = new File([new Blob(['test content'], {type: 'text/plain'})], 'test.txt', {type: 'text/plain'});
       expect(() => service.uploadFileAndGetMetadata('folder', file)).toThrowError('You can not upload a picture with demo user');
     });
 
@@ -274,8 +260,30 @@ describe('RecipeService', () => {
 
     it('should allow filtering recipes', () => {
       const recipes = [
-        { title: 'Tarta de Verduras', description: 'Rica tarta', id: '1', ownerId: 'a', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
-        { title: 'Ensalada', description: 'Fresca y saludable', id: '2', ownerId: 'b', steps: [], ingredients: [], imgSrc: '', private: false, categories: [], date: new Date() },
+        {
+          title: 'Tarta de Verduras',
+          description: 'Rica tarta',
+          id: '1',
+          ownerId: 'a',
+          steps: [],
+          ingredients: [],
+          imgSrc: '',
+          private: false,
+          categories: [],
+          date: new Date()
+        },
+        {
+          title: 'Ensalada',
+          description: 'Fresca y saludable',
+          id: '2',
+          ownerId: 'b',
+          steps: [],
+          ingredients: [],
+          imgSrc: '',
+          private: false,
+          categories: [],
+          date: new Date()
+        },
       ];
       const filtered = service.filterRecipes(recipes, 'tarta');
       expect(filtered.length).toBe(1);

@@ -1,19 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ReactiveFormsModule} from '@angular/forms';
+import {vi} from 'vitest';
 
-import { AuthService } from '../../services/auth.service';
-import { LoginComponent } from './login.component';
+import {AuthService} from '../../services/auth.service';
+import {LoginComponent} from './login.component';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
 
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['login']);
+  const authServiceSpy = {
+    login: vi.fn().mockName("AuthService.login")
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, LoginComponent],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      providers: [{provide: AuthService, useValue: authServiceSpy}],
     })
       .overrideTemplate(LoginComponent, '')
       .compileComponents();
@@ -33,7 +36,7 @@ describe('LoginComponent', () => {
 
   describe('#login', () => {
     it('should not call the login method of the auth service if the form is not valid', () => {
-      authServiceSpy.login.calls.reset();
+      authServiceSpy.login.mockClear();
       component.form.get('email')?.setValue('not-valid-email');
       component.login();
       expect(authServiceSpy.login).not.toHaveBeenCalled();

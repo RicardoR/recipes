@@ -1,4 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
 import {Router} from '@angular/router';
 import {of} from 'rxjs';
 
@@ -12,16 +13,20 @@ describe('EditRecipeComponent', () => {
   let component: EditRecipeComponent;
   let fixture: ComponentFixture<EditRecipeComponent>;
 
-  const routeSpy = jasmine.createSpyObj('Router', ['navigate']);
-  const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
-    'updateRecipe',
-    'deleteImage',
-    'getRecipeDetail'
-  ]);
-  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
-    'showSnackBar',
-  ]);
-  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
+  const routeSpy = {
+    navigate: vi.fn().mockName("Router.navigate")
+  };
+  const recipeServiceSpy = {
+    updateRecipe: vi.fn().mockName("RecipeService.updateRecipe"),
+    deleteImage: vi.fn().mockName("RecipeService.deleteImage"),
+    getRecipeDetail: vi.fn().mockName("RecipeService.getRecipeDetail")
+  };
+  const messagesServiceSpy = {
+    showSnackBar: vi.fn().mockName("MessagesService.showSnackBar")
+  };
+  const analyticsSpy = {
+    sendToAnalytics: vi.fn().mockName("AnalyticsService.sendToAnalytics")
+  };
 
 
   beforeEach(() => {
@@ -40,9 +45,9 @@ describe('EditRecipeComponent', () => {
     fixture = TestBed.createComponent(EditRecipeComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('id', recipeMock.id);
-    recipeServiceSpy.updateRecipe.and.returnValue(of({}));
-    recipeServiceSpy.getRecipeDetail.and.returnValue(of(recipeMock));
-    recipeServiceSpy.deleteImage.and.returnValue(of({}));
+    recipeServiceSpy.updateRecipe.mockReturnValue(of({}));
+    recipeServiceSpy.getRecipeDetail.mockReturnValue(of(recipeMock));
+    recipeServiceSpy.deleteImage.mockReturnValue(of({}));
     fixture.detectChanges();
   });
 
@@ -64,31 +69,21 @@ describe('EditRecipeComponent', () => {
   });
 
   it('updateRecipe should allow to update the recipe', () => {
-    recipeServiceSpy.updateRecipe.and.returnValue(of({}));
+    recipeServiceSpy.updateRecipe.mockReturnValue(of({}));
     component.updateRecipe(component.recipeDetails);
-    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
-      'update_recipe_button_clicked'
-    );
-    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(
-      component.recipeDetails
-    );
-    expect(messagesServiceSpy.showSnackBar).toHaveBeenCalledWith(
-      'Receta actualizada'
-    );
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('update_recipe_button_clicked');
+    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(component.recipeDetails);
+    expect(messagesServiceSpy.showSnackBar).toHaveBeenCalledWith('Receta actualizada');
   });
 
   it('should delete the old image when is changed', () => {
     const newRecipe = {...recipeMock};
     newRecipe.imgSrc = 'new-image';
     component.updateRecipe(newRecipe);
-    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(
-      component.recipeDetails.imgSrc
-    );
+    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(component.recipeDetails.imgSrc);
   });
 
   it('should log edit_recipe_component_opened event', () => {
-    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
-      'edit_recipe_component_opened'
-    );
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('edit_recipe_component_opened');
   });
 });

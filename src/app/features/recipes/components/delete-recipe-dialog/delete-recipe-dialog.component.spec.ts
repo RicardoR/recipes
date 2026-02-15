@@ -1,18 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
 
-import { DeleteRecipeDialogComponent } from './delete-recipe-dialog.component';
+import {DeleteRecipeDialogComponent} from './delete-recipe-dialog.component';
 import {AnalyticsService} from "../../../../shared/services/analytics/analytics.service";
 
 describe('DeleteRecipeDialogComponent', () => {
   let component: DeleteRecipeDialogComponent;
   let fixture: ComponentFixture<DeleteRecipeDialogComponent>;
-  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
+  const analyticsSpy = {
+    sendToAnalytics: vi.fn().mockName("AnalyticsService.sendToAnalytics")
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [DeleteRecipeDialogComponent],
       providers: [
-        { provide: AnalyticsService, useValue: analyticsSpy }
+        {provide: AnalyticsService, useValue: analyticsSpy}
       ],
     }).overrideTemplate(DeleteRecipeDialogComponent, '');
   });
@@ -30,8 +33,6 @@ describe('DeleteRecipeDialogComponent', () => {
   });
 
   it('should log delete_recipe_dialog_opened event in analytics', () => {
-    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
-      'delete_recipe_dialog_opened'
-    );
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('delete_recipe_dialog_opened');
   });
 });

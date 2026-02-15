@@ -1,35 +1,36 @@
-import { FormBuilder } from '@angular/forms';
-import { ChangeDetectorRef } from '@angular/core';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import type {Mock} from "vitest";
+import {vi} from "vitest";
+import {FormBuilder} from '@angular/forms';
+import {ChangeDetectorRef} from '@angular/core';
+import {CdkDragDrop} from '@angular/cdk/drag-drop';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {of} from 'rxjs';
 
-import { RecipeService } from 'src/app/features/recipes/services/recipe/recipe.service';
-import { AuthService } from 'src/app/core/auth/services/auth.service';
-import {
-  MEDIA_STORAGE_PATH,
-  RecipeCardFormComponent,
-} from './recipe-card-form.component';
-import { UtilService } from '../../utils/utils.service';
-import { MessagesService } from '../../services/messages/messages.service';
-import { userMock } from 'src/app/testing-resources/mocks/user-mock';
-import { recipeMock } from 'src/app/testing-resources/mocks/recipe-mock';
-import { categoriesMock } from 'src/app/testing-resources/mocks/categories-mock';
+import {RecipeService} from 'src/app/features/recipes/services/recipe/recipe.service';
+import {AuthService} from 'src/app/core/auth/services/auth.service';
+import {MEDIA_STORAGE_PATH, RecipeCardFormComponent,} from './recipe-card-form.component';
+import {UtilService} from '../../utils/utils.service';
+import {MessagesService} from '../../services/messages/messages.service';
+import {userMock} from 'src/app/testing-resources/mocks/user-mock';
+import {recipeMock} from 'src/app/testing-resources/mocks/recipe-mock';
+import {categoriesMock} from 'src/app/testing-resources/mocks/categories-mock';
 
 describe('RecipeCardFormComponent', () => {
   let component: RecipeCardFormComponent;
   let fixture: ComponentFixture<RecipeCardFormComponent>;
-  let recipeChangeSpy: jasmine.Spy;
-  let seeReceiptSpy: jasmine.Spy;
+  let recipeChangeSpy: Mock;
+  let seeReceiptSpy: Mock;
 
-  const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
-    'uploadFileAndGetMetadata',
-    'getCategories',
-  ]);
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
-  const messagesServiceSpy = jasmine.createSpyObj('MessagesService', [
-    'showSnackBar',
-  ]);
+  const recipeServiceSpy = {
+    uploadFileAndGetMetadata: vi.fn().mockName("RecipeService.uploadFileAndGetMetadata"),
+    getCategories: vi.fn().mockName("RecipeService.getCategories")
+  };
+  const authServiceSpy = {
+    currentUser: userMock
+  };
+  const messagesServiceSpy = {
+    showSnackBar: vi.fn().mockName("MessagesService.showSnackBar")
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,21 +39,20 @@ describe('RecipeCardFormComponent', () => {
         FormBuilder,
         ChangeDetectorRef,
         UtilService,
-        { provide: RecipeService, useValue: recipeServiceSpy },
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: MessagesService, useValue: messagesServiceSpy },
+        {provide: RecipeService, useValue: recipeServiceSpy},
+        {provide: AuthService, useValue: authServiceSpy},
+        {provide: MessagesService, useValue: messagesServiceSpy},
       ],
     }).overrideTemplate(RecipeCardFormComponent, '');
   });
 
   beforeEach(() => {
-    authServiceSpy.currentUser = userMock;
 
     fixture = TestBed.createComponent(RecipeCardFormComponent);
     component = fixture.componentInstance;
-    recipeChangeSpy = spyOn(component.recipeChanged$, 'emit');
-    seeReceiptSpy = spyOn(component.seeReceipt$, 'emit');
-    recipeServiceSpy.getCategories.and.returnValue(of(categoriesMock));
+    recipeChangeSpy = vi.spyOn(component.recipeChanged$, 'emit');
+    seeReceiptSpy = vi.spyOn(component.seeReceipt$, 'emit');
+    recipeServiceSpy.getCategories.mockReturnValue(of(categoriesMock));
     fixture.detectChanges();
   });
 
@@ -82,7 +82,7 @@ describe('RecipeCardFormComponent', () => {
 
   describe('when retrieve data', () => {
     beforeEach(() => {
-      const componentRef = fixture.componentRef
+      const componentRef = fixture.componentRef;
       componentRef.setInput('recipeDetails', recipeMock);
       fixture.detectChanges();
     });
@@ -106,16 +106,14 @@ describe('RecipeCardFormComponent', () => {
       const stepsInForm = component.form.get('steps')?.getRawValue();
       expect(stepsInForm).toEqual(recipeMock.steps);
 
-      expect(component.form.get('description')?.value).toBe(
-        recipeMock.description
-      );
+      expect(component.form.get('description')?.value).toBe(recipeMock.description);
     });
   });
 
   describe('sendRecipe', () => {
     beforeEach(() => {
       component.form.reset();
-      recipeChangeSpy.calls.reset();
+      recipeChangeSpy.mockClear();
     });
 
     it('should not emit change if form is not valid', () => {
@@ -132,28 +130,30 @@ describe('RecipeCardFormComponent', () => {
       });
 
       component.addControl(component.steps, new Event('click'));
-      component.form.get('steps')?.get('0')?.patchValue({ data: 'step 0' });
+      component.form.get('steps')?.get('0')?.patchValue({data: 'step 0'});
 
       component.addControl(component.ingredients, new Event('click'));
       component.form
         .get('ingredients')
         ?.get('0')
-        ?.patchValue({ data: 'ingredient 0' });
+        ?.patchValue({data: 'ingredient 0'});
 
       expect(component.form.valid).toBeTruthy();
       component.sendRecipe();
-      expect(recipeChangeSpy).toHaveBeenCalledWith({
+      const callArgs = recipeChangeSpy.mock.calls[0]?.[0];
+      const {date, ...restArgs} = callArgs;
+      expect(restArgs).toEqual({
         id: '',
         imgSrc: '',
         title: 'title',
         description: 'description',
-        date: jasmine.any(Date),
-        steps: [{ data: 'step 0' }],
-        ingredients: [{ data: 'ingredient 0' }],
+        steps: [{data: 'step 0'}],
+        ingredients: [{data: 'ingredient 0'}],
         private: null,
         ownerId: userMock.uid,
         categories: [],
       });
+      expect(date).toBeInstanceOf(Date);
     });
   });
 
@@ -183,17 +183,14 @@ describe('RecipeCardFormComponent', () => {
 
   it('should upload the image and get the metadata', () => {
     const file = new File([], 'test.jpg');
-    recipeServiceSpy.uploadFileAndGetMetadata.and.returnValue({
+    recipeServiceSpy.uploadFileAndGetMetadata.mockReturnValue({
       uploadProgress$: of(100),
       downloadUrl$: of('url'),
     });
 
     component.pictureForm.get('photo')?.setValue(file);
     component.postImage();
-    expect(recipeServiceSpy.uploadFileAndGetMetadata).toHaveBeenCalledWith(
-      MEDIA_STORAGE_PATH,
-      file
-    );
+    expect(recipeServiceSpy.uploadFileAndGetMetadata).toHaveBeenCalledWith(MEDIA_STORAGE_PATH, file);
   });
 
   it('dropElement should allow to reorder the list', () => {
@@ -206,8 +203,8 @@ describe('RecipeCardFormComponent', () => {
     component.addControl(component.steps, event);
     component.addControl(component.steps, event);
 
-    component.form.get('steps')?.get('0')?.patchValue({ data: 'step 0' });
-    component.form.get('steps')?.get('1')?.patchValue({ data: 'step 1' });
+    component.form.get('steps')?.get('0')?.patchValue({data: 'step 0'});
+    component.form.get('steps')?.get('1')?.patchValue({data: 'step 1'});
 
     expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 0');
     component.dropElement(cdkDragDropEvent, component.steps.controls);

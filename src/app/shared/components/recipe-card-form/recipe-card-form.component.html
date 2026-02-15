@@ -10,18 +10,18 @@
         <mat-form-field appearance="fill">
           <mat-label>Título</mat-label>
           <input matInput
-            type="text"
-            formControlName="title"
-            required>
+                 type="text"
+                 formControlName="title"
+                 required>
           <mat-icon matSuffix>receipt</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="fill">
           <mat-label>Descripción</mat-label>
           <textarea matInput
-            formControlName="description"
-            required
-            cdkTextareaAutosize>
+                    formControlName="description"
+                    required
+                    cdkTextareaAutosize>
           </textarea>
         </mat-form-field>
 
@@ -38,8 +38,8 @@
             <div [formGroup]="pictureForm">
               <mat-form-field appearance="outline" class="file-input__wrapper">
                 <ngx-mat-file-input accept="image/*"
-                  placeholder="Imagen de la receta"
-                  formControlName="photo">
+                                    placeholder="Imagen de la receta"
+                                    formControlName="photo">
                   <mat-icon ngxMatFileInputIcon>folder</mat-icon>
                 </ngx-mat-file-input>
                 @if (pictureForm.controls['photo'].hasError('image')) {
@@ -56,9 +56,9 @@
           }
 
           <button mat-raised-button
-            color="primary"
-            [disabled]="pictureForm.invalid || submitted"
-            (click)="postImage()">
+                  color="primary"
+                  [disabled]="pictureForm.invalid || submitted"
+                  (click)="postImage()">
             Subir imagen
           </button>
         </div>
@@ -71,28 +71,28 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <div formArrayName="ingredients"
-              cdkDropList
-              (cdkDropListDropped)="dropElement($event, ingredients.controls)">
+                 cdkDropList
+                 (cdkDropListDropped)="dropElement($event, ingredients.controls)">
               @for (ingredientControl of ingredients.controls; track ingredientControl; let idx = $index) {
                 <div cdkDrag>
                   <mat-form-field appearance="fill" class="w-100">
                     <mat-label>Ingrediente {{ idx + 1 }}</mat-label>
                     <textarea matInput
-                      [formControlName]="idx"
-                      required
-                      placeholder="Ingrediente"
-                      cdkTextareaAutosize>
+                              [formControlName]="idx"
+                              required
+                              placeholder="Ingrediente"
+                              cdkTextareaAutosize>
                     </textarea>
                     <button mat-icon-button
-                      matSuffix
-                      (click)="deleteControl(ingredients, idx)">
-                      <mat-icon> delete </mat-icon>
+                            matSuffix
+                            (click)="deleteControl(ingredients, idx)">
+                      <mat-icon> delete</mat-icon>
                     </button>
                     <button class="cursor-move"
-                      mat-icon-button
-                      matSuffix
-                      cdkDragHandle>
-                      <mat-icon> drag_indicator </mat-icon>
+                            mat-icon-button
+                            matSuffix
+                            cdkDragHandle>
+                      <mat-icon> drag_indicator</mat-icon>
                     </button>
                   </mat-form-field>
                 </div>
@@ -100,8 +100,8 @@
             </div>
             <mat-action-row>
               <button mat-button
-                color="basic"
-                (click)="addControl(ingredients, $event)">
+                      color="basic"
+                      (click)="addControl(ingredients, $event)">
                 Añadir ingrediente
               </button>
             </mat-action-row>
@@ -113,28 +113,28 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <div formArrayName="steps"
-              cdkDropList
-              (cdkDropListDropped)="dropElement($event, steps.controls)">
+                 cdkDropList
+                 (cdkDropListDropped)="dropElement($event, steps.controls)">
               @for (stepControl of steps.controls; track stepControl; let idx = $index) {
-                <div cdkDrag >
+                <div cdkDrag>
                   <mat-form-field appearance="fill" class="w-100">
                     <mat-label>Paso {{ idx + 1 }}</mat-label>
                     <textarea matInput
-                      [formControlName]="idx"
-                      required
-                      placeholder="Paso"
-                      cdkTextareaAutosize>
+                              [formControlName]="idx"
+                              required
+                              placeholder="Paso"
+                              cdkTextareaAutosize>
                     </textarea>
                     <button mat-icon-button
-                      matSuffix
-                      (click)="deleteControl(steps, idx)">
-                      <mat-icon> delete </mat-icon>
+                            matSuffix
+                            (click)="deleteControl(steps, idx)">
+                      <mat-icon> delete</mat-icon>
                     </button>
                     <button class="cursor-move"
-                      mat-icon-button
-                      matSuffix
-                      cdkDragHandle>
-                      <mat-icon> drag_indicator </mat-icon>
+                            mat-icon-button
+                            matSuffix
+                            cdkDragHandle>
+                      <mat-icon> drag_indicator</mat-icon>
                     </button>
                   </mat-form-field>
                 </div>
@@ -142,8 +142,8 @@
             </div>
             <mat-action-row>
               <button mat-button
-                color="basic"
-                (click)="addControl(steps, $event)">
+                      color="basic"
+                      (click)="addControl(steps, $event)">
                 Añadir paso
               </button>
             </mat-action-row>
@@ -153,13 +153,13 @@
           <div class="mt-1">
             <p>Categorías</p>
             <app-recipes-multiple-select formControlName="categorySelect"
-              [label]="'Categorías'"
-              [options]="categories">
+                                         [label]="'Categorías'"
+                                         [options]="categories">
             </app-recipes-multiple-select>
           </div>
         }
         <mat-slide-toggle class="mt-1"
-          formControlName="isPrivate">
+                          formControlName="isPrivate">
           Privada
         </mat-slide-toggle>
 
@@ -172,19 +172,19 @@
           mat-raised-button
           color="primary"
           [disabled]='form.invalid || disabled()'
-          (click)='sendRecipe()' >
+          (click)='sendRecipe()'>
           <ng-content select="[button-action-text]"></ng-content>
         </button>
       } @else {
         <button [disabled]=true
-          mat-button >
+                mat-button>
           Sólo el propietario puede editar sus recetas
         </button>
       }
       @if (editingMode) {
         <button
           mat-button
-          (click)='seeReceipt()' >
+          (click)='seeReceipt()'>
           Ver receta
         </button>
       }

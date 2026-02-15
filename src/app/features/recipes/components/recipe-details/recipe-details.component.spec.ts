@@ -1,4 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {of} from 'rxjs';
@@ -14,16 +15,24 @@ describe('RecipeDetailsComponent', () => {
   let component: RecipeDetailsComponent;
   let fixture: ComponentFixture<RecipeDetailsComponent>;
 
-  const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
-    'deleteRecipe',
-    'deleteImage',
-    'getRecipeDetail'
-  ]);
+  const recipeServiceSpy = {
+    deleteRecipe: vi.fn().mockName("RecipeService.deleteRecipe"),
+    deleteImage: vi.fn().mockName("RecipeService.deleteImage"),
+    getRecipeDetail: vi.fn().mockName("RecipeService.getRecipeDetail")
+  };
 
-  const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser']);
-  const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-  const analyticsSpy = jasmine.createSpyObj('AnalyticsService', ['sendToAnalytics']);
+  const routerSpy = {
+    navigate: vi.fn().mockName("Router.navigate")
+  };
+  const authServiceSpy = {
+    currentUser: {} as never
+  };
+  const matDialogSpy = {
+    open: vi.fn().mockName("MatDialog.open")
+  };
+  const analyticsSpy = {
+    sendToAnalytics: vi.fn().mockName("AnalyticsService.sendToAnalytics")
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -35,14 +44,16 @@ describe('RecipeDetailsComponent', () => {
         {provide: MatDialog, useValue: matDialogSpy},
         {provide: AnalyticsService, useValue: analyticsSpy},
       ],
-    }).compileComponents()
+    }).compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipeDetailsComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('id', recipeMock.id);
-    recipeServiceSpy.getRecipeDetail.and.returnValue(of(recipeMock));
+    recipeServiceSpy.getRecipeDetail.mockReturnValue(of(recipeMock));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     authServiceSpy.currentUser = userMock;
     fixture.detectChanges();
   });
@@ -52,39 +63,33 @@ describe('RecipeDetailsComponent', () => {
   });
 
   it('getRecipeDetails should get the recipe details and determine if is the owner', () => {
-    component.recipeDetails$.subscribe((recipe) =>
-      expect(recipe).toEqual(recipeMock)
-    );
+    component.recipeDetails$.subscribe((recipe) => expect(recipe).toEqual(recipeMock));
     expect(component.isOwnRecipe).toBeFalsy();
   });
 
   describe('deleteRecipe', () => {
     beforeEach(() => {
-      recipeServiceSpy.deleteRecipe.calls.reset();
-      recipeServiceSpy.deleteImage.calls.reset();
-      matDialogSpy.open.calls.reset();
-      routerSpy.navigate.calls.reset();
+      recipeServiceSpy.deleteRecipe.mockClear();
+      recipeServiceSpy.deleteImage.mockClear();
+      matDialogSpy.open.mockClear();
+      routerSpy.navigate.mockClear();
     });
 
     it('should delete the recipe when user confirm the dialog', () => {
-      matDialogSpy.open.and.returnValue({afterClosed: () => of(true)});
-      recipeServiceSpy.deleteRecipe.and.returnValue(of(true));
-      recipeServiceSpy.deleteImage.and.returnValue(of(true));
+      matDialogSpy.open.mockReturnValue({afterClosed: () => of(true)});
+      recipeServiceSpy.deleteRecipe.mockReturnValue(of(true));
+      recipeServiceSpy.deleteImage.mockReturnValue(of(true));
 
       component.deleteRecipe();
       expect(matDialogSpy.open).toHaveBeenCalled();
       expect(recipeServiceSpy.deleteRecipe).toHaveBeenCalledWith(recipeMock.id);
-      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(
-        recipeMock.imgSrc
-      );
+      expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(recipeMock.imgSrc);
       expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes']);
-      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
-        'delete_recipe_button_clicked'
-      );
+      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('delete_recipe_button_clicked');
     });
 
     it('should not delete the recipe when user cancel the dialog', () => {
-      matDialogSpy.open.and.returnValue({afterClosed: () => of(false)});
+      matDialogSpy.open.mockReturnValue({afterClosed: () => of(false)});
 
       component.deleteRecipe();
       expect(matDialogSpy.open).toHaveBeenCalled();
@@ -92,9 +97,7 @@ describe('RecipeDetailsComponent', () => {
       expect(recipeServiceSpy.deleteRecipe).not.toHaveBeenCalled();
       expect(recipeServiceSpy.deleteImage).not.toHaveBeenCalled();
       expect(routerSpy.navigate).not.toHaveBeenCalled();
-      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
-        'delete_recipe_button_clicked'
-      );
+      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('delete_recipe_button_clicked');
     });
   });
 
@@ -106,15 +109,11 @@ describe('RecipeDetailsComponent', () => {
         'recipes/edit',
         recipeMock.id,
       ]);
-      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
-        'edit_recipe_button_clicked'
-      );
+      expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('edit_recipe_button_clicked');
     });
   });
 
   it('should log recipe_detail_component_opened event at start', () => {
-    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith(
-      'recipe_detail_component_opened'
-    );
+    expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('recipe_detail_component_opened');
   });
 });

@@ -1,17 +1,20 @@
-import { TestBed } from '@angular/core/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {TestBed} from '@angular/core/testing';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {vi} from 'vitest';
 
-import { MessagesService } from './messages.service';
+import {MessagesService} from './messages.service';
 
 describe('MessagesService', () => {
   let service: MessagesService;
-  const matBnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+  const matBnackBarSpy = {
+    open: vi.fn().mockName("MatSnackBar.open")
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         MessagesService,
-        { provide: MatSnackBar, useValue: matBnackBarSpy },
+        {provide: MatSnackBar, useValue: matBnackBarSpy},
       ],
     });
 

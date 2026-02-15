@@ -5,10 +5,10 @@ import {
   ElementRef,
   inject,
   OnInit,
-  ViewChild,
-  signal
+  signal,
+  ViewChild
 } from '@angular/core';
-import {ReactiveFormsModule, FormControl} from '@angular/forms';
+import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';

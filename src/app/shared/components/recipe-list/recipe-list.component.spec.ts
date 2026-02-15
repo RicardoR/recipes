@@ -1,5 +1,6 @@
 import {recipesListMock} from 'src/app/testing-resources/mocks/recipes-list-mock';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {vi} from 'vitest';
 import {of} from 'rxjs';
 import {RecipeService} from 'src/app/features/recipes/services/recipe/recipe.service';
 import {categoriesMock} from 'src/app/testing-resources/mocks/categories-mock';
@@ -11,33 +12,35 @@ describe('RecipeListComponent', () => {
   let component: RecipeListComponent;
   let fixture: ComponentFixture<RecipeListComponent>;
 
-  const recipeServiceSpy = jasmine.createSpyObj('RecipeService', [
-    'getCategories',
-  ]);
+  const recipeServiceSpy = {
+    getCategories: vi.fn().mockName("RecipeService.getCategories")
+  };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [RecipeListComponent],
       providers: [{provide: RecipeService, useValue: recipeServiceSpy}],
-    }).overrideTemplate(RecipeListComponent, '');
+    })
+      .overrideTemplate(RecipeListComponent, '')
+      .compileComponents()
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RecipeListComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('recipes', recipesListMock);
-    recipeServiceSpy.getCategories.and.returnValue(of(categoriesMock));
+    recipeServiceSpy.getCategories.mockReturnValue(of(categoriesMock));
     fixture.detectChanges();
   });
 
   it('goToRecipe should emit the action to navigate', () => {
-    const goToRecipeSpy = spyOn(component.goToRecipe$, 'emit');
+    const goToRecipeSpy = vi.spyOn(component.goToRecipe$, 'emit');
     component.goToRecipe(recipeMock);
     expect(goToRecipeSpy).toHaveBeenCalledWith(recipeMock);
   });
 
   it('deleteRecipe should emit the action to delete a recipe', () => {
-    const deteRecipeSpy = spyOn(component.deleteRecipe$, 'emit');
+    const deteRecipeSpy = vi.spyOn(component.deleteRecipe$, 'emit');
     component.deleteRecipe(recipeMock);
     expect(deteRecipeSpy).toHaveBeenCalledWith(recipeMock);
   });
