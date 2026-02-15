@@ -26,7 +26,7 @@ describe('AppComponent', () => {
   });
 
   it('should create the app', () => {
-    expect(component).toBeTruthy();
+    expect(false).toBeTruthy();
   });
 
   it('should log app_started event in analytics', () => {
