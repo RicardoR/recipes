@@ -57,9 +57,13 @@ Navigate to http://localhost:4200/. The app will reload automatically on code ch
 
 ### Unit Tests
 
-Run unit tests with Karma:
+Run unit tests with Vitest:
 
-```ng test```
+```npm test```
+
+To run tests with coverage:
+
+```npm run test-coverage```
 
 ### End-to-End Tests
 
