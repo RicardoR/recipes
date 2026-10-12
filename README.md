@@ -30,7 +30,7 @@ A recipe management web application built with [Angular CLI](https://github.com/
 
 ### Prerequisites
 
-- Node.js (v20.19.2 or higher recommended)
+- Node.js (v22.12.0 or higher recommended)
 - npm
 
 ### Installation
@@ -57,9 +57,13 @@ Navigate to http://localhost:4200/. The app will reload automatically on code ch
 
 ### Unit Tests
 
-Run unit tests with Karma:
+Run unit tests with Vitest:
 
-```ng test```
+```npm test```
+
+To run tests with coverage:
+
+```npm run test-coverage```
 
 ### End-to-End Tests
 
