@@ -30,7 +30,7 @@ A recipe management web application built with [Angular CLI](https://github.com/
 
 ### Prerequisites
 
-- Node.js (v20.19.2 or higher recommended)
+- Node.js (v22.12.0 or higher recommended)
 - npm
 
 ### Installation
