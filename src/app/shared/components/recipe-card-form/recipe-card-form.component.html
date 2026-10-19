@@ -37,11 +37,11 @@
           @if (user) {
             <div [formGroup]="pictureForm">
               <mat-form-field appearance="outline" class="file-input__wrapper">
-                <ngx-mat-file-input accept="image/*"
-                                    placeholder="Imagen de la receta"
-                                    formControlName="photo">
-                  <mat-icon ngxMatFileInputIcon>folder</mat-icon>
-                </ngx-mat-file-input>
+                <app-file-input accept="image/*"
+                                placeholder="Imagen de la receta"
+                                formControlName="photo">
+                  <mat-icon appFileInputIcon>folder</mat-icon>
+                </app-file-input>
                 @if (pictureForm.controls['photo'].hasError('image')) {
                   <mat-error>
                     Formato de archivo incorrecto
