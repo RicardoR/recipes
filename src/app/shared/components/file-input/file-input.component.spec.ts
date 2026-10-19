@@ -7,7 +7,6 @@ import {MatIconModule} from '@angular/material/icon';
 import {By} from '@angular/platform-browser';
 
 import {FileInputComponent} from './file-input.component';
-import {FileInputIconDirective} from './file-input-icon.directive';
 
 @Component({
   template: `
@@ -26,7 +25,6 @@ import {FileInputIconDirective} from './file-input-icon.directive';
     ReactiveFormsModule,
     MatIconModule,
     FileInputComponent,
-    FileInputIconDirective,
   ],
 })
 class FileInputHostComponent {
@@ -52,7 +50,6 @@ class FileInputHostComponent {
     ReactiveFormsModule,
     MatIconModule,
     FileInputComponent,
-    FileInputIconDirective,
   ],
 })
 class FileInputMultipleHostComponent {
@@ -159,11 +156,7 @@ describe('FileInputComponent', () => {
     });
 
     it('should mark the control as touched when the file picker is opened', () => {
-      const clickSpy = vi
-        .spyOn(fileInput(fixture), 'click')
-        .mockImplementation(() => {
-          // el selector de ficheros real no existe en el entorno de test
-        });
+      const clickSpy = vi.spyOn(fileInput(fixture), 'click');
 
       component.openFilePicker();
 

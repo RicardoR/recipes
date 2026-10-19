@@ -44,7 +44,6 @@ import {UtilService} from '../../utils/utils.service';
 import {NgLog} from '../../utils/decorators/log-decorator';
 import {ElementModel} from '../../../features/recipes/models/element.model';
 import {FileInputComponent} from '../file-input/file-input.component';
-import {FileInputIconDirective} from '../file-input/file-input-icon.directive';
 import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes-multiple-select.component';
 
 
@@ -63,7 +62,6 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
     MatIconModule,
     TextFieldModule,
     FileInputComponent,
-    FileInputIconDirective,
     MatProgressBarModule,
     MatButtonModule,
     MatExpansionModule,

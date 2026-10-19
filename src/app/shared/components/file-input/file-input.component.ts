@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import {
   booleanAttribute,
   ChangeDetectorRef,
@@ -25,17 +26,6 @@ import {FileOrArrayFile} from './file-input.types';
 
 let nextUniqueId = 0;
 
-/**
- * Input de fichero para Angular Material.
- *
- * ```html
- * <mat-form-field>
- *   <app-file-input [formControl]="fileControl" [accept]="accept">
- *     <mat-icon appFileInputIcon>folder</mat-icon>
- *   </app-file-input>
- * </mat-form-field>
- * ```
- */
 @Component({
   selector: 'app-file-input',
   templateUrl: './file-input.component.html',
@@ -69,15 +59,12 @@ export class FileInputComponent
   private readonly displayInputRef =
     viewChild.required<ElementRef<HTMLInputElement>>('displayInput');
 
-  // ── Inputs del contrato de MatFormFieldControl ──────────────────────────
-  // El mat-form-field los lee como valores planos, así que no pueden ser signals.
   @Input() id = `app-file-input-${nextUniqueId++}`;
   @Input() placeholder = 'Choose a file';
   @Input({transform: booleanAttribute}) required = false;
   @Input({transform: booleanAttribute}) disabled = false;
   @Input() value: FileOrArrayFile | null = null;
 
-  // ── Inputs ───────────────────────────────────────────────────────────────
   readonly accept = input<string>();
   readonly multiple = input(false, {transform: booleanAttribute});
   readonly readonly = input(true, {transform: booleanAttribute});
@@ -85,7 +72,6 @@ export class FileInputComponent
   readonly separator = input(',');
   readonly errorStateMatcher = input<ErrorStateMatcher>();
 
-  // ── Estado ───────────────────────────────────────────────────────────────
   readonly stateChanges = new Subject<void>();
   focused = false;
   errorState = false;
@@ -96,20 +82,15 @@ export class FileInputComponent
   private onTouched?: () => void;
 
   constructor() {
-    // El control se conecta al formulario a través del NgControl, igual que
-    // hace MatSelect en Material. Usar el token NG_VALUE_ACCESSOR provocaría
-    // una dependencia circular: el FormControlDirective nos necesita a nosotros.
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
   }
 
-  // ── Ciclo de vida ────────────────────────────────────────────────────────
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['disabled']) {
       this.focused = false;
     }
-    // El mat-form-field debe recalcular su estado cuando cambia un input.
     this.stateChanges.next();
   }
 
@@ -121,7 +102,6 @@ export class FileInputComponent
     this.stateChanges.complete();
   }
 
-  // ── Contrato de MatFormFieldControl ──────────────────────────────────────
   get empty(): boolean {
     return !this.displayInputRef().nativeElement.value && !this.isBadInput();
   }
@@ -147,15 +127,12 @@ export class FileInputComponent
     this.ariaDescribedby = ids.join(' ');
   }
 
-  onContainerClick(): void {
-    // El mat-form-field notifica la pulsación sobre su contenedor; no hay nada que hacer.
-  }
+  onContainerClick(): void {}
 
   focus(options?: FocusOptions): void {
     this.displayInputRef().nativeElement.focus(options);
   }
 
-  // ── ControlValueAccessor ─────────────────────────────────────────────────
   writeValue(value: FileOrArrayFile | null): void {
     this.value = value;
     this.updateDisplayedValue(value);
@@ -175,7 +152,6 @@ export class FileInputComponent
     this.stateChanges.next();
   }
 
-  // ── Selección de fichero ─────────────────────────────────────────────────
   openFilePicker(event?: MouseEvent): void {
     this.fileInputRef().nativeElement.click();
     event?.preventDefault();
@@ -195,13 +171,11 @@ export class FileInputComponent
     const files = Array.from(fileList);
     this.updateDisplayedValue(files);
 
-    // Vacía el input para poder volver a seleccionar el mismo fichero.
     this.fileInputRef().nativeElement.value = '';
 
     this.onChange?.(this.multiple() ? files : files[0]);
   }
 
-  // ── Internos ────────────────────────────────────────────────────────────
   private markAsTouched(): void {
     this.onTouched?.();
     this.changeDetectorRef.markForCheck();
