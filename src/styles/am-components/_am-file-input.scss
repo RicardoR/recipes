@@ -5,11 +5,6 @@
   width: 300px;
 }
 
-// OJO: la regla `input.mat-input-element` está inerte a propósito.
-// Material renombró la clase `mat-input-element` a `mat-mdc-input-element` en la v15 y
-// la plantilla del componente `app-file-input` ya usa el nombre nuevo, así que este
-// selector no matchea nada. NO "arreglarlo" a `mat-mdc-input-element`: aplicaría de
-// golpe color/fuente/borde propios y cambiaría el aspecto respecto al actual.
 app-file-input {
   input.mat-input-element {
     border: none;
