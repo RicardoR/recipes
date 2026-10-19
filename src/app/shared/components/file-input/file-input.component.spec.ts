@@ -1,7 +1,8 @@
-import {Component} from '@angular/core';
+import {Component, signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
+import {ErrorStateMatcher} from '@angular/material/core';
 import {MatIconModule} from '@angular/material/icon';
 import {By} from '@angular/platform-browser';
 
@@ -13,7 +14,9 @@ import {FileInputIconDirective} from './file-input-icon.directive';
     <mat-form-field>
       <app-file-input
         [formControl]="control"
-        [accept]="accept">
+        [accept]="accept()"
+        [required]="required()"
+        [errorStateMatcher]="errorStateMatcher()">
         <mat-icon appFileInputIcon>folder</mat-icon>
       </app-file-input>
     </mat-form-field>
@@ -28,7 +31,9 @@ import {FileInputIconDirective} from './file-input-icon.directive';
 })
 class FileInputHostComponent {
   control = new FormControl<File | File[] | null>(null);
-  accept = 'image/*';
+  readonly accept = signal('image/*');
+  readonly required = signal(false);
+  readonly errorStateMatcher = signal<ErrorStateMatcher | undefined>(undefined);
 }
 
 @Component({
@@ -178,6 +183,32 @@ describe('FileInputComponent', () => {
       fixture.detectChanges();
 
       expect(component.errorState).toBe(false);
+    });
+
+    it('should use a custom error state matcher', () => {
+      host.errorStateMatcher.set({isErrorState: () => true} as ErrorStateMatcher);
+      fixture.detectChanges();
+
+      expect(component.errorState).toBe(true);
+    });
+
+    it('should be required when the required input is set', () => {
+      expect(component.required).toBe(false);
+
+      host.required.set(true);
+      fixture.detectChanges();
+
+      expect(component.required).toBe(true);
+    });
+
+    it('should notify the form field when an input changes', () => {
+      const stateChanges = vi.fn();
+      component.stateChanges.subscribe(stateChanges);
+
+      host.accept.set('image/png');
+      fixture.detectChanges();
+
+      expect(stateChanges).toHaveBeenCalled();
     });
 
     it('should replace the default icon with the projected one', () => {

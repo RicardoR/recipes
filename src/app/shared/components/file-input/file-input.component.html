@@ -1,13 +1,12 @@
 <input
-  #inputValue
+  #displayInput
   autocomplete="off"
   class="mat-mdc-input-element mat-mdc-form-field-input-control mdc-text-field__input"
   [attr.id]="id"
   [attr.placeholder]="placeholder"
   [disabled]="disabled"
   [required]="required"
-  [attr.readonly]="readonly || null"
-  [attr.aria-describedby]="_ariaDescribedby || null"
+  [attr.readonly]="readonly() || null"  [attr.aria-describedby]="ariaDescribedby || null"
   [attr.aria-invalid]="errorState"
   [attr.aria-required]="required.toString()"
 />
@@ -28,9 +27,9 @@
 </div>
 <input
   type="file"
-  #inputFile
+  #fileInput
   (change)="onFileChange($event)"
   class="input-file"
-  [multiple]="multiple"
-  [accept]="accept"
+  [multiple]="multiple()"
+  [accept]="accept()"
 />

@@ -1,6 +1,5 @@
-import {coerceBooleanProperty} from '@angular/cdk/coercion';
-import {Platform} from '@angular/cdk/platform';
 import {
+  booleanAttribute,
   ChangeDetectorRef,
   Component,
   DoCheck,
@@ -11,15 +10,11 @@ import {
   input,
   OnChanges,
   OnDestroy,
+  SimpleChanges,
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import {
-  ControlValueAccessor,
-  FormGroupDirective,
-  NgControl,
-  NgForm,
-} from '@angular/forms';
+import {ControlValueAccessor, NgControl, NgForm} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {ErrorStateMatcher, ThemePalette} from '@angular/material/core';
 import {MatFormFieldControl} from '@angular/material/form-field';
@@ -33,10 +28,6 @@ let nextUniqueId = 0;
 /**
  * Input de fichero para Angular Material.
  *
- * Sustituye a `@ngxmc/file-input`, que no publica versión compatible con Angular 21
- * (ver issue #73). Mantiene la misma API y el mismo aspecto que el componente original.
- *
- *Uso:
  * ```html
  * <mat-form-field>
  *   <app-file-input [formControl]="fileControl" [accept]="accept">
@@ -49,8 +40,6 @@ let nextUniqueId = 0;
   selector: 'app-file-input',
   templateUrl: './file-input.component.html',
   styleUrls: ['./file-input.component.scss'],
-  // `None` para que las reglas de estilo apliquen también al contenido proyectado,
-  // igual que hacía el componente original.
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'ngx-mat-file-input',
@@ -61,276 +50,180 @@ let nextUniqueId = 0;
       useExisting: forwardRef(() => FileInputComponent),
     },
   ],
-  exportAs: 'app-file-input',
-  // OJO: no añadir `MatFormFieldModule`. El atributo `matSuffix` de la plantilla es
-  // inerte a propósito (igual que en el componente original): si la directiva
-  // `MatSuffix` entrara en el scope, el botón pasaría a ser un sufijo real del
-  // `mat-form-field` y el layout cambiaría.
   imports: [MatIconModule, MatButtonModule],
 })
 export class FileInputComponent
   implements
     MatFormFieldControl<FileOrArrayFile>,
-    OnChanges,
-    OnDestroy,
+    ControlValueAccessor,
     DoCheck,
-    ControlValueAccessor {
-  protected readonly _elementRef = inject(ElementRef);
-  protected readonly _platform = inject(Platform);
-  private readonly _cd = inject(ChangeDetectorRef);
+    OnChanges,
+    OnDestroy {
   readonly ngControl = inject(NgControl, {optional: true, self: true});
-  private readonly _parentForm = inject(NgForm, {optional: true});
-  private readonly _parentFormGroup = inject(FormGroupDirective, {optional: true});
-  private readonly _defaultErrorStateMatcher = inject(ErrorStateMatcher);
+  private readonly parentForm = inject(NgForm, {optional: true});
+  private readonly defaultErrorStateMatcher = inject(ErrorStateMatcher);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
-  private readonly _inputFileRef = viewChild.required<ElementRef<HTMLInputElement>>('inputFile');
-  private readonly _inputValueRef = viewChild.required<ElementRef<HTMLInputElement>>('inputValue');
+  private readonly fileInputRef =
+    viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
+  private readonly displayInputRef =
+    viewChild.required<ElementRef<HTMLInputElement>>('displayInput');
 
-  readonly color = input<ThemePalette>('primary');
-  readonly separator = input<string>(',');
-
+  // ── Inputs del contrato de MatFormFieldControl ──────────────────────────
+  // El mat-form-field los lee como valores planos, así que no pueden ser signals.
+  @Input() id = `app-file-input-${nextUniqueId++}`;
   @Input() placeholder = 'Choose a file';
-  @Input() errorStateMatcher?: ErrorStateMatcher;
+  @Input({transform: booleanAttribute}) required = false;
+  @Input({transform: booleanAttribute}) disabled = false;
+  @Input() value: FileOrArrayFile | null = null;
 
-  @Input()
-  get disabled(): boolean {
-    if (this.ngControl && this.ngControl.disabled !== null) {
-      return this.ngControl.disabled;
-    }
-    return this._disabled;
-  }
-  set disabled(value: boolean) {
-    this._disabled = coerceBooleanProperty(value);
-    if (this.focused) {
-      this.focused = false;
-      this.stateChanges.next();
-    }
-  }
-  protected _disabled = false;
+  // ── Inputs ───────────────────────────────────────────────────────────────
+  readonly accept = input<string>();
+  readonly multiple = input(false, {transform: booleanAttribute});
+  readonly readonly = input(true, {transform: booleanAttribute});
+  readonly color = input<ThemePalette>('primary');
+  readonly separator = input(',');
+  readonly errorStateMatcher = input<ErrorStateMatcher>();
 
-  @Input()
-  get id(): string {
-    return this._id;
-  }
-  set id(value: string) {
-    this._id = value || this._uid;
-  }
-  protected _id: string;
-
-  @Input()
-  get multiple(): boolean {
-    return this._multiple;
-  }
-  set multiple(value: boolean) {
-    this._multiple = coerceBooleanProperty(value);
-  }
-  protected _multiple = false;
-
-  @Input()
-  get required(): boolean {
-    return this._required;
-  }
-  set required(value: boolean) {
-    this._required = coerceBooleanProperty(value);
-  }
-  protected _required = false;
-
-  @Input()
-  get value(): FileOrArrayFile {
-    return this._value;
-  }
-  set value(value: FileOrArrayFile) {
-    this._value = value;
-  }
-  protected _value!: FileOrArrayFile;
-
-  @Input()
-  get readonly(): boolean {
-    return this._readonly;
-  }
-  set readonly(value: boolean) {
-    this._readonly = coerceBooleanProperty(value);
-  }
-  private _readonly = true;
-
-  /**
-   * Limiting accepted file types
-   * Example: accept="image/png, image/jpeg" or accept=".png, .jpg, .jpeg" — Accept PNG or JPEG files.
-   */
-  @Input()
-  get accept(): string {
-    return this._accept;
-  }
-  set accept(value: string) {
-    this._accept = value;
-  }
-  private _accept!: string;
-
-  protected _uid = `ngx-mat-fileinput-${nextUniqueId++}`;
+  // ── Estado ───────────────────────────────────────────────────────────────
   readonly stateChanges = new Subject<void>();
   focused = false;
-  errorState!: boolean;
+  errorState = false;
   controlType = 'app-file-input';
-  autofilled = false;
-  _ariaDescribedby!: string;
+  ariaDescribedby = '';
 
-  /** Function when touched */
-  _onTouched = (): void => {
-    // no-op hasta que se registre un callback
-  };
-
-  /** Function when changed */
-  _onChange: (value: FileOrArrayFile) => void = (): void => {
-    // no-op hasta que se registre un callback
-  };
+  private onChange?: (value: FileOrArrayFile) => void;
+  private onTouched?: () => void;
 
   constructor() {
-    // Equivale al `this.id = this.id` del componente original: el setter cae en `_uid`
-    // porque `_id` todavía está vacío.
-    this._id = this._uid;
-
+    // El control se conecta al formulario a través del NgControl, igual que
+    // hace MatSelect en Material. Usar el token NG_VALUE_ACCESSOR provocaría
+    // una dependencia circular: el FormControlDirective nos necesita a nosotros.
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
   }
 
-  ngOnChanges(): void {
+  // ── Ciclo de vida ────────────────────────────────────────────────────────
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['disabled']) {
+      this.focused = false;
+    }
+    // El mat-form-field debe recalcular su estado cuando cambia un input.
     this.stateChanges.next();
+  }
+
+  ngDoCheck(): void {
+    this.updateErrorState();
   }
 
   ngOnDestroy(): void {
     this.stateChanges.complete();
   }
 
-  ngDoCheck(): void {
-    if (this.ngControl) {
-      this.updateErrorState();
-    }
-  }
-
-  updateErrorState(): void {
-    const control = this.ngControl ? this.ngControl.control : null;
-
-    this.errorState = (
-      this.errorStateMatcher ?? this._defaultErrorStateMatcher
-    ).isErrorState(control, this._parentForm);
-  }
-
-  // Implemented as part of ControlValueAccessor.
-  writeValue(value: FileOrArrayFile): void {
-    this._updateInputValue(value);
-  }
-
-  // Implemented as part of ControlValueAccessor.
-  registerOnChange(fn: (value: FileOrArrayFile) => void): void {
-    this._onChange = fn;
-  }
-
-  // Implemented as part of ControlValueAccessor.
-  registerOnTouched(fn: () => void): void {
-    this._onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-    this.stateChanges.next();
-  }
-
-  /** Focuses the input. */
-  focus(options?: FocusOptions): void {
-    this._inputValueRef().nativeElement.focus(options);
-  }
-
-  _focusChanged(isFocused: boolean): void {
-    if (isFocused !== this.focused && (!this.readonly || !isFocused)) {
-      this.focused = isFocused;
-      this.stateChanges.next();
-    }
-  }
-
-  /** Mark the field as touched */
-  _markAsTouched(): void {
-    this._onTouched();
-    this._cd.markForCheck();
-    this.stateChanges.next();
-  }
-
-  protected _isBadInput(): boolean {
-    const validity = this._inputValueRef().nativeElement.validity;
-    return validity && validity.badInput;
-  }
-
+  // ── Contrato de MatFormFieldControl ──────────────────────────────────────
   get empty(): boolean {
-    return (
-      !this._inputValueRef().nativeElement.value &&
-      !this._isBadInput() &&
-      !this.autofilled
-    );
+    return !this.displayInputRef().nativeElement.value && !this.isBadInput();
   }
 
   get shouldLabelFloat(): boolean {
     return this.focused || !this.empty;
   }
 
+  updateErrorState(): void {
+    const matcher = this.errorStateMatcher() ?? this.defaultErrorStateMatcher;
+    const errorState = matcher.isErrorState(
+      this.ngControl?.control ?? null,
+      this.parentForm
+    );
+
+    if (errorState !== this.errorState) {
+      this.errorState = errorState;
+      this.stateChanges.next();
+    }
+  }
+
   setDescribedByIds(ids: string[]): void {
-    this._ariaDescribedby = ids.join(' ');
+    this.ariaDescribedby = ids.join(' ');
   }
 
-  openFilePicker(event?: MouseEvent): void {
-    this._inputFileRef().nativeElement.click();
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this._markAsTouched();
-  }
-
-  handleFiles(filelist: FileList | null): void {
-    if (filelist && filelist.length > 0) {
-      const files: File[] = [];
-      for (let i = 0; i < filelist.length; i++) {
-        files.push(filelist.item(i) as File);
-      }
-      this._updateInputValue(files);
-      this._resetInputFile();
-      this._onChange(this.multiple ? files : files[0]);
-    }
-  }
-
-  /**
-   * Maneja el evento `change` del input de tipo fichero.
-   *
-   * Existe para tipar el acceso a `event.target.files`: con `strictTemplates` no se
-   * puede escribir `handleFiles($event.target.files)` directamente.
-   */
-  onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.handleFiles(input.files);
-  }
-
-  /** Handles a click on the control's container. */
   onContainerClick(): void {
-    // no-op: el componente original tampoco implementa esta acción
+    // El mat-form-field notifica la pulsación sobre su contenedor; no hay nada que hacer.
   }
 
-  private _resetInputFile(): void {
-    this._inputFileRef().nativeElement.value = '';
+  focus(options?: FocusOptions): void {
+    this.displayInputRef().nativeElement.focus(options);
   }
 
-  private _updateInputValue(files: FileOrArrayFile): void {
-    let text: string | null = null;
-    if (files) {
-      if (Array.isArray(files)) {
-        text = this._multiple
-          ? files.map((x) => x.name).join(this.separator())
-          : files[0].name;
-      } else {
-        text = files.name != null ? files.name : null;
-      }
+  // ── ControlValueAccessor ─────────────────────────────────────────────────
+  writeValue(value: FileOrArrayFile | null): void {
+    this.value = value;
+    this.updateDisplayedValue(value);
+  }
+
+  registerOnChange(fn: (value: FileOrArrayFile) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+    this.focused = false;
+    this.stateChanges.next();
+  }
+
+  // ── Selección de fichero ─────────────────────────────────────────────────
+  openFilePicker(event?: MouseEvent): void {
+    this.fileInputRef().nativeElement.click();
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.markAsTouched();
+  }
+
+  onFileChange(event: Event): void {
+    this.handleFiles((event.target as HTMLInputElement).files);
+  }
+
+  handleFiles(fileList: FileList | null): void {
+    if (!fileList?.length) {
+      return;
     }
 
-    // `null` se traduce a cadena vacía: es el comportamiento de `value` en el DOM
-    // (`LegacyNullToEmptyString`), idéntico al del componente original.
-    this._inputValueRef().nativeElement.value = text ?? '';
+    const files = Array.from(fileList);
+    this.updateDisplayedValue(files);
+
+    // Vacía el input para poder volver a seleccionar el mismo fichero.
+    this.fileInputRef().nativeElement.value = '';
+
+    this.onChange?.(this.multiple() ? files : files[0]);
+  }
+
+  // ── Internos ────────────────────────────────────────────────────────────
+  private markAsTouched(): void {
+    this.onTouched?.();
+    this.changeDetectorRef.markForCheck();
+    this.stateChanges.next();
+  }
+
+  private isBadInput(): boolean {
+    return this.displayInputRef().nativeElement.validity.badInput;
+  }
+
+  private updateDisplayedValue(files: FileOrArrayFile | File[] | null): void {
+    if (!files) {
+      this.displayInputRef().nativeElement.value = '';
+      return;
+    }
+
+    const names = Array.isArray(files)
+      ? files.map((file) => file.name)
+      : [files.name];
+
+    this.displayInputRef().nativeElement.value = this.multiple()
+      ? names.join(this.separator())
+      : (names[0] ?? '');
   }
 }

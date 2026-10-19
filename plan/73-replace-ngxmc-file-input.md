@@ -33,6 +33,7 @@ Rama: `73-replace-ngxmcfile-input-component`
 | **F4/F** | Comparación A/B del DOM con el componente original | ✅ | Ver §0.1 |
 | **F4/F** | Comparación A/B del SCSS con el upstream | ✅ | Byte a byte idéntico |
 | **F4/F** | Checklist visual §8.3 | ⏳ | **Pendiente**: requiere login en la app ( Firebase emulator / credenciales reales ) |
+| **R1** | Refactor del componente a técnicas modernas de Angular | ✅ | Ver §0.2. 336 → 229 líneas, 16 → 2 accesores, DOM idéntico (A/B) |
 
 ### 0.1 Evidencia de equivalencia estática (A/B contra `@ngxmc/file-input@20.1.0`)
 
@@ -56,6 +57,65 @@ para renderizar ambas versiones en el mismo test y comparar el DOM resultante. E
 
 **Comportamiento**: `npm install @ngxmc/file-input@20.1.0` sin `--legacy-peer-deps` falla con **ERESOLVE** ⇒
 confirmación en vivo del bloqueo descrito en la issue #73.
+
+### 0.2 Refactor del componente (`app-file-input`)
+
+Refactor a posteriori del componente, a petición del usuario: *"veo que está exactamente igual al que hay
+en el repo original. echando un ojo al codigo veo bastante area de mejora, como limpieza de comentarios, el
+exportAs o variables que no se utilizan. Tambien los inputs usan get y set cuando creo que con un model de
+signal se puede solucionar más fácilmente"*.
+
+| Métrica | Antes | Después |
+|---|---|---|
+| Líneas del componente | 336 | **229** (−32 %) |
+| Accesores `get`/`set` | 16 | **2** (los 2 restantes son getters del contrato, no inputs) |
+| Inputs con `@Input()` + get/set | 7 | **0** |
+| `exportAs` | sí | **eliminado** |
+| Campos inyectados sin usar | 3 (`_elementRef`, `_platform`, `_parentFormGroup`) | **0** |
+| Métodos muertos | `_focusChanged` (nunca invocado), `autofilled` (siempre `false`) | **eliminados** |
+
+**Cambios aplicados**
+
+1. **Inputs del contrato de `MatFormFieldControl` → decoradores con `transform`.** `id`, `placeholder`,
+   `required`, `disabled` y `value` pasan a ser campos planos con `@Input()`, sin get/set. `required` y
+   `disabled` usan `@Input({transform: booleanAttribute})` en lugar de `coerceBooleanProperty`
+   (equivalente, pero API moderna de `@angular/core`). El contrato exige que esos miembros sean **valores
+   planos**, no signals: el `mat-form-field` los lee directamente (`_control.id`, `_control.required`,
+   `_control.disabled`, `_control.value`).
+2. **Inputs libres → signal inputs.** `accept`, `multiple`, `readonly`, `color`, `separator` y
+   `errorStateMatcher` usan `input()` con `booleanAttribute` donde procede.
+3. **`model()` para `value` y `disabled`: descartado, con motivo.** Exigiría un `alias` (el nombre de la
+   clase debe diferir del nombre público) y el contrato de Material exige que `value` sea un `T | null`
+   **mutable** y `disabled` un `boolean` plano, no un `ModelSignal`. Además
+   `@angular-eslint/no-input-rename` (activo en el repo) prohíbe los inputs con alias, y la propia regla
+   desaconseja el doble nombre (*"dual naming makes the code harder to understand"*). El patrón final es el
+   de Material 21 para controles no nativos (`MatInput`, `MatSelect`).
+4. **Conexión con el formulario.** Se mantiene `this.ngControl.valueAccessor = this` en el constructor
+   (igual que `MatSelect` en Material 21). Se probó la alternativa moderna con el token `NG_VALUE_ACCESSOR`
+   y **produce `NG0200` (dependencia circular)**: el `FormControlDirective` necesita el accessor, que a su
+   vez necesita el `NgControl` del propio componente.
+5. **`errorState` sólo notifica cuando cambia** (igual que `_ErrorStateTracker` de Material 21), en lugar de
+   emitir en cada ciclo de detección de cambios.
+6. **Limpieza**: `exportAs` eliminado; `_elementRef`, `_platform` y `_parentFormGroup` eliminados (no se
+   usaban); `_focusChanged` eliminado (estaba muerto: la plantilla nunca enlazaba `focus`/`blur`); `autofilled`
+   eliminado (siempre `false` y opcional en el contrato); `coerceBooleanProperty` sustituido por
+   `booleanAttribute`; comentarios reducidos a los que explican *por qué* (no *qué*).
+7. **Nombres de las referencias de plantilla** clarificados: `#inputValue` → `#displayInput`,
+   `#inputFile` → `#fileInput`.
+8. **Tests**: 3 nuevos (colector de error propio, input `required` y notificación de cambios al `mat-form-field`)
+   y el host de test usa signals para evitar `NG0100`.
+
+**Verificación del refactor**
+
+| Check | Resultado |
+|---|---|
+| `npm run lint` | ✅ 0 errores |
+| `npm test` | ✅ 24 ficheros / **135 tests** (antes 132) |
+| `npm run build` | ✅ 1.65 MB, sin warnings |
+| Comparación A/B del DOM contra `@ngxmc/file-input@20.1.0` | ✅ **idéntico** (salvo el prefijo del `id` y el atributo marcador del icono) |
+
+**Cambio de comportamiento deliberado y visible**: el `id` autogenerado pasa de `ngx-mat-fileinput-N` a
+`app-file-input-N` (coherencia con el nuevo nombre del componente; no lo usa ningún CSS ni test).
 
 ### Desviaciones respecto al plan original (documentadas)
 
