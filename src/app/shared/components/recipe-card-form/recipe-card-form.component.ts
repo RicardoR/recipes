@@ -26,7 +26,6 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatButtonModule} from '@angular/material/button';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {NgxMatFileInputComponent} from '@ngxmc/file-input';
 import {AsyncPipe} from '@angular/common';
 import {TextFieldModule} from '@angular/cdk/text-field';
 import {MatIconModule} from '@angular/material/icon';
@@ -44,6 +43,8 @@ import {MessagesService} from '../../services/messages/messages.service';
 import {UtilService} from '../../utils/utils.service';
 import {NgLog} from '../../utils/decorators/log-decorator';
 import {ElementModel} from '../../../features/recipes/models/element.model';
+import {FileInputComponent} from '../file-input/file-input.component';
+import {FileInputIconDirective} from '../file-input/file-input-icon.directive';
 import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes-multiple-select.component';
 
 
@@ -61,7 +62,8 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
     MatInputModule,
     MatIconModule,
     TextFieldModule,
-    NgxMatFileInputComponent,
+    FileInputComponent,
+    FileInputIconDirective,
     MatProgressBarModule,
     MatButtonModule,
     MatExpansionModule,
