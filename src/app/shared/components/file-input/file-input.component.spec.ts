@@ -1,8 +1,8 @@
 import {Component, signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {MatFormFieldModule} from '@angular/material/form-field';
 import {ErrorStateMatcher} from '@angular/material/core';
+import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {By} from '@angular/platform-browser';
 
@@ -14,6 +14,8 @@ import {FileInputComponent} from './file-input.component';
       <app-file-input
         [formControl]="control"
         [accept]="accept()"
+        [multiple]="multiple()"
+        [separator]="separator()"
         [required]="required()"
         [errorStateMatcher]="errorStateMatcher()">
         <mat-icon appFileInputIcon>folder</mat-icon>
@@ -30,31 +32,10 @@ import {FileInputComponent} from './file-input.component';
 class FileInputHostComponent {
   control = new FormControl<File | File[] | null>(null);
   readonly accept = signal('image/*');
+  readonly multiple = signal(false);
+  readonly separator = signal(',');
   readonly required = signal(false);
   readonly errorStateMatcher = signal<ErrorStateMatcher | undefined>(undefined);
-}
-
-@Component({
-  template: `
-    <mat-form-field>
-      <app-file-input
-        [formControl]="control"
-        [multiple]="true"
-        [separator]="separator">
-        <mat-icon appFileInputIcon>folder</mat-icon>
-      </app-file-input>
-    </mat-form-field>
-  `,
-  imports: [
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    FileInputComponent,
-  ],
-})
-class FileInputMultipleHostComponent {
-  control = new FormControl<File | File[] | null>(null);
-  separator = ',';
 }
 
 @Component({
@@ -69,8 +50,8 @@ class FileInputHostWithoutIconComponent {
   control = new FormControl<File | File[] | null>(null);
 }
 
-function createFile(name: string, type = 'image/png'): File {
-  return new File(['contenido'], name, {type});
+function createFile(name: string): File {
+  return new File(['contenido'], name, {type: 'image/png'});
 }
 
 function createFileList(...files: File[]): FileList {
@@ -219,18 +200,17 @@ describe('FileInputComponent', () => {
   });
 
   describe('con multiple', () => {
-    let fixture: ComponentFixture<FileInputMultipleHostComponent>;
-    let host: FileInputMultipleHostComponent;
+    let fixture: ComponentFixture<FileInputHostComponent>;
+    let host: FileInputHostComponent;
     let component: FileInputComponent;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [FileInputMultipleHostComponent],
-      });
+      TestBed.configureTestingModule({imports: [FileInputHostComponent]});
 
-      fixture = TestBed.createComponent(FileInputMultipleHostComponent);
+      fixture = TestBed.createComponent(FileInputHostComponent);
       host = fixture.componentInstance;
-      host.separator = ' | ';
+      host.multiple.set(true);
+      host.separator.set(' | ');
       component = componentOf(fixture);
       fixture.detectChanges();
     });

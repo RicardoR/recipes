@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import {
   booleanAttribute,
-  ChangeDetectorRef,
   Component,
   DoCheck,
   ElementRef,
@@ -11,9 +10,7 @@ import {
   input,
   OnChanges,
   OnDestroy,
-  SimpleChanges,
   viewChild,
-  ViewEncapsulation,
 } from '@angular/core';
 import {ControlValueAccessor, NgControl, NgForm} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -30,10 +27,6 @@ let nextUniqueId = 0;
   selector: 'app-file-input',
   templateUrl: './file-input.component.html',
   styleUrls: ['./file-input.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  host: {
-    class: 'ngx-mat-file-input',
-  },
   providers: [
     {
       provide: MatFormFieldControl,
@@ -52,7 +45,6 @@ export class FileInputComponent
   readonly ngControl = inject(NgControl, {optional: true, self: true});
   private readonly parentForm = inject(NgForm, {optional: true});
   private readonly defaultErrorStateMatcher = inject(ErrorStateMatcher);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private readonly fileInputRef =
     viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
@@ -87,10 +79,7 @@ export class FileInputComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['disabled']) {
-      this.focused = false;
-    }
+  ngOnChanges(): void {
     this.stateChanges.next();
   }
 
@@ -103,24 +92,11 @@ export class FileInputComponent
   }
 
   get empty(): boolean {
-    return !this.displayInputRef().nativeElement.value && !this.isBadInput();
+    return !this.displayInputRef().nativeElement.value;
   }
 
   get shouldLabelFloat(): boolean {
     return this.focused || !this.empty;
-  }
-
-  updateErrorState(): void {
-    const matcher = this.errorStateMatcher() ?? this.defaultErrorStateMatcher;
-    const errorState = matcher.isErrorState(
-      this.ngControl?.control ?? null,
-      this.parentForm
-    );
-
-    if (errorState !== this.errorState) {
-      this.errorState = errorState;
-      this.stateChanges.next();
-    }
   }
 
   setDescribedByIds(ids: string[]): void {
@@ -148,7 +124,6 @@ export class FileInputComponent
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
-    this.focused = false;
     this.stateChanges.next();
   }
 
@@ -170,23 +145,32 @@ export class FileInputComponent
 
     const files = Array.from(fileList);
     this.updateDisplayedValue(files);
-
     this.fileInputRef().nativeElement.value = '';
 
-    this.onChange?.(this.multiple() ? files : files[0]);
+    const value = this.multiple() ? files : files[0];
+    this.value = value;
+    this.onChange?.(value);
   }
 
   private markAsTouched(): void {
     this.onTouched?.();
-    this.changeDetectorRef.markForCheck();
     this.stateChanges.next();
   }
 
-  private isBadInput(): boolean {
-    return this.displayInputRef().nativeElement.validity.badInput;
+  private updateErrorState(): void {
+    const matcher = this.errorStateMatcher() ?? this.defaultErrorStateMatcher;
+    const errorState = matcher.isErrorState(
+      this.ngControl?.control ?? null,
+      this.parentForm
+    );
+
+    if (errorState !== this.errorState) {
+      this.errorState = errorState;
+      this.stateChanges.next();
+    }
   }
 
-  private updateDisplayedValue(files: FileOrArrayFile | File[] | null): void {
+  private updateDisplayedValue(files: FileOrArrayFile | null): void {
     if (!files) {
       this.displayInputRef().nativeElement.value = '';
       return;

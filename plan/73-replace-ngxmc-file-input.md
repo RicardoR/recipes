@@ -34,6 +34,7 @@ Rama: `73-replace-ngxmcfile-input-component`
 | **F4/F** | Comparación A/B del SCSS con el upstream | ✅ | Byte a byte idéntico |
 | **F4/F** | Checklist visual §8.3 | ⏳ | **Pendiente**: requiere login en la app ( Firebase emulator / credenciales reales ) |
 | **R1** | Refactor del componente a técnicas modernas de Angular | ✅ | Ver §0.2. 336 → 229 líneas, 16 → 2 accesores, DOM idéntico (A/B) |
+| **R2** | Revisión y simplificación de css / html / tests / component.ts | ✅ | Ver §0.3. −72 líneas netas, CSS muerto eliminado, DOM idéntico (A/B) |
 
 ### 0.1 Evidencia de equivalencia estática (A/B contra `@ngxmc/file-input@20.1.0`)
 
@@ -116,6 +117,72 @@ signal se puede solucionar más fácilmente"*.
 
 **Cambio de comportamiento deliberado y visible**: el `id` autogenerado pasa de `ngx-mat-fileinput-N` a
 `app-file-input-N` (coherencia con el nuevo nombre del componente; no lo usa ningún CSS ni test).
+
+### 0.3 Revisión y simplificación del componente
+
+Revisión completa de los cuatro ficheros del componente, a petición del usuario: *"revises el componente e
+identifiques si se puede mejorar el código del css, los tests, el html y el component.ts para que quede más
+sencillo. siempre haciéndolo de manera que no se rompa la funcionalidad"*.
+
+| Fichero | Antes | Después |
+|---|---|---|
+| `file-input.component.ts` | 203 | **187** |
+| `file-input.component.html` | 35 | 36 |
+| `file-input.component.scss` | 38 | **12** |
+| `file-input.component.spec.ts` | 277 | **257** |
+| `styles/am-components/_am-file-input.scss` | 24 | **13** |
+| **Total** | 577 | **505** (−72) |
+
+**CSS**
+
+1. **Eliminadas 2 reglas muertas (25 líneas).** Selectaban `.mat-form-field-prefix` / `.mat-form-field-suffix`,
+   clases que **no existen en Material 21** (que usa `mat-mdc-form-field-icon-suffix` y
+   `mat-mdc-form-field-text-suffix`). Esas reglas **nunca han matcheado**, ni antes ni después del port: el icono
+   por defecto ya se veía al tamaño por defecto de `mat-icon`. Verificado con `grep` sobre el bundle de Material.
+2. **Encapsulación por defecto en lugar de `ViewEncapsulation.None`.** Las reglas vivas son sólo `:host` y
+   `.input-file`, ambas dentro del propio componente, así que no hace falta que sean globales. Con la
+   encapsulación por defecto se pueden usar los atributos `_nghost` / `_ngcontent` en lugar de depender de una
+   clase global, y se elimina la clase host `ngx-mat-file-input` (un nombre legacy que además colisionaba con
+   el del upstream).
+3. **Eliminada la regla global muerta `app-file-input input.mat-input-element`** (`_am-file-input.scss`).
+   Material renombró `mat-input-element` a `mat-mdc-input-element` en la v15, así que el selector no matchea
+   nada. Era la trampa documentada como **R-04**: "arreglarla" aplicaría color, fuente y borde propios de
+   golpe y cambiaría el aspecto. Eliminarla es más seguro que avisar con un comentario.
+
+**HTML**
+
+4. Corregido un fallo de formato: dos atributos (`readonly` y `aria-describedby`) estaban en la misma línea.
+5. `[attr.aria-required]="required.toString()"` → `[attr.aria-required]="required"` (mismo resultado: Angular
+   renderiza `"false"` para `false` y sólo omite el atributo ante `null`/`undefined`).
+
+**component.ts**
+
+6. **Eliminado `ChangeDetectorRef` y el `markForCheck()`.** El componente no usa `OnPush`, así que no ten��a
+   efecto. El `mat-form-field` (que sí usa `OnPush`) se refresca por su suscripción a `stateChanges`, que es el
+   mecanismo que ya emite el componente.
+7. **Eliminados `isBadInput()` y el `focused = false` de `ngOnChanges` / `setDisabledState`.** `focused` nunca
+   se ponía a `true` (no hay listeners de `focus`/`blur`), así que esas asignaciones eran código muerto. Y
+   `validity.badInput` es siempre `false` en un `<input type="text">`.
+8. `updateErrorState()` pasa a privado (no lo usa nadie más) y `updateDisplayedValue()` deja de repetir
+   `File[]` en el tipo (`FileOrArrayFile` ya lo incluye).
+9. `handleFiles()` actualiza también `value`, que se quedaba obsoleto tras una selección.
+
+**Tests**
+
+10. **3 hosts de test → 2.** El host de "multiple" se fusiona con el principal usando signals (`multiple` y
+    `separator`), con lo que además se evita el `NG0100` que aparecía al mutar propiedades del host tras la
+    primera detección.
+11. `createFile()` pierde el parámetro `type`, que ningún test sobreescribía.
+
+**Verificación**
+
+| Check | Resultado |
+|---|---|
+| `npm run lint` | ✅ 0 errores |
+| `npm test` | ✅ 24 ficheros / 135 tests |
+| `npm run build` | ✅ 1.65 MB, sin warnings |
+| CSS compilado | `:host` → `[_nghost-x]`, `.input-file` → `.input-file[_ngcontent-x]`: mismos elementos que antes |
+| Comparación A/B del DOM contra `@ngxmc/file-input@20.1.0` | ✅ **idéntico** (normalizando los atributos de encapsulación y el prefijo del `id`) |
 
 ### Desviaciones respecto al plan original (documentadas)
 

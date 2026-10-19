@@ -6,9 +6,10 @@
   [attr.placeholder]="placeholder"
   [disabled]="disabled"
   [required]="required"
-  [attr.readonly]="readonly() || null"  [attr.aria-describedby]="ariaDescribedby || null"
+  [attr.readonly]="readonly() || null"
+  [attr.aria-describedby]="ariaDescribedby || null"
   [attr.aria-invalid]="errorState"
-  [attr.aria-required]="required.toString()"
+  [attr.aria-required]="required"
 />
 <div class="mat-mdc-form-field-suffix">
   <button

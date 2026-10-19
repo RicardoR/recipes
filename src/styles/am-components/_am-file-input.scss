@@ -5,17 +5,6 @@
   width: 300px;
 }
 
-app-file-input {
-  input.mat-input-element {
-    border: none;
-    background: none;
-    outline: none;
-    color: variables.$white;
-    font-size: 14px;
-    font-weight: 400;
-  }
-}
-
 mat-card-content {
   .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
     padding-top: 0;
