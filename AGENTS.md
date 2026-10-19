@@ -4,6 +4,14 @@ Angular 21 standalone app (single project `recipes`) for managing recipes with F
 (Firestore + Storage + Auth + Analytics). UI strings are **Spanish**; code, comments and commit
 messages are English. Node 22+.
 
+## Where the guidance lives
+
+- **Angular guidance is vendored in the repo**: `.agents/skills/angular-developer/SKILL.md` (+ a
+  `references/` folder) is committed and pinned by `skills-lock.json`. Load that skill for any
+  Angular work (signals, inputs, DI, forms, routing, testing) instead of inventing generic advice.
+- **Implementation plans live in `plan/`** as `plan/<issue-number>-<slug>.md`, written in **Spanish**,
+  with a phase-by-phase progress table at the top. Current example: `plan/73-replace-ngxmc-file-input.md`.
+
 ## Setup: environment files are generated, not committed
 
 `src/environments/` is **gitignored**. A fresh clone has no env files and the build/test fails with
@@ -52,8 +60,8 @@ npx ng test --list-tests                                                 # list 
 ```
 
 `--watch` defaults to **true in a TTY**; always pass `--watch=false` for scripted/CI runs.
-Full suite is fast (~15s, 23 files / 120 tests). No `--browsers` is set, so tests run in **jsdom**,
-not a real browser.
+Full suite is fast (~15s, 24 files / 135 tests). No `--browsers` is set, so tests run in **jsdom**,
+not a real browser. There is **no e2e setup** in the repo (no e2e target, no e2e runner installed).
 
 ## Architecture
 
@@ -65,9 +73,15 @@ Feature-first layout under `src/app`:
 
 - `core/auth/` — `AuthService`, `AuthReadyGuard` / `AuthGuard`, login component, `auth.routes.ts`
 - `features/recipes/` — recipe components, `PrivateRecipeGuard`, `models/`, `services/recipe/recipe.service.ts`, `recipes.routes.ts`
-- `shared/` — reusable components (`recipe-card-form`, `recipe-list`, `recipe-ribbon`,
+- `shared/` — reusable components (`file-input`, `recipe-card-form`, `recipe-list`, `recipe-ribbon`,
   `recipes-multiple-select`, `toolbar`), services (`analytics`, `messages`, `toolbar`), `utils/`
 - `testing-resources/mocks/` — shared mock fixtures used across specs
+
+`shared/components/file-input/` is a **home-grown replacement for the removed `@ngxmc/file-input`**
+package (dropped in issue #73 because it only declared Angular 20 peer deps). It implements
+`MatFormFieldControl` + `ControlValueAccessor`, mixes legacy `@Input()` with signal `input()`,
+and projects its icon through the plain attribute `appFileInputIcon`
+(`<ng-content select="[appFileInputIcon]">`). Do not look for the third-party library.
 
 Routing (`app.routes.ts`): `recipes` (lazy -> `features/recipes/recipes.routes.ts`, gated by
 `AuthReadyGuard`) and `login` (lazy -> `core/auth/auth.routes.ts`); `**` redirects to `recipes`.
@@ -115,8 +129,8 @@ The demo user can browse but `createRecipe`, `updateRecipe`, `deleteRecipe`,
 
 `.github/workflows/node.js.yml` (push/PR to `master`, Node 22.x) runs, in order:
 `node server.js` (with the `FIREBASE_DETAILS` / `FIREBASE_DETAILS_TEST` secrets) ->
-`npm ci --legacy-peer-deps` -> `npm run build --if-present` -> `npm test`.
+`npm ci` -> `npm run build --if-present` -> `npm test`.
 
-The `--legacy-peer-deps` flag is needed because `@ngxmc/file-input@20.1.0` declares peer deps on
-Angular `^20` while the project is on Angular 21; `package.json` `overrides` additionally pins that
-package's Angular peers to v21. Expect peer-dep noise when touching that dependency.
+`npm ci` is plain — there is no `--legacy-peer-deps` any more, since removing `@ngxmc/file-input`
+also removed the `overrides` block from `package.json`. A clean `npm ci` resolves without ERESOLVE.
+
