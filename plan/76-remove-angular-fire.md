@@ -20,7 +20,7 @@ Rama: `76-remove-angularfire`
 | **F0** | Decisiones D1–D6 + baseline | ✅ | Rama `76-remove-angularfire`. Baseline: `lint` ✅ · `test` ✅ 24 ficheros / 135 tests · `build` ✅ 1.65 MB. Ver §0.1 (dual-tree Firebase) |
 | **F1** | `firebase.providers.ts` (tokens + factories) + registrar en `app.config.ts` (coexistencia) | ✅ | Creado con `inject()` dentro de las factories (el `inject: []` de metadata da TS2353 con `makeEnvironmentProviders`). Coexiste con `@angular/fire`. Build/lint/test ✅. (Nota: el código de F1 no estaba en la rama pese a marcarse ✅; se recreó en este commit.) |
 | **F2** | Migrar `RecipeService` (Firestore + Storage) | ✅ | `recipe.service.ts` usa `firebase/firestore` + `firebase/storage` con `inject(FIRESTORE)`/`inject(FIREBASE_STORAGE)`; cast `as unknown as FirebaseStorage` eliminado (H1). Spec actualizado a los tokens nuevos. `provideFirestore`/`provideStorage` fuera de `app.config.ts`. Build/test (24/135)/lint ✅ |
-| **F3** | Migrar `AnalyticsService` | ⬜ | Quitar `provideAnalytics` |
+| **F3** | Migrar `AnalyticsService` | ✅ | Import de `firebase/analytics`; inyección diferida conservada (H4): `injector.get(FIREBASE_ANALYTICS)` dentro de `isSupported().then(…)`. Spec usa `firebaseProviders`. `provideAnalytics` fuera de `app.config.ts`. Build/test (24/135)/lint ✅ |
 | **F4** | Migrar `AuthService` (compat → modular) | ⬜ | El mayor cambio; reescribe el spec con `vi.mock` |
 | **F5** | `app.config.ts` solo con los providers nuevos | ⬜ | Quitar `provideFirebaseApp` y `@angular/fire/app` |
 | **F6** | Eliminar `@angular/fire` (+ `rxfire`) de `package.json` | ⬜ | `npm install` + verificación completa |
