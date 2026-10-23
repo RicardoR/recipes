@@ -18,7 +18,7 @@ Rama: `76-remove-angularfire`
 | Fase | Tarea | Estado | Notas |
 |---|---|---|---|
 | **F0** | Decisiones D1–D6 + baseline | ✅ | Rama `76-remove-angularfire`. Baseline: `lint` ✅ · `test` ✅ 24 ficheros / 135 tests · `build` ✅ 1.65 MB. Ver §0.1 (dual-tree Firebase) |
-| **F1** | `firebase.providers.ts` (tokens + factories) + registrar en `app.config.ts` (coexistencia) | ✅ | Creado con `inject()` dentro de las factories (el `inject: []` de metadata da TS2353 con `makeEnvironmentProviders`). Coexiste con `@angular/fire`. Build/lint/test ✅ |
+| **F1** | `firebase.providers.ts` (tokens + factories) + registrar en `app.config.ts` (coexistencia) | ✅ | Creado con `inject()` dentro de las factories (el `inject: []` de metadata da TS2353 con `makeEnvironmentProviders`). Coexiste con `@angular/fire`. Build/lint/test ✅. (Nota: el código de F1 no estaba en la rama pese a marcarse ✅; se recreó en este commit.) |
 | **F2** | Migrar `RecipeService` (Firestore + Storage) | ⬜ | Quitar `provideFirestore`/`provideStorage` |
 | **F3** | Migrar `AnalyticsService` | ⬜ | Quitar `provideAnalytics` |
 | **F4** | Migrar `AuthService` (compat → modular) | ⬜ | El mayor cambio; reescribe el spec con `vi.mock` |

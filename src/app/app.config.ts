@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 
 import {APP_ROUTES} from './app.routes';
+import {firebaseProviders} from './core/firebase/firebase.providers';
 import {initializeApp, provideFirebaseApp} from "@angular/fire/app";
 import {environment} from "../environments/environment";
 import {getFirestore, provideFirestore} from "@angular/fire/firestore";
@@ -28,6 +29,7 @@ const scrollConfig: InMemoryScrollingOptions = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    firebaseProviders,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),
     provideAnalytics(() => getAnalytics()),
