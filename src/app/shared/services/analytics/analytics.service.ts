@@ -13,8 +13,6 @@ export class AnalyticsService {
   constructor() {
     isSupported().then((isSupported: boolean) => {
       if (isSupported) {
-        // Deferred injection (H4): the FIREBASE_ANALYTICS factory (getAnalytics) must not run when
-        // analytics is not supported (e.g. jsdom), so it is resolved here instead of via `inject()`.
         this.analytics = this.injector.get(FIREBASE_ANALYTICS);
       }
     });
