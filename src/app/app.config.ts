@@ -10,8 +10,6 @@ import {APP_ROUTES} from './app.routes';
 import {firebaseProviders} from './core/firebase/firebase.providers';
 import {initializeApp, provideFirebaseApp} from "@angular/fire/app";
 import {environment} from "../environments/environment";
-import {getAuth, provideAuth} from "@angular/fire/auth";
-import {FIREBASE_OPTIONS} from "@angular/fire/compat";
 import {BrowserModule} from "@angular/platform-browser";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {ServiceWorkerModule} from "@angular/service-worker";
@@ -28,8 +26,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     firebaseProviders,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
-    {provide: FIREBASE_OPTIONS, useValue: environment.firebase},
     provideRouter(APP_ROUTES, withInMemoryScrolling(scrollConfig), withComponentInputBinding()),
     importProvidersFrom(
       BrowserModule,

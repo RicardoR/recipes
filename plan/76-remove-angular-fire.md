@@ -21,7 +21,7 @@ Rama: `76-remove-angularfire`
 | **F1** | `firebase.providers.ts` (tokens + factories) + registrar en `app.config.ts` (coexistencia) | ✅ | Creado con `inject()` dentro de las factories (el `inject: []` de metadata da TS2353 con `makeEnvironmentProviders`). Coexiste con `@angular/fire`. Build/lint/test ✅. (Nota: el código de F1 no estaba en la rama pese a marcarse ✅; se recreó en este commit.) |
 | **F2** | Migrar `RecipeService` (Firestore + Storage) | ✅ | `recipe.service.ts` usa `firebase/firestore` + `firebase/storage` con `inject(FIRESTORE)`/`inject(FIREBASE_STORAGE)`; cast `as unknown as FirebaseStorage` eliminado (H1). Spec actualizado a los tokens nuevos. `provideFirestore`/`provideStorage` fuera de `app.config.ts`. Build/test (24/135)/lint ✅ |
 | **F3** | Migrar `AnalyticsService` | ✅ | Import de `firebase/analytics`; inyección diferida conservada (H4): `injector.get(FIREBASE_ANALYTICS)` dentro de `isSupported().then(…)`. Spec usa `firebaseProviders`. `provideAnalytics` fuera de `app.config.ts`. Build/test (24/135)/lint ✅ |
-| **F4** | Migrar `AuthService` (compat → modular) | ⬜ | El mayor cambio; reescribe el spec con `vi.mock` |
+| **F4** | Migrar `AuthService` (compat → modular) | ✅ | `inject(FIREBASE_AUTH)` + fn. libres (`signInWithEmailAndPassword`, `signOut`); `authState` propio con `onAuthStateChanged` en un `Observable` (misma semántica `.pipe(take(1), map(…))`). Spec reescrito con `vi.hoisted`+`vi.mock('firebase/auth')`. `provideAuth` y `FIREBASE_OPTIONS` fuera de `app.config.ts`. **H7**: suite completa fallaba por `isolate:false` del builder → añadido `vitest-base.config.ts` (`isolate:true`) + `runnerConfig:true`. Build/lint ✅ · test ✅ 24/135 (~31s, antes ~14s). ⚠️ Pendiente check manual: login/logout con `npm run start:debugMode` |
 | **F5** | `app.config.ts` solo con los providers nuevos | ⬜ | Quitar `provideFirebaseApp` y `@angular/fire/app` |
 | **F6** | Eliminar `@angular/fire` (+ `rxfire`) de `package.json` | ⬜ | `npm install` + verificación completa |
 | **F7** | Actualizar a Angular 22 | ⬜ | `ng update @angular/core@22 @angular/cli@22` |
@@ -129,6 +129,19 @@ hay que usar `vi.mock('firebase/auth', …)`. El repo aún **no** usa `vi.mock` 
 
 `package.json` lista `"rxfire": "6.1.0"` en `dependencies` y `grep` confirma **cero** uso directo en
 `src/`. Solo lo necesita `@angular/fire`. Se puede eliminar junto con ella (F6).
+
+### H7 — El builder de tests usa `isolate: false` → `vi.mock` depende del orden (hallazgo de F4)
+
+`@angular/build:unit-test` (el builder de `ng test` con Vitest) configura **`isolate: false`** por
+defecto («*to align with the Karma/Jasmine experience*»): todos los specs comparten la **caché de
+módulos** dentro de un worker. Consecuencia: si otro spec evalúa `auth.service.ts` (→ `firebase/auth`
+real) **antes** que `auth.service.spec.ts`, el import queda cacheado con la implementación real y el
+`vi.mock('firebase/auth')` **no se aplica**. El spec pasa en ejecución dirigida pero **falla solo en
+la suite completa** (asíncrono respecto al orden de ficheros; difícil de reproducir con subconjuntos).
+Solución: `vitest-base.config.ts` con `test.isolate: true`, cargado vía `"runnerConfig": true` en el
+target `test` de `angular.json` (el builder hace `mergeConfig(defaults, userConfig)`, así que la
+config del usuario gana). Coste: suite ~14s → ~31s (aislamiento por fichero, precio de
+`vi.mock` determinista).
 
 ---
 

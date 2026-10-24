@@ -1,43 +1,44 @@
-import type {MockedObject} from "vitest";
 import {vi} from "vitest";
 import {TestBed} from '@angular/core/testing';
-import {AngularFireAuth} from '@angular/fire/compat/auth';
 import {Router} from '@angular/router';
 import {of} from 'rxjs';
-import firebase from 'firebase/compat/app';
 
 import {AuthService} from './auth.service';
+import {FIREBASE_AUTH} from 'src/app/core/firebase/firebase.providers';
 import {userMock} from '../../../testing-resources/mocks/user-mock';
+
+const {mockSignIn, mockSignOut, mockOnAuthStateChanged} = vi.hoisted(() => ({
+  mockSignIn: vi.fn(),
+  mockSignOut: vi.fn(),
+  mockOnAuthStateChanged: vi.fn(),
+}));
+
+vi.mock('firebase/auth', () => ({
+  signInWithEmailAndPassword: mockSignIn,
+  signOut: mockSignOut,
+  onAuthStateChanged: mockOnAuthStateChanged,
+}));
 
 describe('AuthService', () => {
   let service: AuthService;
-  let angularFireAuthSpy: MockedObject<AngularFireAuth>;
 
   const routerSpy = {
     navigate: vi.fn().mockName("Router.navigate")
   };
+  const mockAuth = {};
 
   beforeEach(() => {
-    const angularFireAuthSpyValue = {
-      signInWithEmailAndPassword: vi.fn().mockName("AngularFireAuth.signInWithEmailAndPassword"),
-      signOut: vi.fn().mockName("AngularFireAuth.signOut"),
-      authState: vi.fn().mockName("AngularFireAuth.authState")
-    };
+    vi.clearAllMocks();
+
+    mockSignIn.mockResolvedValue({});
+    mockSignOut.mockResolvedValue(undefined);
 
     TestBed.configureTestingModule({
       providers: [
-        {provide: AngularFireAuth, useValue: angularFireAuthSpyValue},
+        {provide: FIREBASE_AUTH, useValue: mockAuth},
         {provide: Router, useValue: routerSpy},
       ],
     });
-
-    angularFireAuthSpy = TestBed.inject(AngularFireAuth) as MockedObject<AngularFireAuth>;
-
-    angularFireAuthSpy.signInWithEmailAndPassword.mockReturnValue(Promise.resolve({
-      user: {} as firebase.User,
-      credential: {} as firebase.auth.AuthCredential,
-    }));
-    angularFireAuthSpy.signOut.mockReturnValue(Promise.resolve());
 
     service = TestBed.inject(AuthService);
   });
@@ -45,7 +46,7 @@ describe('AuthService', () => {
   it('should allow to login and navigate to my recipes component', async () => {
     const autData = {email: 'email@domain.com', password: 'password'};
     service.login(autData);
-    expect(angularFireAuthSpy.signInWithEmailAndPassword).toHaveBeenCalledWith(autData.email, autData.password);
+    expect(mockSignIn).toHaveBeenCalledWith(mockAuth, autData.email, autData.password);
     await Promise.resolve();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/my-recipes']);
   });
@@ -54,7 +55,7 @@ describe('AuthService', () => {
     service.currentUser = userMock;
     service.logout();
     await Promise.resolve();
-    expect(angularFireAuthSpy.signOut).toHaveBeenCalled();
+    expect(mockSignOut).toHaveBeenCalledWith(mockAuth);
     expect(service.currentUser).toBeUndefined();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/recipes']);
   });
@@ -72,14 +73,21 @@ describe('AuthService', () => {
   });
 
   it('initAuthListener should return true if user exists', () => {
-    Object.defineProperty(angularFireAuthSpy, 'authState', {get: () => of(userMock)});
+    mockOnAuthStateChanged.mockImplementation((_auth, callback) => {
+      (callback as (user: typeof userMock) => void)(userMock);
+      return vi.fn();
+    });
     service.initAuthListener().subscribe((isuser) => {
       expect(isuser).toBeTruthy();
     });
+    expect(mockOnAuthStateChanged).toHaveBeenCalledWith(mockAuth, expect.any(Function));
   });
 
   it('initAuthListener should return false if user not exists', () => {
-    Object.defineProperty(angularFireAuthSpy, 'authState', {get: () => of(undefined)});
+    mockOnAuthStateChanged.mockImplementation((_auth, callback) => {
+      (callback as (user: null) => void)(null);
+      return vi.fn();
+    });
     service.initAuthListener().subscribe((isuser) => {
       expect(isuser).toBeFalsy();
     });

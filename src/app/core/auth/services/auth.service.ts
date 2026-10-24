@@ -1,12 +1,14 @@
 import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {AngularFireAuth} from '@angular/fire/compat/auth';
+import type {User} from 'firebase/auth';
+import {onAuthStateChanged, signInWithEmailAndPassword, signOut} from 'firebase/auth';
 import {Observable, ReplaySubject, Subject} from 'rxjs';
 import {map, take} from 'rxjs/operators';
 
 import {AuthData} from '../auth-data.model';
 import {AppRoutingNames} from 'src/app/app.routes';
 import {RecipesRoutingNames} from '../../../features/recipes/recipes.routes';
+import {FIREBASE_AUTH} from 'src/app/core/firebase/firebase.providers';
 
 export const FAKE_USER_EMAIL = 'test@mail.com';
 
@@ -14,7 +16,7 @@ export const FAKE_USER_EMAIL = 'test@mail.com';
   providedIn: 'root',
 })
 export class AuthService {
-  private auth = inject(AngularFireAuth);
+  private auth = inject(FIREBASE_AUTH);
   private router = inject(Router);
 
   private _currentUser?: AuthData;
@@ -33,17 +35,15 @@ export class AuthService {
   }
 
   login(authData: AuthData): void {
-    this.auth
-      .signInWithEmailAndPassword(authData.email, authData.password)
-      .then(() =>
-        this.router.navigate([
-          `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
-        ])
-      );
+    signInWithEmailAndPassword(this.auth, authData.email, authData.password).then(() =>
+      this.router.navigate([
+        `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
+      ])
+    );
   }
 
   logout(): void {
-    this.auth.signOut().then(() => {
+    signOut(this.auth).then(() => {
       this._currentUser = undefined;
       this.router.navigate([`/${AppRoutingNames.recipes}`]);
       this.logoutSuccess$.next();
@@ -52,7 +52,7 @@ export class AuthService {
 
   initAuthListener(): Observable<boolean> {
     const userLogged = new ReplaySubject<boolean>();
-    this.auth.authState
+    this.authState
       .pipe(
         take(1),
         map((user) => {
@@ -79,5 +79,12 @@ export class AuthService {
       .pipe(take(1))
       .subscribe(() => authServiceReady.next(true));
     return authServiceReady;
+  }
+
+  private get authState(): Observable<User | null> {
+    return new Observable((subscriber) => {
+      const unsub = onAuthStateChanged(this.auth, (user) => subscriber.next(user));
+      return () => unsub();
+    });
   }
 }
