@@ -1,6 +1,6 @@
 import localeEs from '@angular/common/locales/es';
 import {registerLocaleData} from '@angular/common';
-import {Component, inject} from '@angular/core';
+import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {AnalyticsService} from "./shared/services/analytics/analytics.service";
 
@@ -8,6 +8,7 @@ import {AnalyticsService} from "./shared/services/analytics/analytics.service";
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterOutlet]
 })
 export class AppComponent {

@@ -1,4 +1,4 @@
-import {Component, signal} from '@angular/core';
+import {Component, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
@@ -22,6 +22,7 @@ import {FileInputComponent} from './file-input.component';
       </app-file-input>
     </mat-form-field>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatFormFieldModule,
     ReactiveFormsModule,
@@ -44,6 +45,7 @@ class FileInputHostComponent {
       <app-file-input [formControl]="control"></app-file-input>
     </mat-form-field>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatFormFieldModule, ReactiveFormsModule, FileInputComponent],
 })
 class FileInputHostWithoutIconComponent {

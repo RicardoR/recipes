@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, input, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -25,6 +25,7 @@ import {AnalyticsService} from "../../../../shared/services/analytics/analytics.
   standalone: true,
   templateUrl: './recipe-details.component.html',
   styleUrls: ['./recipe-details.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatCardModule,
     MatExpansionModule,

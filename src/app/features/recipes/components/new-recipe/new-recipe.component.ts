@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
@@ -15,6 +15,7 @@ import {AnalyticsService} from '../../../../shared/services/analytics/analytics.
   selector: 'app-new-recipe',
   templateUrl: './new-recipe.component.html',
   styleUrls: ['./new-recipe.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RecipeCardFormComponent]
 })
 export class NewRecipeComponent implements OnInit {

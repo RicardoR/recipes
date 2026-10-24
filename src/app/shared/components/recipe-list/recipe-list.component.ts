@@ -1,5 +1,5 @@
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {Component, DestroyRef, effect, inject, input, OnInit, output, signal} from '@angular/core';
+import {Component, DestroyRef, effect, inject, input, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {filter, tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
@@ -20,6 +20,7 @@ import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RecipesMultipleSelectComponent,
     ReactiveFormsModule,

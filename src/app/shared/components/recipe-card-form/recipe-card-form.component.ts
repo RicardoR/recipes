@@ -9,7 +9,8 @@ import {
   input,
   OnInit,
   output,
-  signal
+  signal,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {
   AbstractControl,
@@ -54,6 +55,7 @@ export const MEDIA_STORAGE_PATH = `recipes/images`;
   selector: 'app-recipe-card-form',
   templateUrl: './recipe-card-form.component.html',
   styleUrls: ['./recipe-card-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatCardModule,
     ReactiveFormsModule,
