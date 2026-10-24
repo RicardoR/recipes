@@ -24,7 +24,7 @@ Rama: `76-remove-angularfire`
 | **F4** | Migrar `AuthService` (compat → modular) | ✅ | `inject(FIREBASE_AUTH)` + fn. libres (`signInWithEmailAndPassword`, `signOut`); `authState` propio con `onAuthStateChanged` en un `Observable` (misma semántica `.pipe(take(1), map(…))`). Spec reescrito con `vi.hoisted`+`vi.mock('firebase/auth')`. `provideAuth` y `FIREBASE_OPTIONS` fuera de `app.config.ts`. **H7**: suite completa fallaba por `isolate:false` del builder → añadido `vitest-base.config.ts` (`isolate:true`) + `runnerConfig:true`. Build/lint ✅ · test ✅ 24/135 (~31s, antes ~14s). ⚠️ Pendiente check manual: login/logout con `npm run start:debugMode` |
 | **F5** | `app.config.ts` solo con los providers nuevos | ✅ | Fuera `provideFirebaseApp` + import `@angular/fire/app`; `app.config.ts` usa `firebaseProviders` + router/material/sw/error-handler/locale. **`grep "@angular/fire" src/` → 0 resultados** (1er criterio global ✅). Build/test (24/135)/lint ✅. ⚠️ Pendiente check manual: arranque (`npm start`), login, recetas, subida/borrado de imagen, analytics sin crash |
 | **F6** | Eliminar `@angular/fire` (+ `rxfire`) de `package.json` | ✅ | Borrados de `dependencies`; `npm install` exit=0 **sin ERESOLVE**; `package-lock.json` regenerado (0 menciones). `npm ls @angular/fire rxfire` → vacío; `node_modules/` sin sus directorios; `grep src/` → 0. Build/lint/test ✅ 24/135 (sin errores `updateEmulatorBanner`: fin del dual-tree del §0.1) |
-| **F7** | Actualizar a Angular 22 | ⬜ | `ng update @angular/core@22 @angular/cli@22` |
+| **F7** | Actualizar a Angular 22 | ❌ | **Cancelada por el usuario (2026-10-24)**: no se sube a Angular 22 en esta sesión. El intento se revirtió por completo (`package.json`/`package-lock.json` a HEAD, `npm ci` → Angular 21.0.8; verificado lint/test/build ✅ 24/135). El objetivo de desbloqueo del upgrade (quitar `@angular/fire`) queda logrado en F0–F6. Ver §6 F7 para los hallazgos del intento. |
 
 ---
 
@@ -300,6 +300,10 @@ Notas:
 4. Commit.
 
 ### F7 — Actualizar a Angular 22
+
+> **❌ Cancelada por el usuario (2026-10-24).** El intento se abortó y revirtió (restauración
+> verificada con `lint`/`test`/`build` en verde). Hallazgos útiles para reanudarla en el futuro:
+
 1. Sin `@angular/fire`, no hay peer deps que bloqueen. Ejecutar
    `ng update @angular/core@22 @angular/cli@22`.
 2. Aplicar migraciones schematics que proponga; revisar breaking changes de v22 (signals, zone,
@@ -307,6 +311,19 @@ Notas:
 3. Verificar: `lint`, `test`, `build`; smoke test manual completo.
 4. (Nota sobre el gestor de paquetes: el usuario indicó que eliminará/usa el lockfile a su manera;
    no forma parte de este plan.)
+
+**Hallazgos del intento cancelado:**
+- Angular 22 existe y está maduro (22.2.3/22.2.4 en registry; Material/CDK 22.2.4, angular-eslint 22.6.0).
+- Angular 22 **exige TypeScript `>=6.0 <6.1`** (hoy: 5.9.3) y `@angular/build` sube a 22 (lo gestiona `ng update`).
+- Bloqueos de peers a pre-bumpear: `angular-eslint` 21→**22** (su peer de CLI es `<22`; su `ng-update` sí existe)
+  y `typescript-eslint` 8.52.0→**8.72.0** (su peer de TS era `<6.0.0`; 8.72 acepta `<6.1.0`).
+- El gestor de `ng update` sale de la **config global** `~/.angular-config.json` (`cli.packageManager: yarn`),
+  no de los lockfiles: hay que dejar `yarn.lock` presente y **sincronizar después `package-lock.json` con
+  `npm install`** (es el que usa CI).
+- `ng update` exige árbol git limpio → usar `--allow-dirty` si hay cambios.
+- El primer intento abortó con **ENOSPC** (disco lleno): liberar caches (`yarn cache clean`, `npm cache clean --force`,
+  `dist/`) antes; cuidado, `node_modules` quedó a medio instalar.
+- `@angular/material@22` + `@angular/cdk@22` requieren un segundo `ng update` (peer exacto de cdk en material).
 
 ---
 

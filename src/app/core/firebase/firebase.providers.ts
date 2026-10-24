@@ -14,12 +14,8 @@ export const FIREBASE_ANALYTICS = new InjectionToken<Analytics>('Analytics');
 
 export const firebaseProviders: EnvironmentProviders = makeEnvironmentProviders([
   {provide: FIREBASE_APP, useFactory: () => initializeApp(environment.firebase)},
-  // `inject()` inside the factory (not `inject: []` metadata, which gives TS2353 with
-  // makeEnvironmentProviders).
   {provide: FIRESTORE, useFactory: () => getFirestore(inject(FIREBASE_APP))},
   {provide: FIREBASE_AUTH, useFactory: () => getAuth(inject(FIREBASE_APP))},
   {provide: FIREBASE_STORAGE, useFactory: () => getStorage(inject(FIREBASE_APP))},
-  // Ojo (H4): esta factory sólo se ejecuta si alguien inyecta FIREBASE_ANALYTICS (AnalyticsService lo
-  // hace de forma diferida). No usar `inject(FIREBASE_ANALYTICS)` en campo.
   {provide: FIREBASE_ANALYTICS, useFactory: () => getAnalytics(inject(FIREBASE_APP))},
 ]);
