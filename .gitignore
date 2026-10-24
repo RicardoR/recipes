@@ -54,3 +54,4 @@ yarn.lock
 /database-debug.log
 /firebase-debug.log
 /firestore-debug.log
+package-lock.json
