@@ -8,7 +8,6 @@ import {
 
 import {APP_ROUTES} from './app.routes';
 import {firebaseProviders} from './core/firebase/firebase.providers';
-import {initializeApp, provideFirebaseApp} from "@angular/fire/app";
 import {environment} from "../environments/environment";
 import {BrowserModule} from "@angular/platform-browser";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
@@ -25,7 +24,6 @@ const scrollConfig: InMemoryScrollingOptions = {
 export const appConfig: ApplicationConfig = {
   providers: [
     firebaseProviders,
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideRouter(APP_ROUTES, withInMemoryScrolling(scrollConfig), withComponentInputBinding()),
     importProvidersFrom(
       BrowserModule,
