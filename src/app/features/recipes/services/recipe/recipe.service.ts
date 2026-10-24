@@ -4,12 +4,10 @@ import {Router} from '@angular/router';
 import {
   connectStorageEmulator,
   deleteObject,
-  FirebaseStorage,
   getDownloadURL,
   ref,
-  Storage,
   uploadBytesResumable
-} from '@angular/fire/storage';
+} from 'firebase/storage';
 import {from, Observable, of, ReplaySubject, Subject,} from 'rxjs';
 
 import {Recipe} from '../../models/recipes.model';
@@ -22,15 +20,15 @@ import {
   connectFirestoreEmulator,
   deleteDoc,
   doc,
-  Firestore,
   getDocs,
   orderBy,
   query,
   setDoc,
   updateDoc,
   where
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
 import {environment} from 'src/environments/environment';
+import {FIREBASE_STORAGE, FIRESTORE} from 'src/app/core/firebase/firebase.providers';
 
 const enum DatabaseCollectionsNames {
   recipes = 'recipes',
@@ -48,10 +46,10 @@ const DEFAULT_IMAGE = 'assets/images/verduras.jpeg';
   providedIn: 'root'
 })
 export class RecipeService {
-  private firestore = inject(Firestore);
+  private firestore = inject(FIRESTORE);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private storage = inject(Storage);
+  private storage = inject(FIREBASE_STORAGE);
 
   private categoryList?: ElementModel[] = undefined;
 
@@ -236,7 +234,7 @@ export class RecipeService {
     }
     const {name} = fileToUpload;
     const filePath = `${mediaFolderPath}/${new Date().getTime()}_${name}`;
-    const storageRef = ref(this.storage as unknown as FirebaseStorage, filePath);
+    const storageRef = ref(this.storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, fileToUpload);
 
     const uploadProgress$ = new Observable<number | undefined>((observer) => {

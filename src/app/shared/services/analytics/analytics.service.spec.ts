@@ -1,9 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 
 import {AnalyticsService} from './analytics.service';
-import {getAnalytics, provideAnalytics} from '@angular/fire/analytics';
-import {initializeApp, provideFirebaseApp} from '@angular/fire/app';
-import {environment} from '../../../../environments/environment';
+import {firebaseProviders} from 'src/app/core/firebase/firebase.providers';
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
@@ -11,8 +9,7 @@ describe('AnalyticsService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        provideFirebaseApp(() => initializeApp(environment.firebase)),
-        provideAnalytics(() => getAnalytics())
+        firebaseProviders
       ]
     });
     service = TestBed.inject(AnalyticsService);

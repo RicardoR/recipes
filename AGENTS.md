@@ -60,8 +60,13 @@ npx ng test --list-tests                                                 # list 
 ```
 
 `--watch` defaults to **true in a TTY**; always pass `--watch=false` for scripted/CI runs.
-Full suite is fast (~15s, 24 files / 135 tests). No `--browsers` is set, so tests run in **jsdom**,
+Full suite takes ~30s (24 files / 135 tests). No `--browsers` is set, so tests run in **jsdom**,
 not a real browser. There is **no e2e setup** in the repo (no e2e target, no e2e runner installed).
+
+Tests run isolated per spec file: `vitest-base.config.ts` (loaded via the `runnerConfig` option of
+the `test` target in `angular.json`) sets `isolate: true`, overriding the `@angular/build:unit-test`
+builder default of `isolate: false`. Without it, `vi.mock(...)` becomes execution-order dependent
+(the module registry is shared across specs) and fails only on full-suite runs.
 
 ## Architecture
 
@@ -111,8 +116,10 @@ The demo user can browse but `createRecipe`, `updateRecipe`, `deleteRecipe`,
 - Specs are colocated with the source: `*.component.spec.ts`, `*.service.spec.ts`, `*.guard.spec.ts`.
 - Shared mocks live in `src/app/testing-resources/mocks/` and are imported via the absolute path
   form `src/app/...` (`baseUrl: "./"` in `tsconfig.json` makes this work — 56 such imports).
-- Service specs stub `Firestore` / `Storage` with empty objects and `vi.spyOn` the service methods;
-  **no spec talks to Firebase**, so no emulator is needed to run the suite.
+- Service specs stub the Firebase `InjectionToken`s (`FIRESTORE`, `FIREBASE_STORAGE`,
+  `FIREBASE_AUTH` from `core/firebase/firebase.providers.ts`) with empty objects and `vi.spyOn` the
+  service methods; **no spec talks to Firebase**, so no emulator is needed to run the suite.
+- `auth.service.spec.ts` mocks the modular SDK free functions with `vi.hoisted` + `vi.mock('firebase/auth')`.
 - Component specs commonly call `.overrideTemplate(Component, '')` to skip the template.
 - File-name mismatch to be aware of: `shared/components/recipes-multiple-select/` contains
   `recipes-multiple-select.component.ts` but `recipes-select.component.spec.ts`.

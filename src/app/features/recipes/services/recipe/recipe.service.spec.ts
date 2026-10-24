@@ -1,10 +1,9 @@
 import {TestBed} from '@angular/core/testing';
 import {vi} from 'vitest';
 import {Router} from '@angular/router';
-import {Firestore} from '@angular/fire/firestore';
-import {Storage} from '@angular/fire/storage';
 import {RecipeService} from './recipe.service';
 import {AuthService} from 'src/app/core/auth/services/auth.service';
+import {FIREBASE_STORAGE, FIRESTORE} from 'src/app/core/firebase/firebase.providers';
 import {recipeMock, recipeMock2} from 'src/app/testing-resources/mocks/recipe-mock';
 import {userMock} from '../../../../testing-resources/mocks/user-mock';
 import {Recipe} from '../../models/recipes.model';
@@ -18,8 +17,8 @@ describe('RecipeService', () => {
     currentUser: userMock,
     isDemoUser: false,
   };
-  const mockFirestore = {} as Firestore;
-  const mockStorage = {} as Storage;
+  const mockFirestore = {};
+  const mockStorage = {};
   const mockRouter = {
     navigate: vi.fn().mockName("Router.navigate")
   };
@@ -29,8 +28,8 @@ describe('RecipeService', () => {
       providers: [
         RecipeService,
         {provide: AuthService, useValue: mockAuthService},
-        {provide: Firestore, useValue: mockFirestore},
-        {provide: Storage, useValue: mockStorage},
+        {provide: FIRESTORE, useValue: mockFirestore},
+        {provide: FIREBASE_STORAGE, useValue: mockStorage},
         {provide: Router, useValue: mockRouter},
       ]
     });

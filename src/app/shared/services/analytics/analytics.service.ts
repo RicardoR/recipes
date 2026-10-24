@@ -1,5 +1,6 @@
 import {inject, Injectable, Injector} from '@angular/core';
-import {Analytics, isSupported, logEvent} from '@angular/fire/analytics';
+import {Analytics, isSupported, logEvent} from 'firebase/analytics';
+import {FIREBASE_ANALYTICS} from 'src/app/core/firebase/firebase.providers';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class AnalyticsService {
   constructor() {
     isSupported().then((isSupported: boolean) => {
       if (isSupported) {
-        this.analytics = this.injector.get(Analytics);
+        this.analytics = this.injector.get(FIREBASE_ANALYTICS);
       }
     });
   }
