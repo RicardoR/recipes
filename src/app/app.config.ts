@@ -13,7 +13,6 @@ import {BrowserModule} from "@angular/platform-browser";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {ServiceWorkerModule} from "@angular/service-worker";
 import {AppErrorHandler} from "./app-error-handle";
-import {provideAnimations} from "@angular/platform-browser/animations";
 
 
 const scrollConfig: InMemoryScrollingOptions = {
@@ -39,9 +38,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: LOCALE_ID,
       useValue: 'es'
-    },
-    provideAnimations(),
+    }
   ]
 };
-
 
