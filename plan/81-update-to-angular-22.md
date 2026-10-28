@@ -24,12 +24,13 @@ Rama: `ng-22-update`
 | **F3** | **P1**: actualizar `AGENTS.md` (afirmaciones falsas) | P1 | ✅ | Angular 22.2.3 · auth **modular** total (`FIREBASE_AUTH`, sin `@angular/fire`) · CI yarn · tabla de 4 env files (`environment.test.ts` → build de tests) · borrada la mención a `environment.tst.ts` (no existe) · tiempos de suite ~1 min frío / 15-40s caliente. Hechos verificados contra `server.js`, `angular.json` y `auth.service.ts`. Ver §4 |
 | **F4** | **P1**: limpieza de dependencias sin uso / mal ubicadas | P1 | ✅ | Borrados `@angular/platform-browser-dynamic` (0 usos en src/configs/CI) y `@vitest/browser-playwright` (solo si `browsers` opcional, aquí jsdom); `@vitest/coverage-v8` → devDeps pineado a `5.0.5` (quitado `^`). Verificado: `build` ✅ 1.56 MB · `test` ✅ 24/135 · `test-coverage` ✅ v8. Ver §5 |
 | **F5** | **P2**: micro-limpieza (archivos muertos, tema duplicado, `packageManager`, parches) | P2 | ✅ | Pts 1-5 hechos: borrado `src/polyfills.ts` (huérfano) · eliminado el `@use` duplicado del tema M2 en `styles.scss` (bundle **idéntico**: 103.920 B, 1 copia, offset 2825 — se conserva la entrada de `angular.json`) · `vitest-base.config.ts` → `.mts` (sin warning ESM/CJS) · `packageManager: yarn@1.22.19` + arreglado `"test": "ng test "` · zone.js 0.15.1 → 0.16.3. `build` ✅ 1.57 MB · `test` ✅ 24/135. Pts 6-7 (parches typescript-eslint/jsdom/@types-node y `resolutions`) opcionales, **pendientes**. Ver §6 |
-| **F6** | **P2**: `app.config.ts` — `provideBrowserGlobalErrorListeners()` + quitar `importProvidersFrom(BrowserModule)` | P2 | ✅ | Añadido `provideBrowserGlobalErrorListeners()` (listeners `window` `error`/`unhandledrejection` → `AppErrorHandler`; verificado en `_pending_tasks-chunk.mjs` que `bootstrapApplication` NO lo incluye). Quitado `BrowserModule` (redundante: `createProvidersConfig` en `_browser-chunk.mjs` ya mezcla `BROWSER_MODULE_PROVIDERS`). `build` ✅ 1.56 MB · `test` ✅ 24/135. **Smoke test de errores globales pendiente en F7**. Ver §7 |
+| **F6** | **P2**: `app.config.ts` — `provideBrowserGlobalErrorListeners()` + quitar `importProvidersFrom(BrowserModule)` | P2 | ✅ | Añadido `provideBrowserGlobalErrorListeners()` (listeners `window` `error`/`unhandledrejection` → `AppErrorHandler`; verificado en `_pending_tasks-chunk.mjs` que `bootstrapApplication` NO lo incluye). Quitado `BrowserModule` (redundante: `createProvidersConfig` en `_browser-chunk.mjs` ya mezcla `BROWSER_MODULE_PROVIDERS`). `build` ✅ 1.56 MB · `test` ✅ 24/135. Smoke manual: error síncrono → snackbar ✅; `Promise.reject` → **no llega** por bug upstream de zone.js → trazado en **I5**. Ver §7 |
 | **F7** | Smoke test final + criterios de aceptación | — | ❌ | `build`/`test`/`lint` verdes + check manual de la app. Ver §10 |
 | **(I1)** | Issue: migración de los 14 `ChangeDetectionStrategy.Eager` → OnPush | P2 | 📄 texto entregado | No bloquea la PR (CI no corre lint). Ver §8 |
 | **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | ❌ | Diferible con alta confianza. Ver §8 |
 | **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | ❌ | Probado y verde, revertido. Ver §8 |
 | **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | ❌ | 5 `@Input()` legacy. Ver §8 |
+| **(I5)** | Issue: `Promise` rechazados sin catch no llegan a `AppErrorHandler` (bug upstream zone.js) | P2 | 📄 texto entregado | No bloquea la PR (el camino de errores síncronos funciona). Diagnóstico empírico A/B en §8 |
 
 ---
 
@@ -220,6 +221,39 @@ cambios) y el package manager sale de la config global `~/.angular-config.json`.
   `model-output`, `safe-optional-chaining`, `strict-safe-navigation-narrow`, `strict-templates-default`
   — los dos últimos ya aplicados).
 - Esfuerzo: **M**.
+
+### I5 — `Promise` rechazados sin catch nunca llegan a `AppErrorHandler` (bug upstream zone.js)
+
+- **Síntoma**: con `provideBrowserGlobalErrorListeners()` (F6), los errores síncronos de `window`
+  `error` llegan a `AppErrorHandler` → snackbar ✅, pero `Promise.reject(...)` sin `.catch` **nunca**
+  produce snackbar ni evento de analytics.
+- **Causa raíz** (verificado empíricamente en jsdom con zone **0.15.1 y 0.16.3** — ambas afectadas;
+  0.16.3 es la última versión publicada):
+  1. zone sintetiza un `PromiseRejectionEvent` y llama `eventTask.invoke(evt)` (patch
+     `PromiseRejectionEvent` de `zone.umd.js`, líneas ~1963-1971). Pero las event tasks `useG`
+     exponen `invoke === ZoneTask.invokeTask(task, target, args)`; el wrapper normal de eventos los
+     invoca como `task.invoke(task, target, [event])` (línea ~1076). Pasar el evento como primer
+     argumento hace `task = evt` → `evt.zone === undefined` → **`TypeError: Cannot read properties
+     of undefined (reading 'runTask')`**.
+  2. Ese `TypeError` lo traga el `catch (err) {}` **vacío** de `handleUnhandledRejection` →
+     silencio total: el listener de Angular nunca se entera.
+  3. **Segundo fallo encima**: con la config por defecto (`throwOriginal` en
+     `DISABLE_WRAPPING_UNCAUGHT_PROMISE_REJECTION`), el handler recibe el rechazo *crudo*, así que
+     el evento sintético lleva `reason: e.rejection` → `undefined` (las props `.rejection`/
+     `.promise` están solo en el error envuelto).
+- **Repro A/B** (jsdom + zone cargado, listener registrado):
+  - A) `task.invoke(task, window, [{...}])` → ✅ listener invocado, evento entregado.
+  - B) `task.invoke({...})` → ❌ `TypeError ... reading 'runTask'` (silenciado por zone).
+  - Auto-flujo (`Promise.reject('x')` tras registrar el listener) → `events: []` en 0.15.1 **y**
+    0.16.3.
+- **Por qué no hay vía alternativa en app**: zone reemplaza `window.Promise` por `ZoneAwarePromise`
+  → el evento nativo `unhandledrejection` del navegador **no se dispara**; el puente de zone es el
+  único camino hacia Angular. Mitigación solo sería monkey-patchear
+  `Zone.__symbol__('unhandledPromiseRejectionHandler')` (API privada, frágil → no recomendado).
+- **Impacto**: `AppErrorHandler` (snackbar + `client_error` en analytics) no recibe rejections; zone
+  sí las pinta por `console.error`. No bloquea #81: el camino de errores síncronos funciona.
+- **Acción**: reportar upstream a `angular/zone.js` con repro mínimo (texto A/B de arriba). Esfuerzo:
+  M (depende del fix upstream; workaround en app solo si se decide aceptar frágil).
 
 ### Informativo
 
