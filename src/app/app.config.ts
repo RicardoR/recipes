@@ -1,4 +1,10 @@
-import {ApplicationConfig, ErrorHandler, importProvidersFrom, LOCALE_ID} from '@angular/core';
+import {
+  ApplicationConfig,
+  ErrorHandler,
+  importProvidersFrom,
+  LOCALE_ID,
+  provideBrowserGlobalErrorListeners
+} from '@angular/core';
 import {
   InMemoryScrollingOptions,
   provideRouter,
@@ -9,7 +15,6 @@ import {
 import {APP_ROUTES} from './app.routes';
 import {firebaseProviders} from './core/firebase/firebase.providers';
 import {environment} from "../environments/environment";
-import {BrowserModule} from "@angular/platform-browser";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {ServiceWorkerModule} from "@angular/service-worker";
 import {AppErrorHandler} from "./app-error-handle";
@@ -22,10 +27,10 @@ const scrollConfig: InMemoryScrollingOptions = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideBrowserGlobalErrorListeners(),
     firebaseProviders,
     provideRouter(APP_ROUTES, withInMemoryScrolling(scrollConfig), withComponentInputBinding()),
     importProvidersFrom(
-      BrowserModule,
       MatSnackBarModule,
       ServiceWorkerModule.register('ngsw-worker.js', {
         enabled: environment.production,
