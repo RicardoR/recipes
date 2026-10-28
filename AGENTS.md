@@ -63,7 +63,7 @@ Full suite takes on the order of **~1 min cold / ~15-40s warm** (24 files / 135 
 `--browsers` is set, so tests run in **jsdom**, not a real browser. There is **no e2e setup** in the
 repo (no e2e target, no e2e runner installed).
 
-Tests run isolated per spec file: `vitest-base.config.ts` (loaded via the `runnerConfig` option of
+Tests run isolated per spec file: `vitest-base.config.mts` (loaded via the `runnerConfig` option of
 the `test` target in `angular.json`) sets `isolate: true`, overriding the `@angular/build:unit-test`
 builder default of `isolate: false`. Without it, `vi.mock(...)` becomes execution-order dependent
 (the module registry is shared across specs) and fails only on full-suite runs.
