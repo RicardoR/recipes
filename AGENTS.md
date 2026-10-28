@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Angular 21 standalone app (single project `recipes`) for managing recipes with Firebase
+Angular 22.2.3 standalone app (single project `recipes`) for managing recipes with Firebase
 (Firestore + Storage + Auth + Analytics). UI strings are **Spanish**; code, comments and commit
 messages are English. Node 22+.
 
@@ -23,20 +23,19 @@ Generate them first:
 node server.js   # needs env vars FIREBASE_DETAILS and FIREBASE_DETAILS_TEST
 ```
 
-`server.js` writes the **raw content** of those env vars into three files:
+`server.js` writes four files (the first three from the **raw content** of those env vars, the
+fourth hard-coded):
 
 | file | source | used by |
 | --- | --- | --- |
 | `environment.ts` | `FIREBASE_DETAILS` | placeholder only (always replaced at build) |
 | `environment.prod.ts` | `FIREBASE_DETAILS` | `ng build` (default `production` config) |
-| `environment.debugMode.ts` | `FIREBASE_DETAILS_TEST` | `ng serve` (`development`), `ng build --configuration debugMode`, **and the unit-test build** |
+| `environment.debugMode.ts` | `FIREBASE_DETAILS_TEST` | `ng serve` (`development`), `ng build --configuration debugMode` |
+| `environment.test.ts` | hard-coded by `server.js` (`useEmulators: true`, `demo-recipes` project) | the unit-test build (`test` target → `recipes:build:test` in `angular.json`) |
 
-So local dev/test points at the *test* Firebase project while `ng build` / `npm run deploy` points
-at the production one. Never hand-edit these files — they are overwritten.
-
-`src/environments/environment.tst.ts` (`useEmulators: true`) exists but is **not** referenced by any
-`fileReplacements` in `angular.json`; using the local emulators requires swapping it in manually or
-adding a new configuration.
+So local dev/test points at the *test* Firebase project (or the emulators, for the unit-test
+build) while `ng build` / `npm run deploy` points at the production one. Never hand-edit these
+files — they are overwritten.
 
 ## Commands
 
@@ -60,8 +59,9 @@ npx ng test --list-tests                                                 # list 
 ```
 
 `--watch` defaults to **true in a TTY**; always pass `--watch=false` for scripted/CI runs.
-Full suite takes ~30s (24 files / 135 tests). No `--browsers` is set, so tests run in **jsdom**,
-not a real browser. There is **no e2e setup** in the repo (no e2e target, no e2e runner installed).
+Full suite takes on the order of **~1 min cold / ~15-40s warm** (24 files / 135 tests). No
+`--browsers` is set, so tests run in **jsdom**, not a real browser. There is **no e2e setup** in the
+repo (no e2e target, no e2e runner installed).
 
 Tests run isolated per spec file: `vitest-base.config.ts` (loaded via the `runnerConfig` option of
 the `test` target in `angular.json`) sets `isolate: true`, overriding the `@angular/build:unit-test`
@@ -91,9 +91,11 @@ and projects its icon through the plain attribute `appFileInputIcon`
 Routing (`app.routes.ts`): `recipes` (lazy -> `features/recipes/recipes.routes.ts`, gated by
 `AuthReadyGuard`) and `login` (lazy -> `core/auth/auth.routes.ts`); `**` redirects to `recipes`.
 
-Firebase SDK usage is **mixed**: `app.config.ts` and `recipe.service.ts` use the modular API
-(`provideFirestore`, `getDocs`, `collection`, ...), while `auth.service.ts` uses the compat API
-(`AngularFireAuth` from `@angular/fire/compat/auth`). Keep that mix in mind when touching auth.
+Firebase SDK usage is **fully modular** everywhere: `app.config.ts`, `recipe.service.ts` and
+`auth.service.ts` all use the modular API (`provideFirestore`, `getDocs`, `collection`,
+`onAuthStateChanged`, `signInWithEmailAndPassword`, ...). Auth is injected through the
+`FIREBASE_AUTH` token from `core/firebase/firebase.providers.ts`; `@angular/fire` is **not** in
+`package.json`.
 
 ### Data model
 
@@ -136,8 +138,10 @@ The demo user can browse but `createRecipe`, `updateRecipe`, `deleteRecipe`,
 
 `.github/workflows/node.js.yml` (push/PR to `master`, Node 22.x) runs, in order:
 `node server.js` (with the `FIREBASE_DETAILS` / `FIREBASE_DETAILS_TEST` secrets) ->
-`npm ci` -> `npm run build --if-present` -> `npm test`.
+`yarn install --frozen-lockfile` -> `yarn build` -> `yarn test`.
 
-`npm ci` is plain — there is no `--legacy-peer-deps` any more, since removing `@ngxmc/file-input`
-also removed the `overrides` block from `package.json`. A clean `npm ci` resolves without ERESOLVE.
+The repo uses **Yarn 1.x** and tracks `yarn.lock` (lockfiles are **not** gitignored); the workflow
+caches with `cache: 'yarn'`. Install with yarn, not npm: `package.json` uses `resolutions` (a
+yarn-1-only field pinning `@jridgewell/sourcemap-codec`) which npm silently ignores — regenerating
+a `package-lock.json` would drop that pin.
 
