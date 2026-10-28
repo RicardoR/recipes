@@ -19,7 +19,7 @@ Rama: `ng-22-update`
 | Fase | Tarea | Prioridad | Estado | Notas |
 |---|---|---|---|---|
 | **F0** | Baseline Angular 22 + verificación | — | ✅ | core 22.2.3 · cli/build 22.2.4 · angular-eslint 22.6.0 · TS 6.0.3 · Vitest 5.0.5. `build` ✅ 1.54 MB (< 2 MB budget) · `test` ✅ 24 ficheros / 135 tests · `lint` ✅ 0 errores / 14 warnings (regla `prefer-on-push` bajada a `"warn"` en `eslint.config.js:33`) |
-| **F1** | **P0**: reproducibilidad — commitear `yarn.lock` + arreglar workflow CI (yarn) | P0 | ❌ | Sin lockfile commitado, `npm ci` y `cache: 'npm'` fallan → la PR tendrá CI rojo. Ver §2 |
+| **F1** | **P0**: reproducibilidad — commitear `yarn.lock` + arreglar workflow CI (yarn) | P0 | ✅ | `yarn.lock` trackeado y `.gitignore` sin ignorar lockfiles; workflow con `cache: 'yarn'` + `yarn install --frozen-lockfile` + `yarn build` / `yarn test`. Verificado localmente: `--frozen-lockfile` ✅ · `build` ✅ · `test` ✅ 24/135 |
 | **F2** | **P1**: `@angular/material` + `@angular/cdk` 21.0.6 → 22.2.4 | P1 | ❌ | Único pendiente de `ng update`. Bump puro (migraciones v22 vacías). Ver §3 |
 | **F3** | **P1**: actualizar `AGENTS.md` (afirmaciones falsas) | P1 | ❌ | Angular 21→22, `@angular/fire` compat ya inexistente, CI yarn, env files. Ver §4 |
 | **F4** | **P1**: limpieza de dependencias sin uso / mal ubicadas | P1 | ❌ | `@angular/platform-browser-dynamic`, `@vitest/browser-playwright`, `@vitest/coverage-v8` a devDeps. Ver §5 |
