@@ -29,7 +29,7 @@ Rama: `ng-22-update`
 | **(I1)** | Issue: migración de los 14 `ChangeDetectionStrategy.Eager` → OnPush | P2 | ✅ **#83** | No bloquea la PR (CI no corre lint). Texto en §8 |
 | **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | ✅ **#84** | Diferible con alta confianza. Texto en §8 |
 | **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | 📄 texto entregado | Probado y verde, revertido. Texto en §8 |
-| **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | 📄 texto entregado | 5 `@Input()` legacy. Texto en §8 |
+| **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | ✅ **#86** | 5 `@Input()` legacy. Texto en §8 |
 | **(I5)** | Issue: `Promise` rechazados sin catch no llegan a `AppErrorHandler` (bug upstream zone.js) | P2 | 📄 texto entregado | No bloquea la PR (el camino de errores síncronos funciona). Diagnóstico empírico A/B en §8 |
 
 ---
@@ -392,6 +392,8 @@ mezclar decisiones de compilación con la PR de dependencias.
 
 ### I4 — Signal inputs en `file-input`
 
+> Issue **#86** creada por el usuario el 2026-10-29: https://github.com/RicardoR/recipes/issues/86
+
 - 5 `@Input()` legacy (`file-input.component.ts:56-60`) mezclados con signal `input()` (62-67). No hay
   `@Output()` en todo `src/` (0 hits).
 - Los `ngOnChanges`/`ngDoCheck` (84-90) son el patrón **canónico** de `MatFormFieldControl` +
@@ -497,6 +499,92 @@ y en el `effect()` de `stateChanges`.
   sí las pinta por `console.error`. No bloquea #81: el camino de errores síncronos funciona.
 - **Acción**: reportar upstream a `angular/zone.js` con repro mínimo (texto A/B de arriba). Esfuerzo:
   M (depende del fix upstream; workaround en app solo si se decide aceptar frágil).
+
+**Texto de la issue (listo para pegar):**
+
+````markdown
+## Síntoma
+
+Durante el smoke test de F6 de #81:
+
+- `setTimeout(() => { throw new Error('boom') })` → **snackbar** ✅ (la vía `window` `error` →
+  `AppErrorHandler` funciona; `provideBrowserGlobalErrorListeners()` está activo).
+- `Promise.reject('boom promesa')` sin `.catch` → **nada**: ni snackbar ni evento `client_error` en
+  analytics. Solo el `console.error` que pinta zone.js en la consola.
+
+## Causa raíz (dos fallos encima, verificado empíricamente)
+
+zone.js es el **único** camino de un `Promise` rechazado hacia Angular: al reemplazar `window.Promise`
+por `ZoneAwarePromise`, el evento nativo `unhandledrejection` del navegador **no se dispara nunca**, y
+Angular solo escucha ese evento (es lo que registra `provideBrowserGlobalErrorListeners()`). Pues bien,
+ese puente de zone está roto:
+
+1. **Firma incorrecta del `invoke`** (zone.umd.js): el puente sintetiza el `PromiseRejectionEvent` y
+   llama `eventTask.invoke(evt)` (líneas ~1963-1971). Pero las event tasks optimizadas `useG`
+   exponen `invoke === ZoneTask.invokeTask(task, target, args)` — el wrapper normal de eventos los
+   invoca como `task.invoke(task, target, [event])` (línea ~1076). Pasar el evento como **primer**
+   argumento hace `task = evt` → `evt.zone === undefined` → **`TypeError: Cannot read properties of
+   undefined (reading 'runTask')`**.
+2. **`catch` vacío**: ese `TypeError` lo traga `handleUnhandledRejection` (`catch (err) {}`) →
+   silencio total, el listener de Angular jamás se entera.
+3. **Y además**, con la config por defecto (`throwOriginal` de
+   `DISABLE_WRAPPING_UNCAUGHT_PROMISE_REJECTION`), el handler recibe el rechazo *crudo*, así que el
+   evento sintético llevaría `reason: e.rejection` → `undefined` (`.rejection`/`.promise` existen solo
+   en el error envuelto). Arreglar solo (1) no bastaría.
+
+Ambos fallos están en **zone.js 0.15.1 y 0.16.3** (0.16.3 es la última publicada) → no es una
+regresión de la subida 0.15→0.16, es un bug latente.
+
+## Repro A/B (jsdom + zone.js cargado)
+
+```js
+const {JSDOM} = require('jsdom');
+const fs = require('fs');
+const dom = new JSDOM('<!doctype html>', {url: 'http://localhost/', runScripts: 'outside-only'});
+const w = dom.window;
+w.eval(fs.readFileSync('node_modules/zone.js/bundles/zone.umd.js', 'utf8'));
+w.eval(`
+  window.__events = [];
+  window.addEventListener('unhandledrejection', e => window.__events.push(e.reason));
+  const task = window.__zone_symbol__unhandledrejectionfalse[0]; // el task de nuestro listener
+
+  // A) firma del wrapper normal de eventos (línea ~1076)
+  task.invoke(task, window, [{reason: 'ok'}]);  // ✅ listener invocado, evento entregado
+
+  // B) firma del puente unhandledrejection (línea ~1971)
+  task.invoke({reason: 'ok'});                  // ❌ TypeError: ... reading 'runTask'
+
+  Promise.reject('x');                          // auto-flujo: __events queda []
+`);
+console.log('events:', w.__events); // [] — con 0.15.1 y con 0.16.3
+```
+
+## Impacto
+
+`AppErrorHandler` (snackbar + `client_error` en analytics) **no recibe nunca** los `Promise`
+rechazados sin catch; solo se ven por el `console.error` de zone. El camino de errores síncronos
+funciona, así que #81 no se bloquea.
+
+## Por qué no se puede arreglar en la app
+
+La única mitigación sería monkey-patchear la API privada
+`Zone.__symbol__('unhandledPromiseRejectionHandler')` con un puente correcto (`task.invoke(task,
+window, [event])` + `reason` fallback al valor crudo). Es una API privada sin garantías de estabilidad
+→ no recomendado como solución permanente.
+
+## Acción
+
+- [ ] Reportar upstream a `angular/zone.js` con el repro A/B (en inglés, apuntando a las líneas
+      ~1971 vs ~1076 y al `catch` vacío).
+- [ ] Decisión de producto: mientras no haya fix upstream, aceptar que los rejections solo aparecen en
+      consola (documentarlo), o valorar el workaround monkey-patch.
+- [ ] Relacionado con #81 (F6 `provideBrowserGlobalErrorListeners`) — re-testar cuando zone publique
+      fix.
+
+## Esfuerzo
+
+**M** — la mayor parte depende del fix upstream; el workaround en app es pequeño pero frágil.
+````
 
 ### Informativo
 
