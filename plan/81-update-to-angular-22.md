@@ -26,8 +26,8 @@ Rama: `ng-22-update`
 | **F5** | **P2**: micro-limpieza (archivos muertos, tema duplicado, `packageManager`, parches) | P2 | ✅ | Pts 1-5 hechos: borrado `src/polyfills.ts` (huérfano) · eliminado el `@use` duplicado del tema M2 en `styles.scss` (bundle **idéntico**: 103.920 B, 1 copia, offset 2825 — se conserva la entrada de `angular.json`) · `vitest-base.config.ts` → `.mts` (sin warning ESM/CJS) · `packageManager: yarn@1.22.19` + arreglado `"test": "ng test "` · zone.js 0.15.1 → 0.16.3. `build` ✅ 1.57 MB · `test` ✅ 24/135. Pts 6-7 (parches typescript-eslint/jsdom/@types-node y `resolutions`) opcionales, **pendientes**. Ver §6 |
 | **F6** | **P2**: `app.config.ts` — `provideBrowserGlobalErrorListeners()` + quitar `importProvidersFrom(BrowserModule)` | P2 | ✅ | Añadido `provideBrowserGlobalErrorListeners()` (listeners `window` `error`/`unhandledrejection` → `AppErrorHandler`; verificado en `_pending_tasks-chunk.mjs` que `bootstrapApplication` NO lo incluye). Quitado `BrowserModule` (redundante: `createProvidersConfig` en `_browser-chunk.mjs` ya mezcla `BROWSER_MODULE_PROVIDERS`). `build` ✅ 1.56 MB · `test` ✅ 24/135. Smoke manual: error síncrono → snackbar ✅; `Promise.reject` → **no llega** por bug upstream de zone.js → trazado en **I5**. Ver §7 |
 | **F7** | Smoke test final + criterios de aceptación | — | ✅ | `build` ✅ 1.57 MB · `test` ✅ 24/135 · `lint` ✅ 0 errores (14 warnings I1) · `ng update` **sin pendientes** (aplicados core 22.2.3→22.2.4 y cli/build 22.2.4→22.2.5, parches que F2 dejó pendientes). Smoke manual CRUD por el usuario ✅ + errores globales (sync ✅ / rejections → I5). §10 revisado íntegro |
-| **(I1)** | Issue: migración de los 14 `ChangeDetectionStrategy.Eager` → OnPush | P2 | 📄 texto entregado | No bloquea la PR (CI no corre lint). Ver §8 |
-| **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | ❌ | Diferible con alta confianza. Ver §8 |
+| **(I1)** | Issue: migración de los 14 `ChangeDetectionStrategy.Eager` → OnPush | P2 | ✅ **#83** | No bloquea la PR (CI no corre lint). Texto en §8 |
+| **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | 📄 texto entregado | Diferible con alta confianza. Texto en §8 |
 | **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | ❌ | Probado y verde, revertido. Ver §8 |
 | **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | ❌ | 5 `@Input()` legacy. Ver §8 |
 | **(I5)** | Issue: `Promise` rechazados sin catch no llegan a `AppErrorHandler` (bug upstream zone.js) | P2 | 📄 texto entregado | No bloquea la PR (el camino de errores síncronos funciona). Diagnóstico empírico A/B en §8 |
@@ -172,6 +172,8 @@ cambios) y el package manager sale de la config global `~/.angular-config.json`.
 
 ### I1 — Migración OnPush (los 14 warnings de lint)
 
+> Issue **#83** creada por el usuario el 2026-10-29: https://github.com/RicardoR/recipes/issues/83
+
 - Causa confirmada: `@angular/core` 22 `schematics/migrations.json` → `22.0.0 change-detection-eager
   — Adds ChangeDetectionStrategy.Eager to all components`. Afecta a 12 componentes + 2 test-hosts
   (`src/app/shared/components/file-input/file-input.component.spec.ts:25,48`).
@@ -262,6 +264,50 @@ actualización).
 - Al terminar: test contra **emuladores** (el riesgo restante es conductual: persistencia de sesión de
   auth, tamaño de bundle, no de forma de API).
 - Esfuerzo: **M**.
+
+**Texto de la issue (listo para pegar):**
+
+```markdown
+## Contexto
+
+`firebase` está en **11.9.0** y es la única dependencia grande que #81 dejó fuera (se priorizaron los
+bumps de Angular/Material; era diferible con alta confianza). Dependabot reporta **151
+vulnerabilidades** en la rama por defecto (8 críticas, 73 altas): conviene re-evaluar cuántas siguen
+tras el upgrade de Angular 22 (PR #82) y bajar el SDK a la última.
+
+## Ya verificado en la auditoría de #81 (no hace falta repetirlo)
+
+- Tarball extraído de `firebase@13.1.0` + paquetes internos `@firebase/*`: **todas** las funciones que
+  usa la app siguen presentes con el mismo formato:
+  - `initializeApp`, `getFirestore`/`getAuth`/`getStorage`/`getAnalytics`
+  - Auth: `onAuthStateChanged`, `signInWithEmailAndPassword`, `signOut`
+  - Firestore: `addDoc`/`collection`/`query`/`orderBy`/`where`/`doc`/`setDoc`/`updateDoc`/`deleteDoc`/
+    `getDocs`/`Timestamp`
+  - Storage: `ref`/`uploadBytesResumable`/`getDownloadURL`/`deleteObject`
+  - Emuladores: `connectFirestoreEmulator`/`connectStorageEmulator`
+  - Analytics: `isSupported`/`logEvent`
+- Release notes de v13.0.0 (2026-10-07): los breaking changes están **confinados a AI Logic** (no se
+  usa) + añadidos de tipos en Firestore. v13.1.0 es un fix de Auth.
+- Riesgo restante: **conductual, no de API** (persistencia de sesión de auth, tamaño de bundle,
+  comportamiento en runtime).
+
+## Pasos
+
+- [ ] `yarn add firebase@13.1.0` (y actualizar `yarn.lock`).
+- [ ] `yarn build` ✅ (< 2 MB) y `yarn test` ✅ 24/135.
+- [ ] QA con emuladores (`yarn firebase:emulators:start` + `npm run start:debugMode`):
+  - login/logout con `test@mail.com` y recarga de página (persistencia de sesión),
+  - CRUD completo de recetas (crear, editar, borrar con diálogo y snackbar),
+  - subida y borrado de imagen (Storage),
+  - filtro por categorías y búsqueda,
+  - analytics no rompe (`isSupported()` puede rechazar en local — comprobar que no pinta errores).
+- [ ] Comparar tamaño de bundle antes/después (`Initial total`).
+- [ ] Reelaborar el listado de Dependabot tras el bump para ver qué queda.
+
+## Esfuerzo
+
+**M** — el cambio de código es cero; el tiempo está en el QA funcional con emuladores.
+```
 
 ### I3 — Modernizar `tsconfig.json`
 
