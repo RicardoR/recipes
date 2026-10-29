@@ -178,8 +178,77 @@ cambios) y el package manager sale de la config global `~/.angular-config.json`.
 - `npm run lint` → `✖ 14 problems (0 errors, 14 warnings)`; regla en `"warn"` (`eslint.config.js:33`).
   **CI no corre lint** ⇒ no bloquea la PR.
 - 3 componentes ya son OnPush (toolbar:32, recipe-ribbon:7, recipes-multiple-select:17). El texto de la
-  issue ya está redactado (3 tiers: seguros / medios / con trabajo real).
+  issue está redactado abajo (3 tiers: seguros / medios / con trabajo real), listo para pegar.
 - Esfuerzo: **M** — requiere testing por componente (cambio de comportamiento).
+
+**Texto de la issue (listo para pegar):**
+
+```markdown
+## Contexto
+
+La migración de Angular 22 `22.0.0 change-detection-eager` (schematic de `@angular/core`) añadió
+`ChangeDetectionStrategy.Eager` a todos los componentes. El resultado es que `npm run lint` queda con
+14 warnings de `@angular-eslint/prefer-on-push-component-change-detection`:
+
+`✖ 14 problems (0 errors, 14 warnings)`
+
+Para no bloquear la PR de #81 la regla se dejó en `"warn"` (`eslint.config.js:33`) y el CI no corre
+lint. Esta issue es para migrar a OnPush y subir la regla a `"error"`.
+
+## Inventario (14 avisos = 12 componentes + 2 test-hosts)
+
+| Componente | Ubicación | Asignaciones `this.` | Streams/suscripciones | Tier |
+|---|---|---|---|---|
+| `AppComponent` | `src/app/app.component.ts:11` | 0 | 0 | 1 |
+| `DeleteRecipeDialogComponent` | `delete-recipe-dialog.component.ts:10` | 0 | 0 | 1 |
+| `RecipeLayoutComponent` | `recipe-layout.component.ts:12` | 0 | 0 | 1 |
+| test-host de `file-input` | `file-input.component.spec.ts:25,48` | — | — | 1 |
+| `LoginComponent` | `login.component.ts:22` | 1 | 0 | 2 |
+| `NewRecipeComponent` | `new-recipe.component.ts:18` | 0 | 1 | 2 |
+| `RecipeListComponent` | `recipe-list.component.ts:23` | 1 | 3 | 2 |
+| `EditRecipeComponent` | `edit-recipe.component.ts:21` | 3 | 2 | 3 |
+| `MyRecipesComponent` | `my-recipes.component.ts:24` | 7 | 2 | 3 |
+| `PublicRecipeListComponent` | `public-recipe-list.component.ts:24` | 10 | 4 | 3 |
+| `RecipeDetailsComponent` | `recipe-details.component.ts:28` | 3 | 2 | 3 |
+| `FileInputComponent` | `file-input.component.ts:37` | 7 | 0 | 3 |
+| `RecipeCardFormComponent` | `recipe-card-form.component.ts:58` | 12 | 4 | 3 |
+
+(Las líneas son las de la rama `ng-22-update`. 3 componentes ya son OnPush: `toolbar`, `recipe-ribbon`,
+`recipes-multiple-select`.)
+
+## Plan por tiers (riesgo creciente)
+
+**Tier 1 — seguros**: sin mutaciones de estado ni suscripciones → cambiar `Eager` por `OnPush` y nada
+más. Los 2 test-hosts de `file-input.component.spec.ts` van igual: sus plantillas son triviales y los
+tests lo validan.
+
+**Tier 2 — revisar**: mutaciones mínimas, casi todas en handlers de eventos del propio template (bajo
+OnPush un evento del template marca el componente, así que suelen ser seguros). Comprobar la única
+suscripción de `new-recipe`: si la asignación viene de un `.subscribe` sin origen en el template,
+añadir `markForCheck()`.
+
+**Tier 3 — trabajo real**: estado mutable + suscripciones manuales (`.subscribe(res => this.x = ...)`).
+Bajo OnPush la vista queda **stale** porque asignar un campo no marca el componente como dirty.
+Opciones por componente: convertir el estado a **signals** (recomendado; el template ya se re-renderiza
+solo) o `markForCheck()` en cada callback. Caso especial `FileInputComponent` (`MatFormFieldControl`):
+cada mutación de estado del control debe emitir en `stateChanges` o el form field no se entera.
+
+> Nota: la app corre con zone.js y `tick()` es global, pero eso **no** marca componentes OnPush como
+> dirty; solo lo hacen inputs, eventos del propio template, escrituras de signals y `markForCheck()`.
+
+## Criterios de aceptación
+
+- [ ] `npm run lint` → **0 errores y 0 warnings**.
+- [ ] Regla `prefer-on-push-component-change-detection` en `"error"` (`eslint.config.js:33`).
+- [ ] `npx ng test --watch=false` ✅ 24 ficheros / 135 tests.
+- [ ] Smoke manual de los Tier 3: las vistas se actualizan tras lo asíncrono (carga de receta, submit
+      de formulario, listado filtrado, `file-input` escribiendo en el form).
+
+## Esfuerzo
+
+**M** — Tier 1/2 es mecánico; Tier 3 exige testing por componente (cambia comportamiento de
+actualización).
+```
 
 ### I2 — firebase 11.9.0 → 13.1.0 (diferible, alta confianza)
 
