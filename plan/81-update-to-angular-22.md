@@ -30,7 +30,7 @@ Rama: `ng-22-update`
 | **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | ✅ **#84** | Diferible con alta confianza. Texto en §8 |
 | **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | 📄 texto entregado | Probado y verde, revertido. Texto en §8 |
 | **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | ✅ **#86** | 5 `@Input()` legacy. Texto en §8 |
-| **(I5)** | Issue: `Promise` rechazados sin catch no llegan a `AppErrorHandler` (bug upstream zone.js) | P2 | 📄 texto entregado | No bloquea la PR (el camino de errores síncronos funciona). Diagnóstico empírico A/B en §8 |
+| **(I5)** | Issue: `Promise` rechazados sin catch no llegan a `AppErrorHandler` (bug upstream zone.js) | P2 | ✅ **#87** | No bloquea la PR (el camino de errores síncronos funciona). Diagnóstico empírico A/B en §8 |
 
 ---
 
@@ -468,6 +468,8 @@ y en el `effect()` de `stateChanges`.
 ```
 
 ### I5 — `Promise` rechazados sin catch nunca llegan a `AppErrorHandler` (bug upstream zone.js)
+
+> Issue **#87** creada por el usuario el 2026-10-29: https://github.com/RicardoR/recipes/issues/87
 
 - **Síntoma**: con `provideBrowserGlobalErrorListeners()` (F6), los errores síncronos de `window`
   `error` llegan a `AppErrorHandler` → snackbar ✅, pero `Promise.reject(...)` sin `.catch` **nunca**
