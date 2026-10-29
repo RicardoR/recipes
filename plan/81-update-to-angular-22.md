@@ -29,7 +29,7 @@ Rama: `ng-22-update`
 | **(I1)** | Issue: migración de los 14 `ChangeDetectionStrategy.Eager` → OnPush | P2 | ✅ **#83** | No bloquea la PR (CI no corre lint). Texto en §8 |
 | **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | ✅ **#84** | Diferible con alta confianza. Texto en §8 |
 | **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | 📄 texto entregado | Probado y verde, revertido. Texto en §8 |
-| **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | ❌ | 5 `@Input()` legacy. Ver §8 |
+| **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | 📄 texto entregado | 5 `@Input()` legacy. Texto en §8 |
 | **(I5)** | Issue: `Promise` rechazados sin catch no llegan a `AppErrorHandler` (bug upstream zone.js) | P2 | 📄 texto entregado | No bloquea la PR (el camino de errores síncronos funciona). Diagnóstico empírico A/B en §8 |
 
 ---
@@ -313,6 +313,8 @@ tras el upgrade de Angular 22 (PR #82) y bajar el SDK a la última.
 
 ### I3 — Modernizar `tsconfig.json`
 
+> Issue **#85** creada por el usuario el 2026-10-29: https://github.com/RicardoR/recipes/issues/85
+
 - Scaffold v22 usa `module: "preserve"` + `isolatedModules: true` (sin `moduleResolution`); aquí hay
   `module: "es2020"` + `moduleResolution: "bundler"` + `useDefineForClassFields: false` y falta
   `isolatedModules`.
@@ -401,6 +403,67 @@ mezclar decisiones de compilación con la PR de dependencias.
   `model-output`, `safe-optional-chaining`, `strict-safe-navigation-narrow`, `strict-templates-default`
   — los dos últimos ya aplicados).
 - Esfuerzo: **M**.
+
+**Texto de la issue (listo para pegar):**
+
+```markdown
+## Contexto
+
+`FileInputComponent` (reemplazo casero de `@ngxmc/file-input` de la issue #73) mezcla hoy dos estilos
+de inputs en la misma clase:
+
+- **Legacy** (líneas 56-60): `id`, `placeholder`, `required` (con `transform: booleanAttribute`),
+  `disabled` (idem), `value`.
+- **Signals** (líneas 62-67): `accept`, `multiple`, `readonly`, `color`, `separator`,
+  `errorStateMatcher`.
+
+No existe esquema automático de migración en `ng update` para esto (lista de migraciones de core v22
+comprobada en la auditoría de #81: `can-match-snapshot-required`, `change-detection-eager`,
+`http-xhr-backend`, `incremental-hydration`, `model-output`, `safe-optional-chaining`,
+`strict-safe-navigation-narrow`, `strict-templates-default` — las dos últimas ya aplicadas) → migración
+manual. En todo `src/` **no hay ni un solo `@Output()`** (0 hits), así que aquí termina el recorrido
+signal-ization de inputs/outputs.
+
+## Hallazgos de la auditoría de #81 (en qué hay que fijarse)
+
+1. **`ngOnChanges`/`ngDoCheck` se quedan**: son el patrón canónico de `MatFormFieldControl` +
+   `ErrorStateMatcher.isErrorState` (recalcular estado de error en cada check). Lo que hay que
+   reemplazar es el cuerpo de `ngOnChanges` (`stateChanges.next()`), porque **`ngOnChanges` solo
+   dispara para inputs legacy**: al convertir a signals deja de emitirse `stateChanges` cuando cambia
+   un input… y de hecho **ese hueco ya existe hoy** para los 6 inputs signal actuales (cambiar
+   `errorStateMatcher` desde el padre no emite `stateChanges`). Solución: un `effect()` que lea los
+   inputs convertidos y emita `stateChanges.next()`.
+2. **`value` y `disabled` no son inputs puros**: se escriben *dentro* del componente —
+   `writeValue()` (línea 115, CVA), `setDisabledState()` (128, CVA) y `handleFiles()` (153). Un
+   `input()` es de solo lectura desde la clase → hay que decidir: `model()` (pero cambia la semántica
+   de escritura hacia el padre si hay binding) o separar input de estado interno. **Decisión explícita
+   necesaria**, no es un rename.
+3. **Contrato `MatFormFieldControl`**: `placeholder`, `required`, `disabled`, `value` (y `id`) son
+   propiedades de la interfaz que Material lee desempaquetadas. Si pasan a signal, exponer getters
+   planos (`get placeholder() { return this._placeholder(); }`) o Material recibirá una `Signal` donde
+   espera un `string`.
+4. `id`/`placeholder`/`required` no se escriben internamente → conversión directa (con default:
+   `input('Choose a file')`, `input(false, {transform: booleanAttribute})`, …).
+
+## Relación con otras issues
+
+- **#83 (OnPush)**: `file-input.component.ts` está en su Tier 3 y su spec tiene 2 test-hosts; conviene
+  hacer ambas cosas en la misma pasada para no tocar el fichero dos veces.
+
+## Criterios de aceptación
+
+- [ ] `grep -r "@Input" src/` → **0 hits** (los 5 legacy migrados a `input()`/`model()`).
+- [ ] `stateChanges.next()` se emite cuando cambia cualquier input (añadir test: cambiar
+      `errorStateMatcher`/`placeholder` desde el host → `stateChanges` emite).
+- [ ] `yarn build` ✅ (< 2 MB) · `yarn test` ✅ 24/135 · `npm run lint` ✅ 0 errores.
+- [ ] Smoke: campo deshabilitado desde el form (`setDisabledState`), selección de fichero escribe
+      `value`, validación `required` pinta error con el matcher correcto.
+
+## Esfuerzo
+
+**M** — los inputs simples son mecánicos; el tiempo está en `value`/`disabled` (decisión de semántica)
+y en el `effect()` de `stateChanges`.
+```
 
 ### I5 — `Promise` rechazados sin catch nunca llegan a `AppErrorHandler` (bug upstream zone.js)
 
