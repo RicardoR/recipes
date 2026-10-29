@@ -27,8 +27,8 @@ Rama: `ng-22-update`
 | **F6** | **P2**: `app.config.ts` — `provideBrowserGlobalErrorListeners()` + quitar `importProvidersFrom(BrowserModule)` | P2 | ✅ | Añadido `provideBrowserGlobalErrorListeners()` (listeners `window` `error`/`unhandledrejection` → `AppErrorHandler`; verificado en `_pending_tasks-chunk.mjs` que `bootstrapApplication` NO lo incluye). Quitado `BrowserModule` (redundante: `createProvidersConfig` en `_browser-chunk.mjs` ya mezcla `BROWSER_MODULE_PROVIDERS`). `build` ✅ 1.56 MB · `test` ✅ 24/135. Smoke manual: error síncrono → snackbar ✅; `Promise.reject` → **no llega** por bug upstream de zone.js → trazado en **I5**. Ver §7 |
 | **F7** | Smoke test final + criterios de aceptación | — | ✅ | `build` ✅ 1.57 MB · `test` ✅ 24/135 · `lint` ✅ 0 errores (14 warnings I1) · `ng update` **sin pendientes** (aplicados core 22.2.3→22.2.4 y cli/build 22.2.4→22.2.5, parches que F2 dejó pendientes). Smoke manual CRUD por el usuario ✅ + errores globales (sync ✅ / rejections → I5). §10 revisado íntegro |
 | **(I1)** | Issue: migración de los 14 `ChangeDetectionStrategy.Eager` → OnPush | P2 | ✅ **#83** | No bloquea la PR (CI no corre lint). Texto en §8 |
-| **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | 📄 texto entregado | Diferible con alta confianza. Texto en §8 |
-| **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | ❌ | Probado y verde, revertido. Ver §8 |
+| **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | ✅ **#84** | Diferible con alta confianza. Texto en §8 |
+| **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | 📄 texto entregado | Probado y verde, revertido. Texto en §8 |
 | **(I4)** | Issue: terminar migración a signal inputs en `file-input` | P3 | ❌ | 5 `@Input()` legacy. Ver §8 |
 | **(I5)** | Issue: `Promise` rechazados sin catch no llegan a `AppErrorHandler` (bug upstream zone.js) | P2 | 📄 texto entregado | No bloquea la PR (el camino de errores síncronos funciona). Diagnóstico empírico A/B en §8 |
 
@@ -254,6 +254,8 @@ actualización).
 
 ### I2 — firebase 11.9.0 → 13.1.0 (diferible, alta confianza)
 
+> Issue **#84** creada por el usuario el 2026-10-29: https://github.com/RicardoR/recipes/issues/84
+
 - Verificado extrayendo `firebase@13.1.0` + `@firebase/*` internos: **todas** las funciones usadas por
   la app siguen presentes (`initializeApp`, `getFirestore/getAuth/getStorage/getAnalytics`,
   `onAuthStateChanged`, `signInWithEmailAndPassword`, `signOut`, `addDoc/collection/query/orderBy/where/
@@ -322,6 +324,69 @@ tras el upgrade de Angular 22 (PR #82) y bajar el SDK a la última.
 - Opcionales en la misma issue: `noImplicitOverride`, `noPropertyAccessFromIndexSignature` del strict
   del scaffold.
 - Esfuerzo: **S-M**.
+
+**Texto de la issue (listo para pegar):**
+
+````markdown
+## Contexto
+
+El scaffold de Angular 22 (`ng new`) genera hoy:
+
+```json
+{
+  "compilerOptions": {
+    "module": "preserve",
+    "isolatedModules": true,
+    ...
+  }
+}
+```
+
+(ya **no** declara `moduleResolution`). Este repo se quedó con el formato anterior al upgrade:
+
+```json
+{
+  "module": "es2020",
+  "moduleResolution": "bundler",
+  "useDefineForClassFields": false
+}
+```
+
+Falta `isolatedModules` y sobran/redundan ajustes del scaffold viejo. De #81 se dejó fuera para no
+mezclar decisiones de compilación con la PR de dependencias.
+
+## Ya verificado en la auditoría de #81 (no hace falta repetirlo)
+
+- El cambio se aplicó **temporalmente y probado**: `ng build` ✅ (5.79 s / 1.54 MB) y
+  `npx ng test --watch=false` ✅ 24 ficheros / 135 tests; después **revertido** (árbol limpio
+  verificado con `git status`).
+
+## Cuidados (lecciones de esa prueba)
+
+- **`isolatedModules`**: el único hazard real es
+  `const enum DatabaseCollectionsNames` (`recipe.service.ts:33`). Al ser *same-file* (definición y uso
+  en el mismo fichero) funciona; el día que se importe en otro módulo, el build fallará → si se
+  migra, preferible convertirlo a `enum` normal o `as const`.
+- **No tocar `useDefineForClassFields` sin decisión propia**: el scaffold moderno lo deja en su
+  default (`true`); cambiarlo altera la semántica de los campos de clase (propiedad own vs. prototipo)
+  y puede afectar a patrones de inyección/heritage. Es opcional y se decide aparte.
+- `module: "preserve"` implica resolución tipo *bundler*, así que `moduleResolution: "bundler"` pasa a
+  ser redundante (el scaffold lo omite).
+
+## Pasos
+
+- [ ] `tsconfig.json`: `module: "preserve"` + `isolatedModules: true`; quitar `moduleResolution`
+      (redundante con `preserve`).
+- [ ] `yarn build` ✅ (< 2 MB) · `yarn test` ✅ 24/135 · `npm run lint` ✅ 0 errores.
+- [ ] Decidir sobre `useDefineForClassFields` (mantener `false` = comportamiento actual, o aceptar el
+      default del scaffold con su revisión correspondiente).
+- [ ] Opcionales del strict del scaffold: `noImplicitOverride`, `noPropertyAccessFromIndexSignature`.
+
+## Esfuerzo
+
+**S-M** — build/test ya quedaron verificados verdes con el cambio; lo que queda es la decisión sobre
+`useDefineForClassFields` y los opcionales.
+````
 
 ### I4 — Signal inputs en `file-input`
 
