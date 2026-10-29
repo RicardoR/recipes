@@ -11,6 +11,7 @@ import {
   OnChanges,
   OnDestroy,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {ControlValueAccessor, NgControl, NgForm} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -33,6 +34,7 @@ let nextUniqueId = 0;
       useExisting: forwardRef(() => FileInputComponent),
     },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIconModule, MatButtonModule],
 })
 export class FileInputComponent

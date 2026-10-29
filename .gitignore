@@ -49,7 +49,6 @@ Thumbs.db
 /.firebase
 /src/environments/
 .firebaserc
-yarn.lock
 .firebase-commands
 /database-debug.log
 /firebase-debug.log

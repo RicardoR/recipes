@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AnalyticsService} from '../../../../shared/services/analytics/analytics.service';
@@ -7,6 +7,7 @@ import {AnalyticsService} from '../../../../shared/services/analytics/analytics.
   selector: 'app-delete-recipe-dialog',
   templateUrl: './delete-recipe-dialog.component.html',
   styleUrls: ['./delete-recipe-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogModule, MatButtonModule]
 })
 export class DeleteRecipeDialogComponent implements OnInit {

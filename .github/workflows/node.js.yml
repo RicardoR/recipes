@@ -25,11 +25,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: 'yarn'
     - run: node server.js
       env:
         FIREBASE_DETAILS: ${{ secrets.FIREBASE_DETAILS }}
         FIREBASE_DETAILS_TEST: ${{ secrets.FIREBASE_DETAILS_TEST }}
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+    - run: yarn install --frozen-lockfile
+    - run: yarn build
+    - run: yarn test

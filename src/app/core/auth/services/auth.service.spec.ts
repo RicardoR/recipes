@@ -1,37 +1,38 @@
-import {vi} from "vitest";
+import {vi} from 'vitest';
 import {TestBed} from '@angular/core/testing';
 import {Router} from '@angular/router';
 import {of} from 'rxjs';
 
-import {AuthService} from './auth.service';
-import {FIREBASE_AUTH} from 'src/app/core/firebase/firebase.providers';
-import {userMock} from '../../../testing-resources/mocks/user-mock';
+import {userMock} from 'src/app/testing-resources/mocks/user-mock';
 
-const {mockSignIn, mockSignOut, mockOnAuthStateChanged} = vi.hoisted(() => ({
-  mockSignIn: vi.fn(),
-  mockSignOut: vi.fn(),
-  mockOnAuthStateChanged: vi.fn(),
-}));
+const mockSignIn = vi.fn();
+const mockSignOut = vi.fn();
+const mockOnAuthStateChanged = vi.fn();
 
-vi.mock('firebase/auth', () => ({
+vi.doMock('firebase/auth', () => ({
   signInWithEmailAndPassword: mockSignIn,
   signOut: mockSignOut,
   onAuthStateChanged: mockOnAuthStateChanged,
 }));
 
 describe('AuthService', () => {
-  let service: AuthService;
+  let service: import('./auth.service').AuthService;
 
   const routerSpy = {
-    navigate: vi.fn().mockName("Router.navigate")
+    navigate: vi.fn().mockName('Router.navigate')
   };
   const mockAuth = {};
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
 
     mockSignIn.mockResolvedValue({});
     mockSignOut.mockResolvedValue(undefined);
+
+    const [{AuthService}, {FIREBASE_AUTH}] = await Promise.all([
+      import('./auth.service'),
+      import('src/app/core/firebase/firebase.providers'),
+    ]);
 
     TestBed.configureTestingModule({
       providers: [

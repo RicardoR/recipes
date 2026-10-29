@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
@@ -21,6 +21,7 @@ import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.servic
   selector: 'app-public-recipe-list',
   templateUrl: './public-recipe-list.component.html',
   styleUrls: ['./public-recipe-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RecipeListComponent]
 })
 export class PublicRecipeListComponent implements OnInit {

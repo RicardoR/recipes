@@ -5,9 +5,25 @@ const dir = "src/environments";
 const file = "environment.ts";
 const prodFile = "environment.prod.ts";
 const testFile = "environment.debugMode.ts";
+const testEnvironmentFile = "environment.test.ts";
 
 const content_env_prod = `${process.env.FIREBASE_DETAILS}`;
 const content_env_test = `${process.env.FIREBASE_DETAILS_TEST}`;
+const content_env_test_environment = `export const environment = {
+  production: false,
+  useEmulators: true,
+  debugMode: false,
+  firebase: {
+    apiKey: 'fake-api-key',
+    authDomain: 'localhost',
+    projectId: 'demo-recipes',
+    storageBucket: 'demo-recipes.appspot.com',
+    messagingSenderId: '000000000000',
+    appId: '1:000000000000:web:0000000000000000000000',
+    measurementId: 'G-0000000000'
+  },
+};
+`;
 console.log(content_env_test);
 
 fs.access(dir, fs.constants.F_OK, (err) => {
@@ -25,6 +41,7 @@ fs.access(dir, fs.constants.F_OK, (err) => {
     fs.writeFileSync(dir + "/" + file, content_env_prod);
     fs.writeFileSync(dir + "/" + prodFile, content_env_prod);
     fs.writeFileSync(dir + "/" + testFile, content_env_test);
+    fs.writeFileSync(dir + "/" + testEnvironmentFile, content_env_test_environment);
     console.log("Created successfully in", process.cwd());
     if (fs.existsSync(dir + "/" + file)) {
       console.log("Env File is created", path.resolve(dir + "/" + file));
