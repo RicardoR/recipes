@@ -139,16 +139,16 @@ export class RecipeCardFormComponent implements OnInit {
         : this.recipeDetails()?.imgSrc;
 
       const recipe: Recipe = {
-        title: this.form.controls.title.getRawValue(),
-        description: this.form.controls.description.getRawValue(),
+        title: this.form.controls['title'].getRawValue(),
+        description: this.form.controls['description'].getRawValue(),
         date: this.recipeDetails()?.date ?? new Date(),
         ownerId: this.authService.currentUser?.uid,
         steps: this.steps.getRawValue(),
         ingredients: this.ingredients.getRawValue(),
         id: this.recipeDetails()?.id ?? '',
         imgSrc: imageRoute ? imageRoute : '',
-        private: this.form.controls.isPrivate.getRawValue(),
-        categories: this.form.controls.categorySelect.getRawValue() ?? [],
+        private: this.form.controls['isPrivate'].getRawValue(),
+        categories: this.form.controls['categorySelect'].getRawValue() ?? [],
       };
 
       this.recipeChanged$.emit(recipe);
@@ -254,20 +254,20 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   private fillForm(): void {
-    this.form.controls.title.patchValue(this.recipeDetails()?.title);
-    this.form.controls.description.patchValue(this.recipeDetails()?.description);
-    this.form.controls.isPrivate.patchValue(this.recipeDetails()?.private);
+    this.form.controls['title'].patchValue(this.recipeDetails()?.title);
+    this.form.controls['description'].patchValue(this.recipeDetails()?.description);
+    this.form.controls['isPrivate'].patchValue(this.recipeDetails()?.private);
     this.recipeDetails()?.steps.forEach((step) => {
-      (this.form.controls.steps as FormArray).push(this.createFormItem(step));
+      (this.form.controls['steps'] as FormArray).push(this.createFormItem(step));
     });
 
     this.recipeDetails()?.ingredients.forEach((ingredient) => {
-      (this.form.controls.ingredients as FormArray).push(
+      (this.form.controls['ingredients'] as FormArray).push(
         this.createFormItem(ingredient)
       );
     });
 
-    this.form.controls.categorySelect.patchValue(
+    this.form.controls['categorySelect'].patchValue(
       this.recipeDetails()?.categories
     );
   }

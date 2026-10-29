@@ -16,12 +16,12 @@ Rama: `85-modernize-tsconfig` (creada desde `master`)
 
 | Fase | Tarea | Estado | Notas |
 |---|---|---|---|
-| **F0** | Baseline verde antes de tocar nada | ⬜ | `yarn build` (< 2 MB) · `yarn test --watch=false` (24 ficheros / 135 tests) · `npm run lint` (0 errores; 14 warnings OnPush aceptados, trazados en #83) |
-| **F1** | `module: "preserve"` + `isolatedModules: true`; quitar `moduleResolution` | ⬜ | Cambio mínimo ya probado en la auditoría de #81: build ✅ 5.79 s / 1.54 MB, test ✅ 24/135 (después revertido). Ver §3.1 |
-| **F2** | `useDefineForClassFields`: probar `true` (default del scaffold) — keep-if-green | ⬜ | **D1 (usuario)**: si build/test/lint y smoke quedan verdes, se queda `true`; si algo cae y no es trivial, se vuelve a `false` y se documenta el motivo en la issue. Ver §2 D1 |
-| **F3** | Opcionales del strict: `noImplicitOverride` + `noPropertyAccessFromIndexSignature` | ⬜ | **D2 (usuario)**: keep-if-green. `noImplicitOverride` es gratis (0 herencias de clase en `src/`). `noPropertyAccessFromIndexSignature` solo se queda si los arreglos son triviales. Ver §2 D2 |
-| **F4** | Endurecer el `const enum DatabaseCollectionsNames` | ⬜ | Quitar `const` (dejarlo `enum` normal): mismo consumidor, elimina el hazard futuro de `isolatedModules`. Ver §3.4 |
-| **F5** | Verificación global + smoke manual | ⬜ | build (< 2 MB, comparar bundle con baseline) · test 24/135 · lint 0 errores · smoke centrado en `file-input` y formularios (los más sensibles al cambio de F2). Ver §4 |
+| **F0** | Baseline verde antes de tocar nada | ✅ | `yarn build` ✅ 1.57 MB (< 2 MB) · `yarn test --watch=false` ✅ 24 ficheros / 135 tests · `npm run lint` ✅ 0 errores (14 warnings OnPush aceptados, trazados en #83) |
+| **F1** | `module: "preserve"` + `isolatedModules: true`; quitar `moduleResolution` | ✅ | Cambio mínimo ya probado en la auditoría de #81. Verificado en aislamiento: build ✅ 1.56 MB, test ✅ 24/135. Ver §3.1 |
+| **F2** | `useDefineForClassFields`: probar `true` (default del scaffold) — keep-if-green | ✅ | **D1 resuelta → `true`**: se borró la línea (hereda el default, como el scaffold). Build ✅ 1.56 MB · test ✅ 24/135. Smoke manual de F5 pendiente de confirmación del usuario. Ver §2 D1 |
+| **F3** | Opcionales del strict: `noImplicitOverride` + `noPropertyAccessFromIndexSignature` | ✅ | **D2 resuelta → ambos**: `noImplicitOverride` 0 cambios (0 herencias, como se previó). `noPropertyAccessFromIndexSignature` dio **13 errores TS4111** en 2 ficheros, todos triviales (acceso por corchetes): `recipe-card-form.component.ts` (10, `form!: FormGroup` sin genérico ⇒ index signature) y `toolbar.component.ts` (3, `route.snapshot.data`). Arreglados → build/test ✅. Ver §2 D2 |
+| **F4** | Endurecer el `const enum DatabaseCollectionsNames` | ✅ | `recipe.service.ts:33`: quitado `const` → `enum` normal (8 usos same-file intactos). Build/test ✅. Ver §3.4 |
+| **F5** | Verificación global + smoke manual | 🟡 | `yarn build` ✅ 1.56 MB · `yarn test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores (14 warnings OnPush aceptados). **Smoke manual: pendiente del usuario** (arranque, login, CRUD, file-input/formularios) |
 
 ---
 
@@ -49,18 +49,24 @@ Notas técnicas:
 
 ## 2. Decisiones (registradas con el usuario)
 
-**D1 — `useDefineForClassFields`**: se **prueba `true`** (el default del scaffold, que omite la
-línea) y se queda solo si todo sale verde. Justificación del riesgo bajo: `grep -rn "extends [A-Z]"
-src/` → **0 herencias de clase**, así que la diferencia semántica (propiedad own vs prototype) apenas
-tiene dónde manifestarse. Si F2 rompe algo no trivial → volver a `false` explícito y anotarlo en la
-issue. *Actualizado al ejecutar F2.*
+**D1 — `useDefineForClassFields`**: **resuelta → `true`** (línea borrada, se hereda el default del
+scaffold). Verificado: `grep -rn "extends [A-Z]" src/` → **0 herencias de clase** ⇒ riesgo semántico
+mínimo. Build ✅ 1.56 MB y test ✅ 24/135 con la opción activa. *Queda el smoke manual de F5 para
+confirmar el comportamiento en runtime.*
 
-**D2 — opcionales del strict**: `noImplicitOverride` y `noPropertyAccessFromIndexSignature`
-**ambos, keep-if-green**. Si `noPropertyAccessFromIndexSignature` genera arreglos no triviales, se
-quita y se deja constancia en la issue como pendiente. *Actualizado al ejecutar F3.*
+**D2 — opcionales del strict**: **resuelta → ambos**.
+- `noImplicitOverride: true` → **0 errores** (como se previó: no hay `extends` de clase en `src/`).
+- `noPropertyAccessFromIndexSignature: true` → **13 errores TS4111**, todos de acceso por punto sobre
+  un index signature, arreglados con acceso por corchetes (triviales, keep-if-green cumplido):
+  - `recipe-card-form.component.ts` (10): `form!: FormGroup` sin genérico ⇒ `controls` indexado.
+    Cambiado `this.form.controls.title` → `this.form.controls['title']` (líneas 142, 143, 150, 151,
+    257, 258, 259, 261, 265, 270).
+  - `toolbar.component.ts` (3): `route.snapshot.firstChild?.data` ⇒ `data?.title` →
+    `data?.['title']` (líneas 122-124).
 
-**D3 — `const enum`**: convertir a `enum` normal (quitar la palabra `const` en
-`recipe.service.ts:33`). Ver §3.4.
+**D3 — `const enum`**: **resuelta → `enum` normal**. `recipe.service.ts:33`: quitado `const`. Sus 8
+usos (líneas 69, 95, 113, 142, 173, 192, 218) siguen igual y el build pasa. Alternativa `as const`
+descartada por cambiar el estilo del fichero.
 
 ## 3. Fases
 
@@ -122,13 +128,13 @@ descartada `as const` por cambiar el estilo del fichero).
 
 ## 5. Criterios de aceptación
 
-- [ ] `tsconfig.json` con `module: "preserve"`, `isolatedModules: true` y **sin** `moduleResolution`.
-- [ ] D1 resuelta: `useDefineForClassFields` en `true` (línea borrada) o `false` con motivo anotado.
-- [ ] D2 resuelta: opcionales añadidos, o constancia en la issue de cuál se dejó fuera y por qué.
-- [ ] `const enum` → `enum` normal en `recipe.service.ts`.
-- [ ] `yarn build` ✅ (< 2 MB) · `yarn test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores.
-- [ ] Smoke manual OK (incluido `file-input` + formularios).
-- [ ] Plan §0 actualizado; issue #85 cerrada/actualizada con el resultado.
+- [x] `tsconfig.json` con `module: "preserve"`, `isolatedModules: true` y **sin** `moduleResolution`.
+- [x] D1 resuelta: `useDefineForClassFields` en `true` (línea borrada).
+- [x] D2 resuelta: ambos opcionales añadidos (13 TS4111 arreglados, triviales).
+- [x] `const enum` → `enum` normal en `recipe.service.ts`.
+- [x] `yarn build` ✅ (1.56 MB) · `yarn test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores.
+- [ ] Smoke manual OK (incluido `file-input` + formularios) — **pendiente del usuario**.
+- [x] Plan §0 actualizado; issue #85 cerrada/actualizada con el resultado (al mergear).
 
 ## 6. Fuera de alcance
 

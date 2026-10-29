@@ -119,8 +119,8 @@ export class ToolbarComponent implements OnInit {
 
   private fillPropertiesFromRouteData(): void {
     const data = this.route.snapshot.firstChild?.data;
-    this.title.set(data?.title);
-    this.displaySearchButton.set(data?.displaySearchButton ?? false);
-    this.displayListButton.set(data?.displayListButton ?? false);
+    this.title.set(data?.['title']);
+    this.displaySearchButton.set(data?.['displaySearchButton'] ?? false);
+    this.displayListButton.set(data?.['displayListButton'] ?? false);
   }
 }
