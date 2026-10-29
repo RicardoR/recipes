@@ -25,7 +25,7 @@ Rama: `ng-22-update`
 | **F4** | **P1**: limpieza de dependencias sin uso / mal ubicadas | P1 | ✅ | Borrados `@angular/platform-browser-dynamic` (0 usos en src/configs/CI) y `@vitest/browser-playwright` (solo si `browsers` opcional, aquí jsdom); `@vitest/coverage-v8` → devDeps pineado a `5.0.5` (quitado `^`). Verificado: `build` ✅ 1.56 MB · `test` ✅ 24/135 · `test-coverage` ✅ v8. Ver §5 |
 | **F5** | **P2**: micro-limpieza (archivos muertos, tema duplicado, `packageManager`, parches) | P2 | ✅ | Pts 1-5 hechos: borrado `src/polyfills.ts` (huérfano) · eliminado el `@use` duplicado del tema M2 en `styles.scss` (bundle **idéntico**: 103.920 B, 1 copia, offset 2825 — se conserva la entrada de `angular.json`) · `vitest-base.config.ts` → `.mts` (sin warning ESM/CJS) · `packageManager: yarn@1.22.19` + arreglado `"test": "ng test "` · zone.js 0.15.1 → 0.16.3. `build` ✅ 1.57 MB · `test` ✅ 24/135. Pts 6-7 (parches typescript-eslint/jsdom/@types-node y `resolutions`) opcionales, **pendientes**. Ver §6 |
 | **F6** | **P2**: `app.config.ts` — `provideBrowserGlobalErrorListeners()` + quitar `importProvidersFrom(BrowserModule)` | P2 | ✅ | Añadido `provideBrowserGlobalErrorListeners()` (listeners `window` `error`/`unhandledrejection` → `AppErrorHandler`; verificado en `_pending_tasks-chunk.mjs` que `bootstrapApplication` NO lo incluye). Quitado `BrowserModule` (redundante: `createProvidersConfig` en `_browser-chunk.mjs` ya mezcla `BROWSER_MODULE_PROVIDERS`). `build` ✅ 1.56 MB · `test` ✅ 24/135. Smoke manual: error síncrono → snackbar ✅; `Promise.reject` → **no llega** por bug upstream de zone.js → trazado en **I5**. Ver §7 |
-| **F7** | Smoke test final + criterios de aceptación | — | ❌ | `build`/`test`/`lint` verdes + check manual de la app. Ver §10 |
+| **F7** | Smoke test final + criterios de aceptación | — | ✅ | `build` ✅ 1.57 MB · `test` ✅ 24/135 · `lint` ✅ 0 errores (14 warnings I1) · `ng update` **sin pendientes** (aplicados core 22.2.3→22.2.4 y cli/build 22.2.4→22.2.5, parches que F2 dejó pendientes). Smoke manual CRUD por el usuario ✅ + errores globales (sync ✅ / rejections → I5). §10 revisado íntegro |
 | **(I1)** | Issue: migración de los 14 `ChangeDetectionStrategy.Eager` → OnPush | P2 | 📄 texto entregado | No bloquea la PR (CI no corre lint). Ver §8 |
 | **(I2)** | Issue: firebase 11.9.0 → 13.1.0 | P2 | ❌ | Diferible con alta confianza. Ver §8 |
 | **(I3)** | Issue: modernizar `tsconfig.json` (`module: "preserve"` + `isolatedModules`) | P3 | ❌ | Probado y verde, revertido. Ver §8 |
@@ -278,16 +278,18 @@ cambios) y el package manager sale de la config global `~/.angular-config.json`.
 
 ## 10. Criterios de aceptación global
 
-- `npx ng update` → **sin actualizaciones pendientes** (material/CDK ya en 22.2.4).
-- CI verde en la PR: `cache: 'yarn'` + `yarn install --frozen-lockfile` + `node server.js` + build + test.
-- `yarn.lock` **trackeado** y `.gitignore` sin ignorar lockfiles.
-- `npx ng build` ✅ (< 2 MB) · `npx ng test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores
+- `npx ng update` → **sin actualizaciones pendientes** ✅ (core 22.2.4 · cli/build 22.2.5 ·
+  material/CDK 22.2.5).
+- CI verde en la PR: `cache: 'yarn'` + `yarn install --frozen-lockfile` + `node server.js` + build + test. ✅
+- `yarn.lock` **trackeado** y `.gitignore` sin ignorar lockfiles. ✅
+- `npx ng build` ✅ (1.57 MB < 2 MB) · `npx ng test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores
   (14 warnings de OnPush aceptados y trazados en I1).
 - `package.json` sin `@angular/platform-browser-dynamic` ni `@vitest/browser-playwright`;
-  `@vitest/coverage-v8` en devDependencies.
-- `AGENTS.md` sin afirmaciones falsas (Angular 22, auth modular, CI yarn, env files correctos).
+  `@vitest/coverage-v8` en devDependencies. ✅
+- `AGENTS.md` sin afirmaciones falsas (Angular 22, auth modular, CI yarn, env files correctos). ✅
 - Smoke test manual: arranque, login/logout, listado + búsqueda, crear/editar/borrar receta, subida de
-  imagen, diálogo de borrado, snackbar, filtro por categorías.
+  imagen, diálogo de borrado, snackbar, filtro por categorías. ✅ (usuario) — errores globales: error
+  síncrono → snackbar ✅; `Promise.rejected` → bug upstream zone.js, trazado en **I5**.
 
 ---
 
