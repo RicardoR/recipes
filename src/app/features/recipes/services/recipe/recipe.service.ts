@@ -30,7 +30,7 @@ import {
 import {environment} from 'src/environments/environment';
 import {FIREBASE_STORAGE, FIRESTORE} from 'src/app/core/firebase/firebase.providers';
 
-const enum DatabaseCollectionsNames {
+enum DatabaseCollectionsNames {
   recipes = 'recipes',
   categories = 'categories',
 }

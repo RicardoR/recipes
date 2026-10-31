@@ -64,7 +64,7 @@ describe('RecipeCardFormComponent', () => {
     expect(component.form.get('steps')?.value).toEqual([]);
 
     expect(component.pictureForm).toBeTruthy();
-    expect(component.pictureForm.get('picture')?.value).toBe(undefined);
+    expect(component.pictureForm.get('photo')?.value).toBe(null);
 
     expect(component.user).toEqual(userMock);
   });
@@ -126,17 +126,17 @@ describe('RecipeCardFormComponent', () => {
       component.form.patchValue({
         title: 'title',
         description: 'description',
-        private: true,
+        isPrivate: true,
       });
 
       component.addControl(component.steps, new Event('click'));
-      component.form.get('steps')?.get('0')?.patchValue({data: 'step 0'});
+      component.form.get('steps')?.get('0')?.patchValue('step 0');
 
       component.addControl(component.ingredients, new Event('click'));
       component.form
         .get('ingredients')
         ?.get('0')
-        ?.patchValue({data: 'ingredient 0'});
+        ?.patchValue('ingredient 0');
 
       expect(component.form.valid).toBeTruthy();
       component.sendRecipe();
@@ -147,9 +147,9 @@ describe('RecipeCardFormComponent', () => {
         imgSrc: '',
         title: 'title',
         description: 'description',
-        steps: [{data: 'step 0'}],
-        ingredients: [{data: 'ingredient 0'}],
-        private: null,
+        steps: ['step 0'],
+        ingredients: ['ingredient 0'],
+        private: true,
         ownerId: userMock.uid,
         categories: [],
       });
@@ -203,11 +203,11 @@ describe('RecipeCardFormComponent', () => {
     component.addControl(component.steps, event);
     component.addControl(component.steps, event);
 
-    component.form.get('steps')?.get('0')?.patchValue({data: 'step 0'});
-    component.form.get('steps')?.get('1')?.patchValue({data: 'step 1'});
+    component.form.get('steps')?.get('0')?.patchValue('step 0');
+    component.form.get('steps')?.get('1')?.patchValue('step 1');
 
-    expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 0');
+    expect(component.form.get('steps')?.get('0')?.value).toBe('step 0');
     component.dropElement(cdkDragDropEvent, component.steps.controls);
-    expect(component.form.get('steps')?.get('0')?.value.data).toBe('step 1');
+    expect(component.form.get('steps')?.get('0')?.value).toBe('step 1');
   });
 });
