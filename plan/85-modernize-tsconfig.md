@@ -22,6 +22,7 @@ Rama: `85-modernize-tsconfig` (creada desde `master`)
 | **F3** | Opcionales del strict: `noImplicitOverride` + `noPropertyAccessFromIndexSignature` | ✅ | **D2 resuelta → ambos**: `noImplicitOverride` 0 cambios (0 herencias, como se previó). `noPropertyAccessFromIndexSignature` dio **13 errores TS4111** en 2 ficheros, todos triviales (acceso por corchetes): `recipe-card-form.component.ts` (10, `form!: FormGroup` sin genérico ⇒ index signature) y `toolbar.component.ts` (3, `route.snapshot.data`). Arreglados → build/test ✅. Ver §2 D2 |
 | **F4** | Endurecer el `const enum DatabaseCollectionsNames` | ✅ | `recipe.service.ts:33`: quitado `const` → `enum` normal (8 usos same-file intactos). Build/test ✅. Ver §3.4 |
 | **F5** | Verificación global + smoke manual | 🟡 | `yarn build` ✅ 1.56 MB · `yarn test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores (14 warnings OnPush aceptados). **Smoke manual: pendiente del usuario** (arranque, login, CRUD, file-input/formularios) |
+| **F6** | Tipar de verdad los 2 formularios de D2 (deshacer el workaround de corchetes) | ✅ | Los 13 TS4111 se habían parcheado con `controls['x']`; ahora `recipe-card-form` tiene `FormGroup<RecipeCardFormGroup>` completo (FormArrays genéricos, `nonNullable`, acceso por punto) y `searchFormControl` es `FormControl<string>`. Aparecieron 3 bugs latentes, corregidos. Build ✅ 1.56 MB · test ✅ 24/135 · lint ✅ 0 errores. Ver §3.6 |
 
 ---
 
@@ -57,12 +58,15 @@ confirmar el comportamiento en runtime.*
 **D2 — opcionales del strict**: **resuelta → ambos**.
 - `noImplicitOverride: true` → **0 errores** (como se previó: no hay `extends` de clase en `src/`).
 - `noPropertyAccessFromIndexSignature: true` → **13 errores TS4111**, todos de acceso por punto sobre
-  un index signature, arreglados con acceso por corchetes (triviales, keep-if-green cumplido):
+  un index signature:
   - `recipe-card-form.component.ts` (10): `form!: FormGroup` sin genérico ⇒ `controls` indexado.
-    Cambiado `this.form.controls.title` → `this.form.controls['title']` (líneas 142, 143, 150, 151,
-    257, 258, 259, 261, 265, 270).
+    *Parche inicial (keep-if-green)*: `this.form.controls.title` → `this.form.controls['title']`
+    (líneas 142, 143, 150, 151, 257, 258, 259, 261, 265, 270). **El workaround se revirtió en F6**,
+    tipando el form de verdad (solución de raíz).
   - `toolbar.component.ts` (3): `route.snapshot.firstChild?.data` ⇒ `data?.title` →
-    `data?.['title']` (líneas 122-124).
+    `data?.['title']` (líneas 122-124). **Estos 3 sí se quedan con corchetes**: `data` es
+    `ActivatedRouteSnapshot.data` (`Data` = `{[key: string]: any}`), un index signature legítimo
+    de Angular Router; acceso por punto aquí daría TS4111. No es el mismo caso que el form.
 
 **D3 — `const enum`**: **resuelta → `enum` normal**. `recipe.service.ts:33`: quitado `const`. Sus 8
 usos (líneas 69, 95, 113, 142, 173, 192, 218) siguen igual y el build pasa. Alternativa `as const`
@@ -117,6 +121,48 @@ descartada `as const` por cambiar el estilo del fichero).
    - filtro por categorías y búsqueda.
 5. Actualizar la tabla §0 y cerrar la issue #85 con comentario de resultado.
 
+### 3.6 F6 — Tipar de verdad los formularios de D2 (deshacer el workaround)
+
+D2 se parcheó con acceso por corchetes para cumplir keep-if-green. La solución de raíz es tipar los
+formularios, que además elimina los TS4111 de origen (un `FormGroup` sin genérico tiene un index
+signature en `controls`). Trabajo realizado sobre los 2 ficheros de D2:
+
+**`recipe-card-form.component.ts`** — el form entero tipado, siguiendo el patrón ya existente en
+`login.component.ts` (interfaz `RecipeCardFormGroup` + `FormGroup<T>`):
+
+- Interfaz `RecipeCardFormGroup` con cada control tipado; `form!: FormGroup<RecipeCardFormGroup>` y
+  `pictureForm!: FormGroup<{photo: FormControl<File | null>}>`.
+- Los 10 accesos por corchetes vuelven a **punto** (`controls.title`, `controls.isPrivate`, …).
+- `steps`/`ingredients` devuelven `FormArray<FormControl<string>>` **sin casts** `as FormArray`;
+  `deleteControl`/`addControl`/`dropElement` aceptan los tipos tipados; `formBuilder.array<FormControl<string>>([])`.
+- `initForm` usa `formBuilder.nonNullable.control(...)` para `title`/`description`/`isPrivate`/items
+  (porque `control(value, validators)` devuelve `FormControl<T | null>` y no casa con la interfaz).
+- `imageValidator` con firma correcta `ValidationErrors | null` (antes declaraba `void` como retorno).
+- `listenPicturesForm` accede directo a `controls.photo.valueChanges`; `handleFileChange` con guard
+  para `File | null`.
+- `categorySelect: FormControl<ElementModel[] | null>` (antes `string | ElementModel[] | null`
+  inicializado con `''`).
+
+**`toolbar.component.ts`** — `searchFormControl` pasa a `FormControl<string>` no anulable
+(`new FormControl<string>('', {nonNullable: true})`; el genérico va en el constructor por la regla
+`@typescript-eslint/consistent-generic-constructors`). El `filter(v => v !== null && v !== undefined)`
+de `listenSearchText` queda muerto y se elimina (junto a su import).
+
+**Los 3 accesos `data?.['title']` del toolbar se quedan con corchetes** — ver la nota en §2 D2: son
+un index signature legítimo de `ActivatedRouteSnapshot.data`, no un form sin tipar. No tocar.
+
+**Bugs latentes destapados y corregidos** (por qué el smoke de F5 es ahora más necesario):
+
+1. `categorySelect` inicializado con `''`: si el usuario no tocaba el selector de categorías,
+   `sendRecipe` emitía `categories: ''` en lugar de `[]`. Con `null` + `?? []` sale `[]`.
+2. Spec de `sendRecipe` parcheaba `{private: true}` — clave inexistente en el form (el control se
+   llama `isPrivate`), que se ignoraba silenciosamente y hacía assertar `private: null`. Ahora
+   parchea `isPrivate: true` y asserta `private: true`.
+3. Spec parcheaba objetos ficticios `{data: 'step 0'}` en controles que son `string` (el drag-drop
+   reorder no probaba lo que realmente hace). Ahora usa strings reales.
+
+Verificado: `yarn build` ✅ 1.56 MB · `yarn test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores.
+
 ## 4. Riesgos y mitigaciones
 
 | Riesgo | Mitigación |
@@ -130,10 +176,12 @@ descartada `as const` por cambiar el estilo del fichero).
 
 - [x] `tsconfig.json` con `module: "preserve"`, `isolatedModules: true` y **sin** `moduleResolution`.
 - [x] D1 resuelta: `useDefineForClassFields` en `true` (línea borrada).
-- [x] D2 resuelta: ambos opcionales añadidos (13 TS4111 arreglados, triviales).
+- [x] D2 resuelta: ambos opcionales añadidos (13 TS4111 arreglados).
 - [x] `const enum` → `enum` normal en `recipe.service.ts`.
+- [x] F6: formularios de D2 tipados de verdad (workaround de corchetes revertido en `recipe-card-form`;
+      3 bugs latentes corregidos).
 - [x] `yarn build` ✅ (1.56 MB) · `yarn test --watch=false` ✅ 24/135 · `npm run lint` ✅ 0 errores.
-- [ ] Smoke manual OK (incluido `file-input` + formularios) — **pendiente del usuario**.
+- [ ] Smoke manual OK (incluido `file-input` + formularios + búsqueda del toolbar) — **pendiente del usuario**.
 - [x] Plan §0 actualizado; issue #85 cerrada/actualizada con el resultado (al mergear).
 
 ## 6. Fuera de alcance

@@ -19,6 +19,7 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -43,12 +44,21 @@ import {RecipeService} from 'src/app/features/recipes/services/recipe/recipe.ser
 import {MessagesService} from '../../services/messages/messages.service';
 import {UtilService} from '../../utils/utils.service';
 import {NgLog} from '../../utils/decorators/log-decorator';
-import {ElementModel} from '../../../features/recipes/models/element.model';
+import {ElementModel} from 'src/app/features/recipes/models/element.model';
 import {FileInputComponent} from '../file-input/file-input.component';
 import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes-multiple-select.component';
 
 
 export const MEDIA_STORAGE_PATH = `recipes/images`;
+
+interface RecipeCardFormGroup {
+  title: FormControl<string>;
+  description: FormControl<string>;
+  steps: FormArray<FormControl<string>>;
+  ingredients: FormArray<FormControl<string>>;
+  isPrivate: FormControl<boolean>;
+  categorySelect: FormControl<ElementModel[] | null>;
+}
 
 @NgLog()
 @Component({
@@ -92,9 +102,9 @@ export class RecipeCardFormComponent implements OnInit {
   private messageService = inject(MessagesService);
 
 
-  form!: FormGroup;
+  form!: FormGroup<RecipeCardFormGroup>;
   recipeImage: string | ArrayBuffer | undefined;
-  pictureForm!: FormGroup;
+  pictureForm!: FormGroup<{photo: FormControl<File | null>}>;
   user?: AuthData;
   submitted = false;
   uploadProgress$!: Observable<number | undefined>;
@@ -106,12 +116,12 @@ export class RecipeCardFormComponent implements OnInit {
   });
   categories?: ElementModel[] = undefined;
 
-  get steps(): FormArray {
-    return this.form.get('steps') as FormArray;
+  get steps(): FormArray<FormControl<string>> {
+    return this.form.controls.steps;
   }
 
-  get ingredients(): FormArray {
-    return this.form.get('ingredients') as FormArray;
+  get ingredients(): FormArray<FormControl<string>> {
+    return this.form.controls.ingredients;
   }
 
   constructor() {
@@ -139,16 +149,16 @@ export class RecipeCardFormComponent implements OnInit {
         : this.recipeDetails()?.imgSrc;
 
       const recipe: Recipe = {
-        title: this.form.controls['title'].getRawValue(),
-        description: this.form.controls['description'].getRawValue(),
+        title: this.form.controls.title.getRawValue(),
+        description: this.form.controls.description.getRawValue(),
         date: this.recipeDetails()?.date ?? new Date(),
         ownerId: this.authService.currentUser?.uid,
         steps: this.steps.getRawValue(),
         ingredients: this.ingredients.getRawValue(),
         id: this.recipeDetails()?.id ?? '',
         imgSrc: imageRoute ? imageRoute : '',
-        private: this.form.controls['isPrivate'].getRawValue(),
-        categories: this.form.controls['categorySelect'].getRawValue() ?? [],
+        private: this.form.controls.isPrivate.getRawValue(),
+        categories: this.form.controls.categorySelect.getRawValue() ?? [],
       };
 
       this.recipeChanged$.emit(recipe);
@@ -156,16 +166,16 @@ export class RecipeCardFormComponent implements OnInit {
     }
   }
 
-  createFormItem(data?: string): FormControl {
-    return this.formBuilder.control(data);
+  createFormItem(data = ''): FormControl<string> {
+    return this.formBuilder.nonNullable.control(data);
   }
 
-  deleteControl(control: FormArray, index: number): void {
+  deleteControl(control: FormArray<FormControl<string>>, index: number): void {
     control.removeAt(index);
     this.cdf.detectChanges();
   }
 
-  addControl(control: FormArray, $event: Event): void {
+  addControl(control: FormArray<FormControl<string>>, $event: Event): void {
     control.push(this.createFormItem());
     this.cdf.detectChanges();
 
@@ -196,7 +206,10 @@ export class RecipeCardFormComponent implements OnInit {
       });
   }
 
-  dropElement(event: CdkDragDrop<string[]>, list: AbstractControl[]): void {
+  dropElement(
+    event: CdkDragDrop<string[]>,
+    list: FormControl<string>[]
+  ): void {
     moveItemInArray(list, event.previousIndex, event.currentIndex);
   }
 
@@ -206,16 +219,21 @@ export class RecipeCardFormComponent implements OnInit {
 
   private initForm(): void {
     this.form = this.formBuilder.group({
-      title: this.formBuilder.control('', [Validators.required]),
-      description: this.formBuilder.control('', [Validators.required]),
-      steps: this.formBuilder.array([]),
-      ingredients: this.formBuilder.array([]),
-      isPrivate: this.formBuilder.control(false),
-      categorySelect: this.formBuilder.control(''),
+      title: this.formBuilder.nonNullable.control('', [Validators.required]),
+      description: this.formBuilder.nonNullable.control('', [
+        Validators.required,
+      ]),
+      steps: this.formBuilder.array<FormControl<string>>([]),
+      ingredients: this.formBuilder.array<FormControl<string>>([]),
+      isPrivate: this.formBuilder.nonNullable.control(false),
+      categorySelect: this.formBuilder.control<ElementModel[] | null>(null),
     });
 
     this.pictureForm = this.formBuilder.group({
-      photo: [null, [Validators.required, this.imageValidator.bind(this)]],
+      photo: this.formBuilder.control<File | null>(null, [
+        Validators.required,
+        this.imageValidator.bind(this),
+      ]),
     });
 
     this.user = this.authService.currentUser;
@@ -223,23 +241,26 @@ export class RecipeCardFormComponent implements OnInit {
 
   private imageValidator(
     photoControl: AbstractControl
-  ): Record<string, boolean> | null | void {
+  ): ValidationErrors | null {
     if (photoControl.value) {
       const recipeImage = photoControl.value;
       return this.utilService.validateFile(recipeImage)
         ? null
         : {image: true};
     }
+    return null;
   }
 
   private listenPicturesForm(): void {
-    this.pictureForm
-      ?.get('photo')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((file: File) => this.handleFileChange(file));
+    this.pictureForm.controls.photo.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((file) => this.handleFileChange(file));
   }
 
-  private handleFileChange(recipeImage: File): void {
+  private handleFileChange(recipeImage: File | null): void {
+    if (!recipeImage) {
+      return;
+    }
     this.fileToUpload = recipeImage;
     const reader = new FileReader();
     reader.onload = (loadEvent) =>
@@ -254,21 +275,21 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   private fillForm(): void {
-    this.form.controls['title'].patchValue(this.recipeDetails()?.title);
-    this.form.controls['description'].patchValue(this.recipeDetails()?.description);
-    this.form.controls['isPrivate'].patchValue(this.recipeDetails()?.private);
+    this.form.controls.title.patchValue(this.recipeDetails()?.title ?? '');
+    this.form.controls.description.patchValue(
+      this.recipeDetails()?.description ?? ''
+    );
+    this.form.controls.isPrivate.patchValue(this.recipeDetails()?.private ?? false);
     this.recipeDetails()?.steps.forEach((step) => {
-      (this.form.controls['steps'] as FormArray).push(this.createFormItem(step));
+      this.form.controls.steps.push(this.createFormItem(step));
     });
 
     this.recipeDetails()?.ingredients.forEach((ingredient) => {
-      (this.form.controls['ingredients'] as FormArray).push(
-        this.createFormItem(ingredient)
-      );
+      this.form.controls.ingredients.push(this.createFormItem(ingredient));
     });
 
-    this.form.controls['categorySelect'].patchValue(
-      this.recipeDetails()?.categories
+    this.form.controls.categorySelect.patchValue(
+      this.recipeDetails()?.categories ?? null
     );
   }
 

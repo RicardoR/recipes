@@ -17,7 +17,6 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {filter} from 'rxjs/operators';
 
 import {AppRoutingNames} from 'src/app/app.routes';
 import {AuthService} from 'src/app/core/auth/services/auth.service';
@@ -51,7 +50,7 @@ export class ToolbarComponent implements OnInit {
 
   userId?: string;
   displaySearchControl = false;
-  searchFormControl: FormControl<string | null> = new FormControl<string | null>('', []);
+  searchFormControl = new FormControl<string>('', {nonNullable: true});
   title = signal<string>('');
   displaySearchButton = signal<boolean>(true);
   displayListButton = signal<boolean>(false);
@@ -101,10 +100,7 @@ export class ToolbarComponent implements OnInit {
 
   private listenSearchText(): void {
     this.searchFormControl.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter((value) => value !== null && value !== undefined)
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.toolbarService.onSearch(value));
   }
 
@@ -119,7 +115,7 @@ export class ToolbarComponent implements OnInit {
 
   private fillPropertiesFromRouteData(): void {
     const data = this.route.snapshot.firstChild?.data;
-    this.title.set(data?.['title']);
+    this.title.set(data?.['title'] ?? '');
     this.displaySearchButton.set(data?.['displaySearchButton'] ?? false);
     this.displayListButton.set(data?.['displayListButton'] ?? false);
   }

@@ -42,7 +42,7 @@
                                 formControlName="photo">
                   <mat-icon appFileInputIcon>folder</mat-icon>
                 </app-file-input>
-                @if (pictureForm.controls['photo'].hasError('image')) {
+                @if (pictureForm.controls.photo.hasError('image')) {
                   <mat-error>
                     Formato de archivo incorrecto
                   </mat-error>
