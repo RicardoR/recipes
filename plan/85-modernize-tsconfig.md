@@ -115,9 +115,14 @@ descartada `as const` por cambiar el estilo del fichero).
 4. Smoke manual (la app corre contra el proyecto Firebase de test vía `npm start`):
    - arranque + login/logout con `test@mail.com`,
    - CRUD de recetas (crear, editar, borrar con diálogo),
-   - subida/borrado de imagen (Storage),
-   - **`file-input` escribiendo en el form** y validación `required` (el componente más sensible a
-     F2 por su cantidad de campos de clase),
+   - **flujo de imagen** — hay que probar los DOS caminos, porque escriben distinto en Firestore:
+     - *sin subir imagen*: `sendRecipe` guarda `imgSrc: ''` y el converter del servicio
+       (`recipe.service.ts:298`) sustituye por `DEFAULT_IMAGE` al leer ⇒ se ve `verduras.jpeg`,
+     - *subir imagen*: `file-input` → `pictureForm` (NO el `form`; es un FormGroup aparte con un
+       único control `photo`) → preview + `postImage()` a Storage ⇒ se ve la subida,
+     - validación `required` + `imageValidator` del botón "Subir imagen"
+       (`[disabled]="pictureForm.invalid || submitted"`),
+     - borrar la receta ⇒ `deleteImage` debe ignorar el caso `DEFAULT_IMAGE` (`recipe.service.ts:267`),
    - filtro por categorías y búsqueda.
 5. Actualizar la tabla §0 y cerrar la issue #85 con comentario de resultado.
 
