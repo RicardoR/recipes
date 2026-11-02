@@ -24,6 +24,7 @@ Rama: `83-onpush-migration` (creada desde `master`)
 | **F4** | Tier 3 shared — signals + `markForCheck` (2 warnings) | ✅ | `RecipeCardFormComponent` (signals: `recipeImage`, `submitted`, `categories`, `editingMode`, `isOwnRecipe`) y `FileInputComponent` (`markForCheck` en CVA + suscripción `statusChanges` en `ngDoCheck`, ver §3.5). **Los 3 tests DOM de file-input verdes**. Lint → **0 warnings** |
 | **F5** | Regla a `"error"` + verificación global | ✅ | `eslint.config.js:33` → `"error"`; **0 errores / 0 warnings**, 24/135, build 1.56 MB (< 2 MB), `grep Eager` → 0 hits |
 | **F6** | Smoke manual Tier 3 + cierre de issue | ✅ | Smoke OK, sin errores de consola (§3.7); plan B de F3 no hizo falta. Commits hechos por fase. Pendiente: push + PR + cierre de issue al mergear |
+| **F7** | Limpieza post-review: estado derivado → `computed()` | ✅ | Decisión D4 (§2). `recipe-card-form` (`editingMode`/`isOwnRecipe` + fix de FormArrays), listas (`recipesFiltered` computed) y `recipe-list` (`toSignal`). 0 errores / 0 warnings, 24/135, 1.56 MB |
 
 ## 1. Contexto — inventario verificado
 
@@ -76,6 +77,26 @@ propiedad), así que `changeDetection: ChangeDetectionStrategy.OnPush` es técni
 Se decidió **mantenerlo explícito** en los 14 sitios por consistencia con los 3 componentes que ya
 lo declaraban (`toolbar`, `recipe-ribbon`, `recipes-multiple-select`) y con el enunciado de la
 issue. La regla lo permite (`allowExplicitOnPush: true` por defecto).
+
+**D4 — estado derivado → `computed()` (F7, propuesto en review de la PR)**: lo que es derivación
+pura de otros signals pasa de signal-escrito-por-effect a `computed()` — evalúa lazy, siempre
+consistente y sin la ventana de un frame tras el render que tiene un `effect`:
+
+- `recipe-card-form`: `editingMode`/`isOwnRecipe` → `computed` desde `recipeDetails()`; desaparece
+  `fillEditingData()` y el effect solo conserva sus efectos secundarios reales (sembrar
+  `recipeImage` y `fillForm`). `recipeImage` **no** puede ser computed: se semilla de
+  `recipeDetails` pero diverge con la subida del usuario (`FileReader.onload`). De paso,
+  `fillForm` ahora hace `clear()` de los FormArrays antes de push (fix del append duplicado si
+  `recipeDetails` emitiera más de una vez).
+- `my-recipes` / `public-recipe-list`: `recipesRetrieved` (signal) es la única fuente de verdad y
+  `recipesFiltered` un `computed` de él + `toolbarService.searchTerm()` (ya signal; con término
+  vacío devuelve copia, sin llamar al servicio — semántica idéntica a `onSearchText`). Se eliminan
+  el `effect` de constructor y `onSearchText`; las suscripciones solo escriben `recipesRetrieved`.
+- `recipe-list`: `selectedCategories = toSignal(categoryFilter.valueChanges)` y `recipesFiltered`
+  → `computed` de él + input `recipes()`. Se eliminan el `effect`, `listenCategoryFilter` y
+  `filterRecipes`. *Nota*: `toSignal` vive en `@angular/core/rxjs-interop`, no en `@angular/core`.
+- Specs de búsqueda actualizados: un `computed` es **lazy** — hay que leer `recipesFiltered()` para
+  que evalúe (antes el `effect` corría solo).
 
 ## 3. Fases
 
