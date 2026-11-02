@@ -47,7 +47,7 @@ describe('RecipeListComponent', () => {
 
   it('should retrieve the categories', () => {
     expect(recipeServiceSpy.getCategories).toHaveBeenCalled();
-    expect(component.categories).toEqual(categoriesMock);
+    expect(component.categories()).toEqual(categoriesMock);
   });
 
   describe('filter', () => {

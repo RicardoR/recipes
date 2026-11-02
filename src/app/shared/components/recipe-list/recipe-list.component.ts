@@ -20,7 +20,7 @@ import {RecipesMultipleSelectComponent} from '../recipes-multiple-select/recipes
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RecipesMultipleSelectComponent,
     ReactiveFormsModule,
@@ -43,7 +43,7 @@ export class RecipeListComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private recipeService = inject(RecipeService);
 
-  categories: ElementModel[] = [];
+  readonly categories = signal<ElementModel[]>([]);
   categoryFilter = new FormControl<ElementModel[] | null>(null);
   recipesFiltered = signal<Recipe[]>([]);
 
@@ -73,7 +73,7 @@ export class RecipeListComponent implements OnInit {
       .getCategories()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        tap((categories) => (this.categories = categories))
+        tap((categories) => this.categories.set(categories))
       )
       .subscribe();
   }

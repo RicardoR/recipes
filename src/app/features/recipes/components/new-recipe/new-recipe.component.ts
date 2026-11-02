@@ -15,7 +15,7 @@ import {AnalyticsService} from '../../../../shared/services/analytics/analytics.
   selector: 'app-new-recipe',
   templateUrl: './new-recipe.component.html',
   styleUrls: ['./new-recipe.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RecipeCardFormComponent]
 })
 export class NewRecipeComponent implements OnInit {
