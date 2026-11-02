@@ -23,7 +23,7 @@ Rama: `83-onpush-migration` (creada desde `master`)
 | **F3** | Tier 3 feature — signals (4 warnings) | ✅ | `EditRecipeComponent`, `MyRecipesComponent`, `PublicRecipeListComponent` (signals) + `RecipeDetailsComponent` (flip solo). Specs actualizados (`campo()`). Lint → **2 warnings** |
 | **F4** | Tier 3 shared — signals + `markForCheck` (2 warnings) | ✅ | `RecipeCardFormComponent` (signals: `recipeImage`, `submitted`, `categories`, `editingMode`, `isOwnRecipe`) y `FileInputComponent` (`markForCheck` en CVA + suscripción `statusChanges` en `ngDoCheck`, ver §3.5). **Los 3 tests DOM de file-input verdes**. Lint → **0 warnings** |
 | **F5** | Regla a `"error"` + verificación global | ✅ | `eslint.config.js:33` → `"error"`; **0 errores / 0 warnings**, 24/135, build 1.56 MB (< 2 MB), `grep Eager` → 0 hits |
-| **F6** | Smoke manual Tier 3 + cierre de issue | ⏳ | Checklist en §3.6 (pendiente manual + commit/PR) |
+| **F6** | Smoke manual Tier 3 + cierre de issue | ✅ | Smoke OK, sin errores de consola (§3.7); plan B de F3 no hizo falta. Commits hechos por fase. Pendiente: push + PR + cierre de issue al mergear |
 
 ## 1. Contexto — inventario verificado
 
@@ -213,19 +213,22 @@ son todos componentes; tras F1-F4 → **0 warnings** con la regla aún en `"warn
 
 Checklist (asincronía + estado mutable, que es lo que OnPush puede romper):
 
-- [ ] Arranque + login/logout con `test@mail.com`, recarga de página.
-- [ ] **Listados** (`my-recipes`, `public-recipe-list`): carga inicial de recetas, **búsqueda del
+- [x] Arranque + login/logout con `test@mail.com`, recarga de página.
+- [x] **Listados** (`my-recipes`, `public-recipe-list`): carga inicial de recetas, **búsqueda del
       toolbar** (effect → signal), **filtro por categorías** (el signal `categories` del
       `recipe-list`), borrado con diálogo → la lista se refresca.
-- [ ] **Detalles de receta**: cargar receta → botones Editar/Clonar/Borrar según `isOwnRecipe`
+- [x] **Detalles de receta**: cargar receta → botones Editar/Clonar/Borrar según `isOwnRecipe`
       (async pipe → markForCheck; plan B de F3 si falla).
-- [ ] **Formulario** (`new-recipe`/`edit-recipe`): prellenado en modo edición (`recipeDetails`
+- [x] **Formulario** (`new-recipe`/`edit-recipe`): prellenado en modo edición (`recipeDetails`
       signal), submit → snackbar + navegación (`isSending`), añadir/quitar pasos e ingredientes
       (FormArrays + `cdf.detectChanges()`), drag & drop.
-- [ ] **Imagen**: subir → preview (`recipeImage` signal) + progress bar (`submitted`), validación
+- [x] **Imagen**: subir → preview (`recipeImage` signal) + progress bar (`submitted`), validación
       `required` + `imageValidator`, **campo deshabilitado desde el form** (`setDisabledState` +
       `markForCheck`), icono proyectado.
-- [ ] Login: toggle de visibilidad de contraseña (`passWordHidden`).
+- [x] Login: toggle de visibilidad de contraseña (`passWordHidden`).
+
+**Resultado (F6)**: ✅ todo OK, sin errores en consola. No hizo falta el plan B de F3
+(`recipe-details` con solo flip se comporta bien gracias al `async pipe`).
 
 ## 4. Riesgos y mitigaciones
 
@@ -245,8 +248,8 @@ Checklist (asincronía + estado mutable, que es lo que OnPush puede romper):
 - [x] `grep -rn "ChangeDetectionStrategy.Eager" src/` → **0 hits**.
 - [x] `yarn test --watch=false` ✅ 24 ficheros / 135 tests.
 - [x] `yarn build` ✅ (1.56 MB, igual que el baseline F0).
-- [ ] Smoke manual Tier 3 (checklist §3.7).
-- [ ] Plan §0 actualizado ✓ · issue #83 cerrada/actualizada con el resultado (al mergear).
+- [x] Smoke manual Tier 3 (checklist §3.7) — OK, sin errores en consola.
+- [x] Plan §0 actualizado ✓ · issue #83 cerrada/actualizada con el resultado (al mergear — pendiente).
 
 ## 6. Fuera de alcance
 
