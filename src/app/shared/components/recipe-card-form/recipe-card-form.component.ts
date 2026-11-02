@@ -65,7 +65,7 @@ interface RecipeCardFormGroup {
   selector: 'app-recipe-card-form',
   templateUrl: './recipe-card-form.component.html',
   styleUrls: ['./recipe-card-form.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     ReactiveFormsModule,
@@ -103,18 +103,21 @@ export class RecipeCardFormComponent implements OnInit {
 
 
   form!: FormGroup<RecipeCardFormGroup>;
-  recipeImage: string | ArrayBuffer | undefined;
+  readonly recipeImage = signal<string | ArrayBuffer | undefined>(undefined);
   pictureForm!: FormGroup<{photo: FormControl<File | null>}>;
   user?: AuthData;
-  submitted = false;
+  readonly submitted = signal(false);
   uploadProgress$!: Observable<number | undefined>;
-  isOwnRecipe!: boolean;
-  editingMode = false;
+  readonly isOwnRecipe = computed(() => {
+    const details = this.recipeDetails();
+    return !!details && details.ownerId === this.user?.uid;
+  });
+  readonly editingMode = computed(() => !!this.recipeDetails());
   isSending = signal(false);
   disabled = computed(() => {
     return this.isFormSending() || this.isSending();
   });
-  categories?: ElementModel[] = undefined;
+  readonly categories = signal<ElementModel[] | undefined>(undefined);
 
   get steps(): FormArray<FormControl<string>> {
     return this.form.controls.steps;
@@ -128,7 +131,7 @@ export class RecipeCardFormComponent implements OnInit {
     effect(() => {
       const recipeDetails = this.recipeDetails();
       if (recipeDetails) {
-        this.fillEditingData();
+        this.recipeImage.set(recipeDetails.imgSrc);
         this.fillForm();
       }
     });
@@ -183,7 +186,7 @@ export class RecipeCardFormComponent implements OnInit {
   }
 
   postImage(): void {
-    this.submitted = true;
+    this.submitted.set(true);
 
     const {downloadUrl$, uploadProgress$} =
       this.recipeService.uploadFileAndGetMetadata(
@@ -201,7 +204,7 @@ export class RecipeCardFormComponent implements OnInit {
         })
       )
       .subscribe((downloadUrl) => {
-        this.submitted = false;
+        this.submitted.set(false);
         this.imageRoute = downloadUrl;
       });
   }
@@ -264,17 +267,13 @@ export class RecipeCardFormComponent implements OnInit {
     this.fileToUpload = recipeImage;
     const reader = new FileReader();
     reader.onload = (loadEvent) =>
-      (this.recipeImage = loadEvent.target?.result || undefined);
+      this.recipeImage.set(loadEvent.target?.result || undefined);
     reader.readAsDataURL(recipeImage);
   }
 
-  private fillEditingData(): void {
-    this.editingMode = true;
-    this.isOwnRecipe = this.recipeDetails()?.ownerId === this.user?.uid;
-    this.recipeImage = this.recipeDetails()?.imgSrc;
-  }
-
   private fillForm(): void {
+    this.form.controls.steps.clear();
+    this.form.controls.ingredients.clear();
     this.form.controls.title.patchValue(this.recipeDetails()?.title ?? '');
     this.form.controls.description.patchValue(
       this.recipeDetails()?.description ?? ''
@@ -297,6 +296,6 @@ export class RecipeCardFormComponent implements OnInit {
     this.recipeService
       .getCategories()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((categories) => (this.categories = categories));
+      .subscribe((categories) => this.categories.set(categories));
   }
 }

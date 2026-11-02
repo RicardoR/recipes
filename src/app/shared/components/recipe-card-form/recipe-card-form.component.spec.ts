@@ -70,14 +70,14 @@ describe('RecipeCardFormComponent', () => {
   });
 
   it('should be creation data at first', () => {
-    expect(component.editingMode).toBeFalsy();
-    expect(component.isOwnRecipe).toBeFalsy();
-    expect(component.recipeImage).toBeUndefined();
+    expect(component.editingMode()).toBeFalsy();
+    expect(component.isOwnRecipe()).toBeFalsy();
+    expect(component.recipeImage()).toBeUndefined();
   });
 
   it('should retrieve the categories', () => {
     expect(recipeServiceSpy.getCategories).toHaveBeenCalled();
-    expect(component.categories).toEqual(categoriesMock);
+    expect(component.categories()).toEqual(categoriesMock);
   });
 
   describe('when retrieve data', () => {
@@ -90,9 +90,9 @@ describe('RecipeCardFormComponent', () => {
     it('should put in editing mode', () => {
       const isOwnRecipe = recipeMock.ownerId === userMock.uid;
 
-      expect(component.editingMode).toBeTruthy();
-      expect(component.isOwnRecipe).toBe(isOwnRecipe);
-      expect(component.recipeImage).toBe(recipeMock.imgSrc);
+      expect(component.editingMode()).toBeTruthy();
+      expect(component.isOwnRecipe()).toBe(isOwnRecipe);
+      expect(component.recipeImage()).toBe(recipeMock.imgSrc);
     });
 
     it('fill the controls', () => {

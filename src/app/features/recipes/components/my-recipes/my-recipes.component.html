@@ -1,6 +1,6 @@
 <div class="p-2">
-  <app-recipe-list [recipes]="recipesFiltered"
-                   [userId]="userId"
+  <app-recipe-list [recipes]="recipesFiltered()"
+                   [userId]="userId()"
                    [ribbonTitle]="'Privada'"
                    [publicList]=false
                    (goToRecipe$)="goToRecipe($event)"

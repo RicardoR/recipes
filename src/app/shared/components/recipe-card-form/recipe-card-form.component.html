@@ -27,11 +27,11 @@
 
         <div class="mb-2">
           <p>Imagen de la receta</p>
-          @if (recipeImage) {
+          @if (recipeImage()) {
             <img
               mat-card-image
               class="preview-image"
-              [src]="recipeImage"
+              [src]="recipeImage()"
               alt="Imagen de la receta"/>
           }
           @if (user) {
@@ -50,14 +50,14 @@
               </mat-form-field>
             </div>
           }
-          @if (submitted) {
+          @if (submitted()) {
             <mat-progress-bar [value]="uploadProgress$ | async" mode="determinate">
             </mat-progress-bar>
           }
 
           <button mat-raised-button
                   color="primary"
-                  [disabled]="pictureForm.invalid || submitted"
+                  [disabled]="pictureForm.invalid || submitted()"
                   (click)="postImage()">
             Subir imagen
           </button>
@@ -149,14 +149,16 @@
             </mat-action-row>
           </mat-expansion-panel>
         </mat-accordion>
-        @if (categories && categories.length) {
-          <div class="mt-1">
-            <p>Categorías</p>
-            <app-recipes-multiple-select formControlName="categorySelect"
-                                         [label]="'Categorías'"
-                                         [options]="categories">
-            </app-recipes-multiple-select>
-          </div>
+        @if (categories(); as categoriesList) {
+          @if (categoriesList.length) {
+            <div class="mt-1">
+              <p>Categorías</p>
+              <app-recipes-multiple-select formControlName="categorySelect"
+                                           [label]="'Categorías'"
+                                           [options]="categoriesList">
+              </app-recipes-multiple-select>
+            </div>
+          }
         }
         <mat-slide-toggle class="mt-1"
                           formControlName="isPrivate">
@@ -167,7 +169,7 @@
     </mat-card-content>
 
     <mat-card-actions>
-      @if (!editingMode || (isOwnRecipe && editingMode)) {
+      @if (!editingMode() || (isOwnRecipe() && editingMode())) {
         <button
           mat-raised-button
           color="primary"
@@ -181,7 +183,7 @@
           Sólo el propietario puede editar sus recetas
         </button>
       }
-      @if (editingMode) {
+      @if (editingMode()) {
         <button
           mat-button
           (click)='seeReceipt()'>

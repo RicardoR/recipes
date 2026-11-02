@@ -25,7 +25,7 @@ import {AnalyticsService} from "../../../../shared/services/analytics/analytics.
   standalone: true,
   templateUrl: './recipe-details.component.html',
   styleUrls: ['./recipe-details.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     MatExpansionModule,

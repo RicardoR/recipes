@@ -69,11 +69,11 @@ describe('PublicRecipeListComponent', () => {
   describe('ngOnInit', () => {
     it('should get recipes', () => {
       expect(recipeServiceSpy.getPublicRecipes).toHaveBeenCalled();
-      expect(component.recipesFiltered).toEqual(recipesListMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
     });
 
     it('should get the current userId', () => {
-      expect(component.userId).toEqual(userMock.uid);
+      expect(component.userId()).toEqual(userMock.uid);
     });
   });
 
@@ -143,8 +143,11 @@ describe('PublicRecipeListComponent', () => {
   });
 
   it('should trigger the search query when toolbarService emits a change', (() => {
+    recipeServiceSpy.filterRecipes.mockReturnValue([recipesListMock[0]]);
     toolbarService.onSearch('my recipe');
     fixture.detectChanges();
-    expect(recipeServiceSpy.filterRecipes).toHaveBeenCalled();
+
+    expect(component.recipesFiltered()).toEqual([recipesListMock[0]]);
+    expect(recipeServiceSpy.filterRecipes).toHaveBeenCalledWith(recipesListMock, 'my recipe');
   }));
 });

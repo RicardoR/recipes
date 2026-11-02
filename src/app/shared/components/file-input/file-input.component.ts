@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  DestroyRef,
   DoCheck,
   ElementRef,
   forwardRef,
@@ -10,14 +13,14 @@ import {
   input,
   OnChanges,
   OnDestroy,
-  viewChild,
-  ChangeDetectionStrategy
+  viewChild
 } from '@angular/core';
 import {ControlValueAccessor, NgControl, NgForm} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {ErrorStateMatcher, ThemePalette} from '@angular/material/core';
 import {MatFormFieldControl} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject} from 'rxjs';
 
 import {FileOrArrayFile} from './file-input.types';
@@ -34,7 +37,7 @@ let nextUniqueId = 0;
       useExisting: forwardRef(() => FileInputComponent),
     },
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatButtonModule],
 })
 export class FileInputComponent
@@ -47,6 +50,9 @@ export class FileInputComponent
   readonly ngControl = inject(NgControl, {optional: true, self: true});
   private readonly parentForm = inject(NgForm, {optional: true});
   private readonly defaultErrorStateMatcher = inject(ErrorStateMatcher);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private statusChangesSubscribed = false;
 
   private readonly fileInputRef =
     viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
@@ -86,6 +92,7 @@ export class FileInputComponent
   }
 
   ngDoCheck(): void {
+    this.subscribeToStatusChanges();
     this.updateErrorState();
   }
 
@@ -114,6 +121,7 @@ export class FileInputComponent
   writeValue(value: FileOrArrayFile | null): void {
     this.value = value;
     this.updateDisplayedValue(value);
+    this.cdr.markForCheck();
   }
 
   registerOnChange(fn: (value: FileOrArrayFile) => void): void {
@@ -127,6 +135,7 @@ export class FileInputComponent
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
     this.stateChanges.next();
+    this.cdr.markForCheck();
   }
 
   openFilePicker(event?: MouseEvent): void {
@@ -152,11 +161,26 @@ export class FileInputComponent
     const value = this.multiple() ? files : files[0];
     this.value = value;
     this.onChange?.(value);
+    this.cdr.markForCheck();
   }
 
   private markAsTouched(): void {
     this.onTouched?.();
     this.stateChanges.next();
+  }
+
+  private subscribeToStatusChanges(): void {
+    const control = this.ngControl?.control;
+    if (this.statusChangesSubscribed || !control) {
+      return;
+    }
+    this.statusChangesSubscribed = true;
+    control.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.updateErrorState();
+        this.cdr.markForCheck();
+      });
   }
 
   private updateErrorState(): void {
@@ -169,6 +193,7 @@ export class FileInputComponent
     if (errorState !== this.errorState) {
       this.errorState = errorState;
       this.stateChanges.next();
+      this.cdr.markForCheck();
     }
   }
 
