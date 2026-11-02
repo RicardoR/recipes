@@ -1,7 +1,7 @@
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {Component, DestroyRef, effect, inject, input, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
-import {filter, tap} from 'rxjs/operators';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Component, computed, DestroyRef, inject, input, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
+import {tap} from 'rxjs/operators';
 import {MatCardModule} from '@angular/material/card';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {DatePipe} from '@angular/common';
@@ -45,15 +45,18 @@ export class RecipeListComponent implements OnInit {
 
   readonly categories = signal<ElementModel[]>([]);
   categoryFilter = new FormControl<ElementModel[] | null>(null);
-  recipesFiltered = signal<Recipe[]>([]);
-
-  constructor() {
-    effect(() => this.recipesFiltered.set(this.recipes()));
-  }
+  private readonly selectedCategories = toSignal(this.categoryFilter.valueChanges, {
+    initialValue: null,
+  });
+  readonly recipesFiltered = computed(() => {
+    const selected = this.selectedCategories();
+    return selected?.length
+      ? this.findRecipesByCategory(selected)
+      : this.recipes();
+  });
 
   ngOnInit(): void {
     this.getCategories();
-    this.listenCategoryFilter();
   }
 
   goToRecipe(recipe: Recipe): void {
@@ -76,24 +79,6 @@ export class RecipeListComponent implements OnInit {
         tap((categories) => this.categories.set(categories))
       )
       .subscribe();
-  }
-
-  private listenCategoryFilter(): void {
-    this.categoryFilter.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter(value => value !== null && value !== undefined)
-      )
-      .subscribe((value) => this.filterRecipes(value));
-  }
-
-  private filterRecipes(categoriesSelected: ElementModel[]): void {
-    if (!categoriesSelected || categoriesSelected?.length === 0) {
-      this.recipesFiltered.set(this.recipes());
-      return;
-    }
-
-    this.recipesFiltered.set(this.findRecipesByCategory(categoriesSelected));
   }
 
   private findRecipesByCategory(categoriesSelected: ElementModel[]): Recipe[] {

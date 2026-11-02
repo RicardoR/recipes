@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
@@ -25,10 +25,16 @@ import {ToolbarService} from "../../../../shared/services/toolbar/toolbar.servic
   imports: [RecipeListComponent]
 })
 export class PublicRecipeListComponent implements OnInit {
-  readonly recipesFiltered = signal<Recipe[]>([]);
+  readonly recipesFiltered = computed(() => {
+    const searchTerm = this.toolbarService.searchTerm();
+    const recipes = this.recipesRetrieved();
+    return searchTerm.trim()
+      ? this.recipeService.filterRecipes(recipes, searchTerm)
+      : [...recipes];
+  });
   readonly userId = signal<string | undefined>(undefined);
 
-  private recipesRetrieved: Recipe[] = [];
+  private recipesRetrieved = signal<Recipe[]>([]);
 
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
@@ -37,12 +43,6 @@ export class PublicRecipeListComponent implements OnInit {
   public dialog = inject(MatDialog);
   private analytics = inject(AnalyticsService);
   private toolbarService = inject(ToolbarService);
-
-  constructor() {
-    effect(() => {
-      this.onSearchText(this.toolbarService.searchTerm());
-    });
-  }
 
   ngOnInit(): void {
     this.analytics.sendToAnalytics('public_recipes_component_opened');
@@ -75,20 +75,8 @@ export class PublicRecipeListComponent implements OnInit {
           concatMap(() => this.recipeService.getPublicRecipes())
         )
         .subscribe((data: Recipe[]) => {
-          this.recipesFiltered.set(data);
-          this.recipesRetrieved = [...data];
+          this.recipesRetrieved.set(data);
         });
-    }
-  }
-
-  onSearchText(searchText: string): void {
-    if (searchText?.trim()) {
-      this.recipesFiltered.set(this.recipeService.filterRecipes(
-        this.recipesRetrieved,
-        searchText
-      ));
-    } else {
-      this.recipesFiltered.set([...this.recipesRetrieved]);
     }
   }
 
@@ -109,8 +97,7 @@ export class PublicRecipeListComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         tap((data: Recipe[]) => {
-          this.recipesFiltered.set(data);
-          this.recipesRetrieved = [...data];
+          this.recipesRetrieved.set(data);
         })
       )
       .subscribe();
@@ -123,8 +110,7 @@ export class PublicRecipeListComponent implements OnInit {
         tap(() => this.userId.set(undefined)),
         switchMap(() => this.recipeService.getPublicRecipes()),
         tap((data: Recipe[]) => {
-          this.recipesFiltered.set(data);
-          this.recipesRetrieved = [...data];
+          this.recipesRetrieved.set(data);
         })
       )
       .subscribe();

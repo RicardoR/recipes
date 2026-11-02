@@ -125,8 +125,12 @@ describe('MyRecipesComponent', () => {
   });
 
   it('should trigger the search query when toolbarService emits a change', (() => {
+    recipeServiceSpy.filterRecipes.mockReturnValue([recipesListMock[0]]);
     toolbarService.onSearch('my recipe');
     fixture.detectChanges();
-    expect(recipeServiceSpy.filterRecipes).toHaveBeenCalled();
+
+    // el computed es lazy: hay que leerlo para que evalúe con el nuevo término
+    expect(component.recipesFiltered()).toEqual([recipesListMock[0]]);
+    expect(recipeServiceSpy.filterRecipes).toHaveBeenCalledWith(recipesListMock, 'my recipe');
   }));
 });

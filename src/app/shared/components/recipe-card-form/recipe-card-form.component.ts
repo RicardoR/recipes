@@ -108,8 +108,11 @@ export class RecipeCardFormComponent implements OnInit {
   user?: AuthData;
   readonly submitted = signal(false);
   uploadProgress$!: Observable<number | undefined>;
-  readonly isOwnRecipe = signal(false);
-  readonly editingMode = signal(false);
+  readonly isOwnRecipe = computed(() => {
+    const details = this.recipeDetails();
+    return !!details && details.ownerId === this.user?.uid;
+  });
+  readonly editingMode = computed(() => !!this.recipeDetails());
   isSending = signal(false);
   disabled = computed(() => {
     return this.isFormSending() || this.isSending();
@@ -128,7 +131,7 @@ export class RecipeCardFormComponent implements OnInit {
     effect(() => {
       const recipeDetails = this.recipeDetails();
       if (recipeDetails) {
-        this.fillEditingData();
+        this.recipeImage.set(recipeDetails.imgSrc);
         this.fillForm();
       }
     });
@@ -268,13 +271,9 @@ export class RecipeCardFormComponent implements OnInit {
     reader.readAsDataURL(recipeImage);
   }
 
-  private fillEditingData(): void {
-    this.editingMode.set(true);
-    this.isOwnRecipe.set(this.recipeDetails()?.ownerId === this.user?.uid);
-    this.recipeImage.set(this.recipeDetails()?.imgSrc);
-  }
-
   private fillForm(): void {
+    this.form.controls.steps.clear();
+    this.form.controls.ingredients.clear();
     this.form.controls.title.patchValue(this.recipeDetails()?.title ?? '');
     this.form.controls.description.patchValue(
       this.recipeDetails()?.description ?? ''
