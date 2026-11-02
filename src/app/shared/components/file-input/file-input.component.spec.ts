@@ -22,7 +22,7 @@ import {FileInputComponent} from './file-input.component';
       </app-file-input>
     </mat-form-field>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatFormFieldModule,
     ReactiveFormsModule,
@@ -45,7 +45,7 @@ class FileInputHostComponent {
       <app-file-input [formControl]="control"></app-file-input>
     </mat-form-field>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatFormFieldModule, ReactiveFormsModule, FileInputComponent],
 })
 class FileInputHostWithoutIconComponent {

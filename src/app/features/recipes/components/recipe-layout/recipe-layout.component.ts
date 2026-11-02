@@ -9,7 +9,7 @@ import {RouterOutlet} from "@angular/router";
     RouterOutlet
   ],
   templateUrl: './recipe-layout.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './recipe-layout.component.scss'
 })
 export class RecipeLayoutComponent {

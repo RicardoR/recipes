@@ -7,7 +7,7 @@ import {AnalyticsService} from '../../../../shared/services/analytics/analytics.
   selector: 'app-delete-recipe-dialog',
   templateUrl: './delete-recipe-dialog.component.html',
   styleUrls: ['./delete-recipe-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatButtonModule]
 })
 export class DeleteRecipeDialogComponent implements OnInit {
