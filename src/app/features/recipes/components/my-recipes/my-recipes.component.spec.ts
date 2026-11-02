@@ -129,7 +129,6 @@ describe('MyRecipesComponent', () => {
     toolbarService.onSearch('my recipe');
     fixture.detectChanges();
 
-    // el computed es lazy: hay que leerlo para que evalúe con el nuevo término
     expect(component.recipesFiltered()).toEqual([recipesListMock[0]]);
     expect(recipeServiceSpy.filterRecipes).toHaveBeenCalledWith(recipesListMock, 'my recipe');
   }));
