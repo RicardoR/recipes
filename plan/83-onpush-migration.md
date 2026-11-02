@@ -24,7 +24,7 @@ Rama: `83-onpush-migration` (creada desde `master`)
 | **F4** | Tier 3 shared — signals + `markForCheck` (2 warnings) | ✅ | `RecipeCardFormComponent` (signals: `recipeImage`, `submitted`, `categories`, `editingMode`, `isOwnRecipe`) y `FileInputComponent` (`markForCheck` en CVA + suscripción `statusChanges` en `ngDoCheck`, ver §3.5). **Los 3 tests DOM de file-input verdes**. Lint → **0 warnings** |
 | **F5** | Regla a `"error"` + verificación global | ✅ | `eslint.config.js:33` → `"error"`; **0 errores / 0 warnings**, 24/135, build 1.56 MB (< 2 MB), `grep Eager` → 0 hits |
 | **F6** | Smoke manual Tier 3 + cierre de issue | ✅ | Smoke OK, sin errores de consola (§3.7); plan B de F3 no hizo falta. Commits hechos por fase. Pendiente: push + PR + cierre de issue al mergear |
-| **F7** | Limpieza post-review: estado derivado → `computed()` | ✅ | Decisión D4 (§2). `recipe-card-form` (`editingMode`/`isOwnRecipe` + fix de FormArrays), listas (`recipesFiltered` computed) y `recipe-list` (`toSignal`). 0 errores / 0 warnings, 24/135, 1.56 MB |
+| **F7** | Limpieza post-review: estado derivado → `computed()` | ✅ | Decisión D4 (§2). `recipe-card-form` (`editingMode`/`isOwnRecipe` + fix de FormArrays), listas (`recipesFiltered` computed) y `recipe-list` (`toSignal`). 0 errores / 0 warnings, 24/135, 1.56 MB. Re-smoke OK, sin errores de consola |
 
 ## 1. Contexto — inventario verificado
 
