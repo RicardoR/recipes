@@ -64,11 +64,11 @@ describe('MyRecipesComponent', () => {
   describe('ngOnInit', () => {
     it('should get recipes', () => {
       expect(recipeServiceSpy.getOwnRecipes).toHaveBeenCalled();
-      expect(component.recipesFiltered).toEqual(recipesListMock);
+      expect(component.recipesFiltered()).toEqual(recipesListMock);
     });
 
     it('should get the current userId', () => {
-      expect(component.userId).toEqual(userMock.uid);
+      expect(component.userId()).toEqual(userMock.uid);
     });
   });
 

@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, input, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, input, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {of} from 'rxjs';
@@ -18,13 +18,13 @@ import {AnalyticsService} from '../../../../shared/services/analytics/analytics.
   selector: 'app-edit-recipe',
   templateUrl: './edit-recipe.component.html',
   styleUrls: ['./edit-recipe.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RecipeCardFormComponent]
 })
 export class EditRecipeComponent implements OnInit {
   id = input.required<string>()
-  recipeDetails!: Recipe;
-  isSending = false;
+  readonly recipeDetails = signal<Recipe | undefined>(undefined);
+  readonly isSending = signal(false);
 
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
@@ -46,34 +46,34 @@ export class EditRecipeComponent implements OnInit {
   goToRecipe(): void {
     this.router.navigate([
       `${AppRoutingNames.recipes}/${RecipesRoutingNames.details}`,
-      this.recipeDetails.id,
+      this.recipeDetails()!.id,
     ]);
   }
 
   updateRecipe(recipe: Recipe): void {
     this.analytics.sendToAnalytics('update_recipe_button_clicked');
 
-    this.isSending = true;
+    this.isSending.set(true);
     this.recipesService
       .updateRecipe(recipe)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => {
-          if (this.recipeDetails.imgSrc !== recipe.imgSrc) {
-            return this.recipesService.deleteImage(this.recipeDetails.imgSrc);
+          if (this.recipeDetails()!.imgSrc !== recipe.imgSrc) {
+            return this.recipesService.deleteImage(this.recipeDetails()!.imgSrc);
           }
           return of({});
         })
       )
       .subscribe(() => {
         this.messagesService.showSnackBar('Receta actualizada');
-        this.isSending = false;
+        this.isSending.set(false);
       });
   }
 
   private getRecipeDetails(): void {
     this.recipesService.getRecipeDetail(this.id())
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => (this.recipeDetails = data));
+      .subscribe((data) => (this.recipeDetails.set(data)));
   }
 }

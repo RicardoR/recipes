@@ -52,7 +52,7 @@ describe('EditRecipeComponent', () => {
   });
 
   it('should get the recipe details when loading', () => {
-    expect(component.recipeDetails).toEqual(recipeMock);
+    expect(component.recipeDetails()).toEqual(recipeMock);
   });
 
   it('goToList should allow to navigate to private list', () => {
@@ -64,15 +64,15 @@ describe('EditRecipeComponent', () => {
     component.goToRecipe();
     expect(routeSpy.navigate).toHaveBeenCalledWith([
       'recipes/details',
-      component.recipeDetails.id,
+      component.recipeDetails()!.id,
     ]);
   });
 
   it('updateRecipe should allow to update the recipe', () => {
     recipeServiceSpy.updateRecipe.mockReturnValue(of({}));
-    component.updateRecipe(component.recipeDetails);
+    component.updateRecipe(component.recipeDetails()!);
     expect(analyticsSpy.sendToAnalytics).toHaveBeenCalledWith('update_recipe_button_clicked');
-    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(component.recipeDetails);
+    expect(recipeServiceSpy.updateRecipe).toHaveBeenCalledWith(component.recipeDetails());
     expect(messagesServiceSpy.showSnackBar).toHaveBeenCalledWith('Receta actualizada');
   });
 
@@ -80,7 +80,7 @@ describe('EditRecipeComponent', () => {
     const newRecipe = {...recipeMock};
     newRecipe.imgSrc = 'new-image';
     component.updateRecipe(newRecipe);
-    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(component.recipeDetails.imgSrc);
+    expect(recipeServiceSpy.deleteImage).toHaveBeenCalledWith(component.recipeDetails()!.imgSrc);
   });
 
   it('should log edit_recipe_component_opened event', () => {
