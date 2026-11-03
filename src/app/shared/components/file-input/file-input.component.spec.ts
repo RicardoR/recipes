@@ -13,6 +13,8 @@ import {FileInputComponent} from './file-input.component';
     <mat-form-field>
       <app-file-input
         [formControl]="control"
+        [id]="id()"
+        [placeholder]="placeholder()"
         [accept]="accept()"
         [multiple]="multiple()"
         [separator]="separator()"
@@ -32,6 +34,8 @@ import {FileInputComponent} from './file-input.component';
 })
 class FileInputHostComponent {
   control = new FormControl<File | File[] | null>(null);
+  readonly id = signal('custom-id');
+  readonly placeholder = signal('Elegir fichero');
   readonly accept = signal('image/*');
   readonly multiple = signal(false);
   readonly separator = signal(',');
@@ -128,7 +132,7 @@ describe('FileInputComponent', () => {
       host.control.disable();
       fixture.detectChanges();
 
-      expect(component.disabled).toBe(true);
+      expect(component.disabled()).toBe(true);
       expect(
         (
           fixture.nativeElement.querySelector(
@@ -169,12 +173,12 @@ describe('FileInputComponent', () => {
     });
 
     it('should be required when the required input is set', () => {
-      expect(component.required).toBe(false);
+      expect(component.required()).toBe(false);
 
       host.required.set(true);
       fixture.detectChanges();
 
-      expect(component.required).toBe(true);
+      expect(component.required()).toBe(true);
     });
 
     it('should notify the form field when an input changes', () => {
@@ -185,6 +189,43 @@ describe('FileInputComponent', () => {
       fixture.detectChanges();
 
       expect(stateChanges).toHaveBeenCalled();
+    });
+
+    it('should notify the form field when the placeholder changes', () => {
+      const stateChanges = vi.fn();
+      component.stateChanges.subscribe(stateChanges);
+
+      host.placeholder.set('Otro placeholder');
+      fixture.detectChanges();
+
+      expect(stateChanges).toHaveBeenCalled();
+    });
+
+    it('should notify the form field when the error state matcher changes', () => {
+      const stateChanges = vi.fn();
+      component.stateChanges.subscribe(stateChanges);
+
+      host.errorStateMatcher.set({isErrorState: () => true} as ErrorStateMatcher);
+      fixture.detectChanges();
+
+      expect(stateChanges).toHaveBeenCalled();
+    });
+
+    it('should reflect a bound id on the display input', () => {
+      expect(displayInput(fixture).id).toBe('custom-id');
+
+      host.id.set('otro-id');
+      fixture.detectChanges();
+
+      expect(displayInput(fixture).id).toBe('otro-id');
+    });
+
+    it('should expose the selected file as the model value', () => {
+      const file = createFile('receta.png');
+
+      component.handleFiles(createFileList(file));
+
+      expect(component.value()).toBe(file);
     });
 
     it('should replace the default icon with the projected one', () => {

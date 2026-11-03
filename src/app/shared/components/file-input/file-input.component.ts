@@ -9,8 +9,8 @@ import {
   ElementRef,
   forwardRef,
   inject,
-  Input,
   input,
+  model,
   OnChanges,
   OnDestroy,
   viewChild
@@ -59,11 +59,18 @@ export class FileInputComponent
   private readonly displayInputRef =
     viewChild.required<ElementRef<HTMLInputElement>>('displayInput');
 
-  @Input() id = `app-file-input-${nextUniqueId++}`;
-  @Input() placeholder = 'Choose a file';
-  @Input({transform: booleanAttribute}) required = false;
-  @Input({transform: booleanAttribute}) disabled = false;
-  @Input() value: FileOrArrayFile | null = null;
+  // `id` is read raw by `MatFormField` (`[attr.for]="_control.id"`, no signal unwrapping), so the
+  // public property has to stay a plain `string`: a signal input plus a public getter keeps the
+  // `[id]` binding working. The alias is what makes room for that getter, hence the rule exception.
+  // eslint-disable-next-line @angular-eslint/no-input-rename -- see the comment above
+  readonly idInput = input(`app-file-input-${nextUniqueId++}`, {alias: 'id'});
+  readonly placeholder = input('Choose a file');
+  readonly required = input(false, {transform: booleanAttribute});
+
+  // `value` and `disabled` are written from inside the component too (ControlValueAccessor:
+  // `writeValue`, `setDisabledState`, `handleFiles`), so they are model inputs.
+  readonly disabled = model(false);
+  readonly value = model<FileOrArrayFile | null>(null);
 
   readonly accept = input<string>();
   readonly multiple = input(false, {transform: booleanAttribute});
@@ -100,6 +107,10 @@ export class FileInputComponent
     this.stateChanges.complete();
   }
 
+  get id(): string {
+    return this.idInput();
+  }
+
   get empty(): boolean {
     return !this.displayInputRef().nativeElement.value;
   }
@@ -119,7 +130,7 @@ export class FileInputComponent
   }
 
   writeValue(value: FileOrArrayFile | null): void {
-    this.value = value;
+    this.value.set(value);
     this.updateDisplayedValue(value);
     this.cdr.markForCheck();
   }
@@ -133,7 +144,7 @@ export class FileInputComponent
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
     this.stateChanges.next();
     this.cdr.markForCheck();
   }
@@ -159,7 +170,7 @@ export class FileInputComponent
     this.fileInputRef().nativeElement.value = '';
 
     const value = this.multiple() ? files : files[0];
-    this.value = value;
+    this.value.set(value);
     this.onChange?.(value);
     this.cdr.markForCheck();
   }

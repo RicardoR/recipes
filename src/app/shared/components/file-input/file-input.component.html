@@ -3,13 +3,13 @@
   autocomplete="off"
   class="mat-mdc-input-element mat-mdc-form-field-input-control mdc-text-field__input"
   [attr.id]="id"
-  [attr.placeholder]="placeholder"
-  [disabled]="disabled"
-  [required]="required"
+  [attr.placeholder]="placeholder()"
+  [disabled]="disabled()"
+  [required]="required()"
   [attr.readonly]="readonly() || null"
   [attr.aria-describedby]="ariaDescribedby || null"
   [attr.aria-invalid]="errorState"
-  [attr.aria-required]="required"
+  [attr.aria-required]="required()"
 />
 <div class="mat-mdc-form-field-suffix">
   <button
@@ -19,7 +19,7 @@
     class="button-browse"
     (click)="openFilePicker($event)"
     type="button"
-    [disabled]="disabled"
+    [disabled]="disabled()"
   >
     <ng-content select="[appFileInputIcon]">
       <mat-icon class="ngx-mat-file-input--default-icon">attach_file</mat-icon>
