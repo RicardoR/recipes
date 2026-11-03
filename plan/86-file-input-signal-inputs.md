@@ -17,9 +17,9 @@ Rama: `86-file-input-signal-inputs` (creada desde `master`)
 |---|---|---|---|
 | **F0** | Baseline verde antes de tocar nada | ✅ | `yarn build` ✅ 1.56 MB · `yarn test --watch=false` ✅ 24 ficheros / 135 tests · `npm run lint` ✅ 0 errores y **0 warnings** (los 14 de OnPush ya no existen: cerrados en #83) |
 | **F1** | `placeholder` + `required` → `input()` (conversión directa) | ✅ | Material **no lee** `placeholder`; `required` se desempaqueta con `_unwrapMaybeSignal` → señal OK. Template actualizado a `placeholder()` / `required()`. Ver §3.1 |
-| **F2** | `id` → signal input con `alias: 'id'` + getter público | ✅ | Material lee `_control.id` **en crudo** → el getter expone el `string`. **D1**. Excepción de lint `no-input-rename` con justificación (§3.2) |
+| **F2** | `id` → campo plano (sin input) | ✅ | Material lee `_control.id` **en crudo** y la interfaz lo tipa como `string` ⇒ no puede ser señal. **D1** (revisada: antes alias + getter, descartado por `no-input-rename`). Sin excepciones de lint. Ver §3.2 |
 | **F3** | `value` + `disabled` → `model()`; CVA escribe con `.set()` | ✅ | `writeValue` (133), `setDisabledState` (147), `handleFiles` (173). **D2**. `import {Input}` eliminado. Ver §3.3 |
-| **F4** | Template + spec: llamadas `()`, tests nuevos de aceptación | ✅ | Spec focalizado ✅ **19 tests** (15 + 4 nuevos: `placeholder`→`stateChanges`, `errorStateMatcher`→`stateChanges`, `[id]` enlazado, `value()` tras `handleFiles`) |
+| **F4** | Template + spec: llamadas `()`, tests nuevos de aceptación | ✅ | Spec focalizado ✅ **19 tests** (15 + 4 nuevos: `placeholder`→`stateChanges`, `errorStateMatcher`→`stateChanges`, `attr.id` generado, `value()` tras `handleFiles`) |
 | **F5** | Verificación global (grep, build, test, lint) + smoke manual | 🟡 | `grep "@Input"` → **0** · `yarn build` ✅ 1.57 MB (baseline 1.56) · `yarn test --watch=false` ✅ 24 ficheros / **139 tests** · `npm run lint` ✅ 0 errores / 0 warnings. **Smoke manual: pendiente del usuario** |
 | **F6** | Plan §0 + issue #86 cerrada/actualizada con el resultado | ⬜ | Al mergear |
 
@@ -53,8 +53,9 @@ Interfaz: `@angular/material/types/_form-field-control-chunk.d.ts`. Consumo real
 | `placeholder`, `value` | **no se leen en ningún sitio** (`grep "_control\.\(placeholder\|value\)"` → 0) | ✅ sin restricción |
 | `stateChanges` | opcional: *"Not necessary if the control is signal-based"* | — |
 
-> Esto **corrige parcialmente el punto 3 de la issue**: solo `id` exige getter plano. `placeholder`
-> y `value` no los toca Material, y `disabled`/`required` ya van envueltos en `_unwrapMaybeSignal`.
+> Esto **corrige parcialmente el punto 3 de la issue**: solo `id` exige un `string` plano (ver D1).
+> `placeholder` y `value` no los toca Material, y `disabled`/`required` ya van envueltos en
+> `_unwrapMaybeSignal`.
 
 ### 1.2 `ngOnChanges` sí se dispara con inputs signal (corrige el punto 1 de la issue)
 
@@ -76,36 +77,38 @@ completa (135/135). Si al ejecutar F4 el test nuevo no pasa, fallback documentad
 
 → **D3: se mantiene `ngOnChanges()` tal cual; no se añade `effect()`.**
 
-### 1.3 `strictInputAccessModifiers` del repo
+### 1.3 `strictInputAccessModifiers` del repo (ya no aplica a D1)
 
 `tsconfig.json:29` tiene `"strictInputAccessModifiers": true` → `honorAccessModifiersForInputBindings: true`
 (`compiler-cli/bundles/chunk-CG2JHXR3.js:4749-4750`). Con esa flag, el type-check de plantillas
 asigna `dirId.<campoDelInput>` para los inputs enlazados (`compiler.mjs:30204-30206`) ⇒ **el campo
-del input no puede ser `private`**: si un padre enlazara `[id]`, el TCB fallaría con TS2341.
-Por eso en D1 el campo del input es **público**.
+de un input no puede ser `private`**. Era el motivo por el que la primera versión de D1 usaba un
+campo público; con la D1 revisada (`id` deja de ser input) la restricción **no afecta a este
+componente**, pero se documenta por si se reintroduce algún input con alias.
 
 ## 2. Decisiones (registradas con el usuario)
 
-**D1 — `id` → signal input con alias + getter público** (elegido).
-Material lee `_control.id` en crudo, así que la propiedad `id` debe seguir exponiendo un `string`.
-Se conserva el binding `[id]` desde el padre (API intacta) con:
+**D1 — `id` → campo plano, sin input** (elegido, tras valorar alternativas).
+
+Material lee `_control.id` **en crudo** para el `[attr.for]` de la label y la interfaz
+`MatFormFieldControl` lo tipa como `readonly id: string`, así que `id` no puede ser una señal:
 
 ```ts
-readonly idInput = input(`app-file-input-${nextUniqueId++}`, {alias: 'id'});
-
-get id(): string {
-  return this.idInput();
-}
+readonly id = `app-file-input-${nextUniqueId++}`;
 ```
 
-Descartada la alternativa «campo plano sin input»: elimina el input `[id]` (rompe API sin necesidad).
-*Nota*: campo **público** por §1.3.
+Es un valor constante por instancia (no hay nada reactivo que exponer), así que en lugar de
+sostenerlo como input se **elimina el binding `[id]`**: nadie lo enlaza en el repo (§1) y el
+`attr.id` del display input sigue funcionando con el valor generado (cubierto por test).
 
-*Excepción de lint*: `@angular-eslint/no-input-rename` exige que el nombre de la propiedad coincida
-con el alias (`eslint.config.js` no tiene `allowedNames`). Se resuelve con un
-`eslint-disable-next-line` **local** en la línea del input, con la justificación en el comentario
-anterior (patrón ya usado en 17 sitios del repo) en lugar de añadir `allowedNames: ['id']` a la
-config, que relajaría la regla para todo el proyecto.
+Alternativas valoradas y descartadas:
+
+| Alternativa | Por qué no |
+|---|---|
+| `input()` + `alias: 'id'` + `get id()` | Funciona, pero exige una excepción a `@angular-eslint/no-input-rename` (disable inline o `allowedNames: ['id']` en `eslint.config.js`) para conservar un binding sin uso |
+| `inputs: ['id']` en la metadata de `@Component` | Evitaría el rename, pero `@angular-eslint/no-inputs-metadata-property` está en **error** (verificado con `eslint --print-config`) |
+| Signal `id` + `disableAutomaticLabeling: true` sin `implements MatFormFieldControl` | Pierde el chequeo de tipos de todo el contrato con Material **y** el `for` de la label (a11y) |
+| Mantener `@Input() id` | Incumple el criterio `grep -r "@Input" src/` → 0 |
 
 **D2 — `value` y `disabled` → `model()`** (elegido).
 
@@ -139,8 +142,15 @@ Quitar `Input` del `import` de `@angular/core` solo cuando ya no quede ningún u
 
 ### 3.2 F2 — `id` (D1)
 
-Sustituir `@Input() id = ...` por el `idInput` + getter de D1. El template y Material leen la
-propiedad `id` (getter) ⇒ **sin cambios** en `[attr.id]="id"` ni en `[attr.for]` de `mat-form-field`.
+Sustituir `@Input() id = ...` por un campo plano:
+
+```ts
+readonly id = `app-file-input-${nextUniqueId++}`;
+```
+
+Sin input, sin getter y sin alias ⇒ **cero excepciones de lint**. El template (`[attr.id]="id"`) y
+Material (`[attr.for]`) leen la misma propiedad, así que **no cambia nada** en el template ni en
+`mat-form-field`. `id` deja de ser enlazable desde un padre (API perdida, sin uso en el repo).
 
 ### 3.3 F3 — `value` y `disabled` (D2)
 
@@ -160,7 +170,7 @@ Al final: `grep -r "@Input" src/` → 0 hits y `import {Input}` fuera del compon
 - `[attr.placeholder]="placeholder"` → `placeholder()`
 - `[disabled]="disabled"` (líneas 7 y 22) → `disabled()`
 - `[required]="required"` → `required()` · `[attr.aria-required]="required"` → `required()`
-- `[attr.id]="id"` **no se toca** (getter).
+- `[attr.id]="id"` **no se toca** (ya es un campo plano, no un getter).
 
 `file-input.component.spec.ts`:
 
@@ -170,14 +180,14 @@ Al final: `grep -r "@Input" src/` → 0 hits y `import {Input}` fuera del compon
   1. cambiar `placeholder` desde el host → `stateChanges` emite,
   2. cambiar `errorStateMatcher` desde el host → `stateChanges` emite (hoy solo está cubierto
      `accept`),
-  3. enlazar `[id]` desde un host → `attr.id` del display input refleja el valor (bloquea D1),
+  3. `attr.id` del display input refleja el id generado (`app-file-input-N`) — bloquea D1,
   4. `component.value()` refleja el fichero tras `handleFiles` (bloquea D2).
 
 ### 3.5 F5 — Verificación global
 
 1. `grep -r "@Input" src/` → **0 hits** · `grep -rn "ChangeDetectionStrategy.Eager"` → 0.
 2. `yarn build` ✅ (< 2 MB; comparar `Initial total` con el baseline 1.56 MB de F0).
-3. `yarn test --watch=false` ✅ 24 ficheros / 135 tests (+ los nuevos de F4).
+3. `yarn test --watch=false` ✅ 24 ficheros / 139 tests (135 baseline + 4 nuevos de F4).
 4. `npm run lint` ✅ 0 errores / 0 warnings.
 5. Smoke manual (app real, `npm start` contra el proyecto de test):
    - login con `test@mail.com`,
@@ -202,8 +212,7 @@ Plan §0 actualizado · PR · issue #86 cerrada con el resultado.
 |---|---|
 | `ngOnChanges` **no** emite al cambiar un input signal en el test nuevo (premisa de la issue) | Fallback: añadir el `effect()` de la issue (leer los inputs convertidos → `stateChanges.next()`). Se detecta en F4, antes del smoke |
 | `model()` en `value`/`disabled` cambia semántica si un padre los enlaza | Nadie los enlaza hoy (§1); si se enlazara, `[x]` sigue funcionando y `.set()` interno emite `xChange` sin oyentes |
-| TS2341 por campo de input `privado` con `strictInputAccessModifiers` | Campo `idInput` **público** (§1.3) |
-| El getter `id` no satisface a Material (`[attr.for]` roto ⇒ label sin asociar) | Test F4.3 + smoke: clic en el label debe enfocar el campo |
+| `id` deja de ser input: un padre que enlazara `[id]` dejaría de compilar | Sin usos en el repo (§1); el test F4.3 cubre que `attr.id` sigue pintando el id generado; el `[attr.for]` de Material sigue apuntando a él |
 | Regresión de comportamiento no cubierta por unitarios (`setDisabledState`, CVA) | Suite completa + checklist de smoke de F5 (los 3 escenarios marcados en negrita) |
 
 ## 5. Criterios de aceptación
@@ -211,7 +220,9 @@ Plan §0 actualizado · PR · issue #86 cerrada con el resultado.
 - [x] `grep -r "@Input" src/` → **0 hits** (los 5 migrados).
 - [x] `stateChanges.next()` emite cuando cambia cualquier input: tests F4.1 y F4.2
       (`placeholder` y `errorStateMatcher` desde el host).
-- [x] `[id]` enlazable desde un padre y `attr.id` correcto (test F4.3) — D1.
+- [x] `id` es campo plano (sin input ni excepción de lint): `attr.id` pinta el id generado y el
+      `[attr.for]` de Material sigue asociando la label (test F4.3) — D1. **`[id]` deja de ser
+      enlazable** (sin uso en el repo).
 - [x] `value` observable vía `component.value()` tras `handleFiles` (test F4.4) — D2.
 - [x] `yarn build` ✅ (1.57 MB) · `yarn test --watch=false` ✅ 24/139 · `npm run lint` ✅ 0 errores /
       0 warnings.
@@ -227,6 +238,9 @@ Plan §0 actualizado · PR · issue #86 cerrada con el resultado.
   tocan** — no son inputs.
 - Los 6 inputs signal ya existentes (`accept`, `multiple`, `readonly`, `color`, `separator`,
   `errorStateMatcher`): ya migrados, sin cambios.
+- **`id` deja de ser input (D1)**: `[id]` ya no se puede enlazable desde un padre. Es el único
+  cambio de API de la issue; el resto (`[placeholder]`, `[required]`, `[disabled]`, `[value]`)
+  siguen funcionando igual.
 - `#87` (bug upstream de zone.js) y `#84` (firebase 13): issues aparte.
 - Añadir lint al CI (hoy `node.js.yml` no corre lint): decisión aparte.
 
