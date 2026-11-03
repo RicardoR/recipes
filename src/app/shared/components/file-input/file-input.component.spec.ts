@@ -13,7 +13,6 @@ import {FileInputComponent} from './file-input.component';
     <mat-form-field>
       <app-file-input
         [formControl]="control"
-        [id]="id()"
         [placeholder]="placeholder()"
         [accept]="accept()"
         [multiple]="multiple()"
@@ -34,7 +33,6 @@ import {FileInputComponent} from './file-input.component';
 })
 class FileInputHostComponent {
   control = new FormControl<File | File[] | null>(null);
-  readonly id = signal('custom-id');
   readonly placeholder = signal('Elegir fichero');
   readonly accept = signal('image/*');
   readonly multiple = signal(false);
@@ -211,13 +209,8 @@ describe('FileInputComponent', () => {
       expect(stateChanges).toHaveBeenCalled();
     });
 
-    it('should reflect a bound id on the display input', () => {
-      expect(displayInput(fixture).id).toBe('custom-id');
-
-      host.id.set('otro-id');
-      fixture.detectChanges();
-
-      expect(displayInput(fixture).id).toBe('otro-id');
+    it('should assign a generated id to the display input', () => {
+      expect(displayInput(fixture).id).toMatch(/^app-file-input-\d+$/);
     });
 
     it('should expose the selected file as the model value', () => {

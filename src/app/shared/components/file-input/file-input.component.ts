@@ -58,19 +58,11 @@ export class FileInputComponent
   private readonly displayInputRef =
     viewChild.required<ElementRef<HTMLInputElement>>('displayInput');
 
-  // `id` is read raw by `MatFormField` (`[attr.for]="_control.id"`, no signal unwrapping), so the
-  // public property has to stay a plain `string`: a signal input plus a public getter keeps the
-  // `[id]` binding working. The alias is what makes room for that getter, hence the rule exception.
-  // eslint-disable-next-line @angular-eslint/no-input-rename -- see the comment above
-  readonly idInput = input(`app-file-input-${nextUniqueId++}`, {alias: 'id'});
+  readonly id = `app-file-input-${nextUniqueId++}`;
   readonly placeholder = input('Choose a file');
   readonly required = input(false, {transform: booleanAttribute});
-
-  // `value` and `disabled` are written from inside the component too (ControlValueAccessor:
-  // `writeValue`, `setDisabledState`, `handleFiles`), so they are model inputs.
   readonly disabled = model(false);
   readonly value = model<FileOrArrayFile | null>(null);
-
   readonly accept = input<string>();
   readonly multiple = input(false, {transform: booleanAttribute});
   readonly readonly = input(true, {transform: booleanAttribute});
@@ -104,10 +96,6 @@ export class FileInputComponent
 
   ngOnDestroy(): void {
     this.stateChanges.complete();
-  }
-
-  get id(): string {
-    return this.idInput();
   }
 
   get empty(): boolean {
