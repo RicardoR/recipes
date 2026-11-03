@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -123,7 +122,9 @@ export class FileInputComponent
     this.ariaDescribedby = ids.join(' ');
   }
 
-  onContainerClick(): void {}
+  onContainerClick(): void {
+    this.displayInputRef().nativeElement.focus();
+  }
 
   focus(options?: FocusOptions): void {
     this.displayInputRef().nativeElement.focus(options);
