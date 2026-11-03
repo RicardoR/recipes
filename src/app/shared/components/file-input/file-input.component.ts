@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -9,8 +8,8 @@ import {
   ElementRef,
   forwardRef,
   inject,
-  Input,
   input,
+  model,
   OnChanges,
   OnDestroy,
   viewChild
@@ -59,12 +58,11 @@ export class FileInputComponent
   private readonly displayInputRef =
     viewChild.required<ElementRef<HTMLInputElement>>('displayInput');
 
-  @Input() id = `app-file-input-${nextUniqueId++}`;
-  @Input() placeholder = 'Choose a file';
-  @Input({transform: booleanAttribute}) required = false;
-  @Input({transform: booleanAttribute}) disabled = false;
-  @Input() value: FileOrArrayFile | null = null;
-
+  readonly id = `app-file-input-${nextUniqueId++}`;
+  readonly placeholder = input('Choose a file');
+  readonly required = input(false, {transform: booleanAttribute});
+  readonly disabled = model(false);
+  readonly value = model<FileOrArrayFile | null>(null);
   readonly accept = input<string>();
   readonly multiple = input(false, {transform: booleanAttribute});
   readonly readonly = input(true, {transform: booleanAttribute});
@@ -112,14 +110,16 @@ export class FileInputComponent
     this.ariaDescribedby = ids.join(' ');
   }
 
-  onContainerClick(): void {}
+  onContainerClick(): void {
+    this.displayInputRef().nativeElement.focus();
+  }
 
   focus(options?: FocusOptions): void {
     this.displayInputRef().nativeElement.focus(options);
   }
 
   writeValue(value: FileOrArrayFile | null): void {
-    this.value = value;
+    this.value.set(value);
     this.updateDisplayedValue(value);
     this.cdr.markForCheck();
   }
@@ -133,7 +133,7 @@ export class FileInputComponent
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
     this.stateChanges.next();
     this.cdr.markForCheck();
   }
@@ -159,7 +159,7 @@ export class FileInputComponent
     this.fileInputRef().nativeElement.value = '';
 
     const value = this.multiple() ? files : files[0];
-    this.value = value;
+    this.value.set(value);
     this.onChange?.(value);
     this.cdr.markForCheck();
   }
