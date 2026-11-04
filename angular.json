@@ -122,6 +122,9 @@
             },
             "debugMode": {
               "buildTarget": "recipes:build:debugMode"
+            },
+            "test": {
+              "buildTarget": "recipes:build:test"
             }
           },
           "defaultConfiguration": "development"

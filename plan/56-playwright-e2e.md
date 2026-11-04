@@ -15,7 +15,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 
 | Fase | Tarea | Estado | Notas |
 |---|---|---|---|
-| **P0** | Fundación: deps, config, `connectAuthEmulator`, fixtures, primera spec | ⬜ | Prerequisito de todo lo demás. Ver §4.1 |
+| **P0** | Fundación: deps, config, `connectAuthEmulator`, fixtures, primera spec | ✅ | `@playwright/test` 1.64.1 + `firebase-tools` 15.35.0 (devDep, sin `^`) · config `test` en `serve` (H2) · fix de Auth (H1) · `yarn e2e` ✅ 1 spec · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. Ver §4.1 y §0.1 |
 | **P1** | Auth y guards | ⬜ | Login, validación, logout, `AuthGuard`. Ver §4.2 |
 | **P2** | Listado público + toolbar | ⬜ | Render + `@defer`/OnPush, filtros, búsqueda. Ver §4.3 |
 | **P3** | Detalles + permisos | ⬜ | Receta pública/privada/ajena + snackbar. Ver §4.4 |
@@ -24,6 +24,22 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | **P6** | CI y hardening | ⬜ | Job en GitHub, lint de `e2e/`, a11y, anti-flake. Ver §4.7 |
 
 Cada fase cierra con `yarn build` · `yarn test --watch=false` · `npm run lint` · `yarn e2e` en verde.
+
+### 0.1 Estado de P0 y pendientes conocidos (al cerrar la fase)
+
+Hecho y verificado (corrida en frío, sin procesos previos):
+
+- [x] `yarn e2e` arranca emuladores + `ng serve` **solos** y pasa el spec humo (boot → login → logout), con `expectNoConsoleErrors`.
+- [x] **3 corridas seguidas sin huérfanos** (los emuladores ya no dejan procesos vivos — H7).
+- [x] `npm run lint` ✅ 0 errores / 0 warnings · `yarn test --watch=false` ✅ 24/139 · `yarn build` ✅.
+- [x] Helpers verificados contra el emulador: `ensureUser`, `clearFirestore`, `waitForEmulators`, `seedRecipe` (este último sin spec propia todavía: su escenario es P2).
+
+Pendientes / riesgos abiertos para las siguientes fases:
+
+1. **Error transitorio de Firestore en la primera carga** (H9): `Could not reach Cloud Firestore backend. Connection failed 1 times` aparece en la salida del dev-server en las corridas en frío; el SDK reintenta y la app funciona, y **la aserción de consola limpia no lo captura** (se desconoce por qué: se emite fuera de la ventana que observa el fixture). Investigar antes de añadir más specs que asserten consola (P1), porque si llegara a capturarse sería flakiness.
+2. `seedRecipe` funciona pero **ningún spec lo usa** aún → se consumirá en P2 (habrá que añadir el `data-testid` de `recipe-list`).
+3. El CI **no** corre los e2e todavía (decisión D3: hasta P6).
+4. Convención de `data-testid`: solo aplicada a `login.component.html` y `toolbar.component.html` (§3.4); el resto va por fases.
 
 ---
 
@@ -82,6 +98,45 @@ navegación se **cancela**, pero **no** redirige a `/login` (el único `navigate
 `toolbar.component.ts:81`). → La spec de P1 debe verificar y documentar el comportamiento
 observado, no asumir un redirect.
 
+### H7 — Los emuladores dejan procesos huérfanos (detectado en P0)
+
+Al parar los emuladores, `firebase-tools` sale **sin** llevarse al JVM de Firestore: queda un
+`java` escuchando en `8080` (y antes también en `9000`, porque `firebase.json` arranca el emulador
+de *database* aunque no lo usemos) y la siguiente corrida falla con `port taken`.
+**Solución aplicada en P0:**
+
+- `e2e/support/start-emulators.mjs` (script `yarn emulators`): libera los puertos `9099/8080/9199`
+  **antes** de arrancar y **cuando** `firebase` termina.
+- `playwright.config.ts`: `gracefulShutdown: { signal: 'SIGTERM', timeout: 15_000 }` → Playwright
+  señala al **grupo de procesos** en vez de matar en frío, con lo que el wrapper limpia al salir.
+- `--only auth,firestore,storage,ui`: evita database (puerto 9000, ocupado en esta máquina) y
+  hosting (5000, ocupado por macOS ControlCenter), que hacían fallar el arranque.
+
+Verificado: **3 corridas seguidas con 0 procesos huérfanos**. Los emuladores tardan ~14 s en estar
+todos listos; **el Emulator UI (4000) es la última pieza en subir**, por eso el `port: 9099` como
+readiness + la espera real en `globalSetup`.
+
+### H8 — La REST de Firestore no tiene `clear` ni "create"
+
+Verificado con `curl` contra el emulador en P0:
+
+- `POST /emulator/v1/.../documents/clear` → **404** (no existe ese endpoint aquí).
+- `POST /v1/.../documents` → **404**; el alta es `PATCH /v1/.../documents/{col}/{id}?documentId=…`.
+- Listado válido: `GET /v1/.../documents/{col}` con `Authorization: Bearer owner`.
+
+→ `clearFirestore()` lista y borra (`recipes`, `categories`) y `seedRecipe()` usa `PATCH`; ambos
+probados contra el emulador. Sin sub-colecciones (la app no usa).
+
+### H9 — Error transitorio de Firestore en la primera carga (riesgo abierto)
+
+En las corridas en frío, el dev-server registra
+`@firebase/firestore: Could not reach Cloud Firestore backend. Connection failed 1 times`; el SDK
+reintenta y la app carga igual. **No lo captura el fixture de consola** (aserción en verde con el
+error en la salida del dev-server), así que hoy no flakea — pero no se entiende el porqué y sí
+podría flakear si se captura. **Acción: investigar en P1** antes de añadir specs que asserten
+consola (hipótesis: se emite fuera de la ventana que observa el listener, o en un contexto que
+Playwright no asocia a `page`).
+
 ---
 
 ## 2. Decisiones registradas (con el usuario)
@@ -92,6 +147,7 @@ observado, no asumir un redirect.
 | **D2** | CLI de emuladores | **`firebase-tools` como devDependency** → reproducible en cualquier clon y en CI, versión fijada en `yarn.lock` (hoy es un binario global). |
 | **D3** | Momento de activar CI | **En la fase P6**; hasta entonces `yarn e2e` corre solo en local, para no pelear con flakiness mientras se construyen las specs. |
 | **D4** | Estrategia de selectores | **`data-testid` en todas** las plantillas implicadas (más estable ante cambios de texto que depender de labels visibles). Convención en §3.4. |
+| **D5** | Ruido de analytics en consola (revisada en P0) | Primero se probó **solo bloquear la red** (§3.3 original) y **no bastó**: el SDK igualmente hace `console.error` (`Installations: …`). Aplicado además un guard en `AnalyticsService`: con `environment.useEmulators` no se inicializa analytics (la app ya degrada a `console.warn`, igual que cuando `isSupported()` es falso). Los hosts de Google se siguen bloqueando por si acaso. **Resultado: `expectNoConsoleErrors` estricto, sin allowlist.** |
 
 **Herramienta: Playwright** (`@playwright/test`). Descartados: Cypress (un solo tab, subida de
 ficheros/iframes más incómodos, sin bloqueo de red por test), WebdriverIO/Selenium (setup
@@ -138,25 +194,30 @@ export default defineConfig({
 
 ```json
 "start:e2e": "ng serve --configuration=test",
-"emulators": "firebase emulators:start",
+"emulators": "node e2e/support/start-emulators.mjs",
+"emulators:raw": "firebase emulators:start --project demo-recipes --only auth,firestore,storage,ui",
 "e2e": "playwright test",
 "e2e:ui": "playwright test --ui"
 ```
 
-`start:e2e` depende de la configuración `test` que hay que añadir en `serve` (H2):
+`emulators` envuelve al CLI con la limpieza de puertos de H7; `emulators:raw` deja el comando
+literal a mano. `start:e2e` depende de la configuración `test` añadida en `serve` (H2):
 `"test": { "buildTarget": "recipes:build:test" }`.
 
-### 3.3 Bloqueo de red de analytics (fixture)
+### 3.3 Bloqueo de red de analytics (fixture) — D5
 
 ```ts
 // e2e/fixtures.ts
-test.beforeEach(async ({ page }) => {
-  await page.route(/googletagmanager\.com|google-analytics\.com/, (route) => route.abort());
-});
+const BLOCKED_GOOGLE_HOST =
+  /googletagmanager\.com|google-analytics\.com|firebaseinstallations\.googleapis\.com|firebase\.googleapis\.com/;
+
+await page.route((url) => BLOCKED_GOOGLE_HOST.test(url.hostname), (route) => route.abort());
 ```
 
-Y en la aserción "sin errores de consola" se mantiene una **allowlist** de errores esperados
-(p.ej. la petición abortada). No se toca `firebase.providers.ts` para esto.
+Los errores de consola cuya URL de origen esté en esa lista se descartan del array
+`consoleErrors`. **Redacción complementaria (D5)**: `AnalyticsService` no inicializa analytics
+cuando `environment.useEmulators`, así que no se dispara ninguna de esas peticiones y la aserción
+`expectNoConsoleErrors` puede ser estricta (lista vacía), sin allowlist de textos.
 
 ### 3.4 Convención de `data-testid` (D4)
 
@@ -165,7 +226,7 @@ Prefijo por ficha, kebab-case, en inglés (el código es inglés; la UI es espa�
 | Fichero | Ejemplos |
 |---|---|
 | `login.component.html` | `login-email`, `login-password`, `login-submit`, `login-toggle-password`, `login-error` |
-| `toolbar.component.html` | `toolbar-menu`, `toolbar-logout`, `toolbar-create`, `toolbar-my-recipes`, `toolbar-all-recipes`, `toolbar-search`, `toolbar-login` |
+| `toolbar.component.html` | `toolbar-menu`, `toolbar-logout`, `toolbar-create`, `toolbar-my-recipes`, `toolbar-all-recipes`, `toolbar-search`, `toolbar-search-toggle`, `toolbar-login`, `toolbar-list-icon` |
 | `recipe-list.component.html` | `recipe-list`, `recipe-card`, `recipe-card-title`, `recipe-card-description`, `recipe-view`, `recipe-delete`, `category-filter` |
 | `recipe-card-form.component.html` | `recipe-form`, `form-title`, `form-description`, `form-submit`, `picture-upload`, `form-error-*` |
 | `file-input.component.html` | `file-input-display`, `file-input-browse`, `file-input-native` |
@@ -196,14 +257,14 @@ POST http://localhost:8080/v1/projects/demo-recipes/databases/(default)/document
 Authorization: Bearer owner
 ```
 
-**Limpieza entre tests** (en `beforeEach` de specs que escriben datos):
+**Limpieza entre specs** — el emulador **no** tiene endpoint `clear` (H8), así que
+`clearFirestore()` lista `recipes` + `categories` y borra documento a documento
+(`Authorization: Bearer owner`). Se ejecuta en el `globalSetup` para partir de una BD vacía; las
+specs de P4 que escriban repetirán el patrón en su `beforeEach`.
 
-```
-POST http://localhost:8080/emulator/v1/projects/demo-recipes/databases/(default)/documents/clear
-```
-
-Helper central: `e2e/support/data.ts` con `seedUser()`, `seedRecipe()`, `clearFirestore()` —
-los specs nunca hablan REST directamente.
+Helper central: `e2e/support/data.ts` con `ensureUser()`, `seedRecipe()`, `clearFirestore()`,
+`waitForEmulators()` — los specs nunca hablan REST directamente. Los cuatro están probados contra
+el emulador en P0 (`seedRecipe` con `PATCH …/{col}/{id}?documentId=…`).
 
 ---
 
@@ -331,7 +392,8 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
 | Auth no conecta al emulador (H1) | Fix en P0, antes de cualquier spec de login; es el prerequisito |
 | `getAnalytics()` con `measurementId` fake ensucia la consola (H5) | `page.route` abortando Google + allowlist en "sin errores de consola" |
 | Flakiness por `@defer` / OnPush | Esperas por estado visible (auto-waiting de Playwright), nunca timeouts fijos; `trace` en el primer retry |
-| Arranque lento (dev-server + emuladores) | `reuseExistingServer: true` + emuladores persistentes vía `webServer` |
+| Arranque lento (dev-server + emuladores) | `reuseExistingServer: true` + emuladores persistentes vía `webServer` (arranque en frío ~35 s, specs ~3 s) |
+| Los emuladores dejan procesos huérfanos y la corrida siguiente falla (H7) | Wrapper `start-emulators.mjs` (limpia puertos al entrar y al salir) + `gracefulShutdown` con señal al grupo de procesos — verificado en 3 corridas seguidas |
 | Datos residuales entre specs | `clearFirestore()` en `beforeEach` + `fullyParallel` con specs que no comparten estado |
 | El usuario demo lanza excepción en CRUD (H4) | Dos usuarios sembrados; specs de CRUD con `e2e@example.com` |
 | Añadir `data-testid` rompe specs unitarios | Verificado: los specs afectados usan `.overrideTemplate()` o buscan por clase; se re-ejecuta la suite completa en cada fase |
@@ -342,13 +404,16 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
 
 ## 6. Criterios de aceptación globales
 
-- [ ] `yarn e2e` verde en local **sin intervención manual** (emuladores + servidor arrancan solos).
+- [x] `yarn e2e` verde en local **sin intervención manual** (emuladores + servidor arrancan solos,
+      sin procesos huérfanos entre corridas) — verificado en 3 corridas seguidas.
 - [ ] Los smoke checklists de `plan/85` (F5.4) y `plan/86` (F5.5) quedan cubiertos por specs de
       **P4** y **P5** — ya no hacen falta comprobaciones a mano al cerrar fases.
 - [ ] `yarn build` ✅ · `yarn test --watch=false` ✅ (24 ficheros / 139 tests) ·
       `npm run lint` ✅ 0 errores / 0 warnings — **en cada fase**.
-- [ ] `grep connectAuthEmulator src/` → 1 hit (P0); login en emulador verificado por spec.
-- [ ] Inventario de `data-testid` = inventario de §3.4 (sin huecos ni huérfanos).
+- [x] `grep -rn connectAuthEmulator src/` → **2 hits** (import + uso en `firebase.providers.ts`);
+      login en emulador verificado por la spec humo.
+- [x] Inventario de `data-testid` = inventario de §3.4: **`login` (5) + `toolbar` (9) = 14** en P0;
+      el resto va por fases.
 - [ ] CI ejecuta los e2e en verde (P6).
 - [ ] `AGENTS.md` documenta los comandos nuevos (P6).
 
