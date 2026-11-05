@@ -36,7 +36,11 @@ Hecho y verificado (corrida en frío, sin procesos previos):
 
 Pendientes / riesgos abiertos para las siguientes fases:
 
-1. **Error transitorio de Firestore en la primera carga** (H9): `Could not reach Cloud Firestore backend. Connection failed 1 times` aparece en la salida del dev-server en las corridas en frío; el SDK reintenta y la app funciona, y **la aserción de consola limpia no lo captura** (se desconoce por qué: se emite fuera de la ventana que observa el fixture). Investigar antes de añadir más specs que asserten consola (P1), porque si llegara a capturarse sería flakiness.
+1. **Error transitorio de Firestore en la primera carga** (H9): **investigado el 05/11** — ver §4/§H9.
+   Conclusión: es ruido que solo sale en la salida del dev-server, **nunca llega al fixture** (6+
+   corridas en frío con el spec en verde) y por tanto **no afecta a `expectNoConsoleErrors`**. El
+   mecanismo exacto sigue sin identificar del todo; queda anotado el diagnóstico barato por si
+   alguna spec llega a fallar con ese mensaje. No bloquea P1.
 2. `seedRecipe` funciona pero **ningún spec lo usa** aún → se consumirá en P2 (habrá que añadir el `data-testid` de `recipe-list`).
 3. El CI **no** corre los e2e todavía (decisión D3: hasta P6).
 4. Convención de `data-testid`: solo aplicada a `login.component.html` y `toolbar.component.html` (§3.4); el resto va por fases.
@@ -127,15 +131,38 @@ Verificado con `curl` contra el emulador en P0:
 → `clearFirestore()` lista y borra (`recipes`, `categories`) y `seedRecipe()` usa `PATCH`; ambos
 probados contra el emulador. Sin sub-colecciones (la app no usa).
 
-### H9 — Error transitorio de Firestore en la primera carga (riesgo abierto)
+### H9 — Error transitorio de Firestore en la primera carga (investigado 05/11, sin impacto)
 
 En las corridas en frío, el dev-server registra
 `@firebase/firestore: Could not reach Cloud Firestore backend. Connection failed 1 times`; el SDK
 reintenta y la app carga igual. **No lo captura el fixture de consola** (aserción en verde con el
-error en la salida del dev-server), así que hoy no flakea — pero no se entiende el porqué y sí
-podría flakear si se captura. **Acción: investigar en P1** antes de añadir specs que asserten
-consola (hipótesis: se emite fuera de la ventana que observa el listener, o en un contexto que
-Playwright no asocia a `page`).
+error en la salida del dev-server).
+
+**Experimentos realizados (05/11):**
+
+| # | Experimento | Resultado |
+|---|---|---|
+| 1 | Forzar el fallo real de Firestore en la página bajo test (`page.route` → abortar el puerto `8080`) | **El fixture sí lo captura** (2 entradas) → Playwright no tiene puntos ciegos para nuestra página |
+| 2 | Reproducción en frío ×6+ con el spec completo | La línea aparece **siempre**; **el spec pasa siempre** (nunca la captura) |
+| 3 | Listener crudo de CDP (`Runtime.consoleAPICalled`) + `page.on('console')` en la misma corrida | El error **no aparece en ninguno de los dos**, pero sí en la salida del dev-server |
+| 4 | Parche de `console.*` dentro de la propia página que hace streaming a Node (`exposeFunction`, cubre todas las navegaciones) | **Tampoco** aparece |
+| 5 | Enumeración de targets (`Target.getTargets`, `targetCreated/Destroyed`, auto-attach) y muestreo de procesos | **Un solo navegador y una sola página** durante toda la corrida |
+| 6 | Spec que no carga la app (`about:blank`) | La línea **no aparece** → hace falta que la app cargue |
+| 7 | Interceptar/bloquear el websocket HMR de la página (`routeWebSocket`) | La línea desaparece, **pero** con espía activo tampoco se reproduce nunca → el experimento altera tiempos y no sirve como prueba |
+
+**Lo que se sabe:** la línea la emite un cliente del entorno `client` de vite a través del evento
+`vite:forward-console` (prefijo `[vite] (client)`), es decir una página con `@vite/client`; y no es
+la página bajo test (experimentos 3 y 4). **Lo que no se identificó:** qué otro cliente es, dado
+que solo hay un navegador (experimento 5). Hipótesis más probable: **carrera entre la primera
+conexión de Firestore y la disponibilidad del canal WebChannel del emulador** — `globalSetup` solo
+espera una consulta REST, que puede estar lista antes que el canal de Listen.
+
+**Conclusión práctica:** es ruido exclusivo de la salida del dev-server; **no afecta a la aserción
+`expectNoConsoleErrors`** (6+ corridas en frío en verde). Se mantiene la aserción estricta. **Si
+alguna spec falla algún día con este mensaje**, el diagnóstico barato es parchear
+`vite:forward-console` en `node_modules/vite/dist/node/chunks/node.js` para loguear los puertos de
+los sockets conectados y correlacionarlos con `lsof -iTCP:4200` (obtener el PID del emisor);
+revertir el parche después (hay copia de seguridad del fichero).
 
 ---
 
