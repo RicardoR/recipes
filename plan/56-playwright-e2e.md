@@ -16,7 +16,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | Fase | Tarea | Estado | Notas |
 |---|---|---|---|
 | **P0** | Fundación: deps, config, `connectAuthEmulator`, fixtures, primera spec | ✅ | `@playwright/test` 1.64.1 + `firebase-tools` 15.35.0 (devDep, sin `^`) · config `test` en `serve` (H2) · fix de Auth (H1) · `yarn e2e` ✅ 1 spec · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. Ver §4.1 y §0.1 |
-| **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **D6 decidida: issue aparte** con el redirect (borrador en §0.3) |
+| **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **D6 decidida: [issue #91](https://github.com/RicardoR/recipes/issues/91)** con el redirect (texto en §0.3) |
 | **P2** | Listado público + toolbar | ⬜ | Render + `@defer`/OnPush, filtros, búsqueda. Ver §4.3 |
 | **P3** | Detalles + permisos | ⬜ | Receta pública/privada/ajena + snackbar. Ver §4.4 |
 | **P4** | CRUD en "Mis recetas" | ⬜ | Crear/editar/borrar con diálogo. Ver §4.5 |
@@ -70,7 +70,7 @@ Hecho y verificado (corrida completa en frío + `--repeat-each=3`):
 - Nota (H9): la línea transitoria de Firestore volvió a aparecer en la salida del dev-server en
   la corrida en frío, **sin llegar al fixture** (specs en verde) — coherente con lo concluido en P0.
 
-**H6 — comportamiento observado del `AuthGuard` sin sesión (D6 decidida → issue aparte, §0.3):**
+**H6 — comportamiento observado del `AuthGuard` sin sesión (D6 decidida → [issue #91](https://github.com/RicardoR/recipes/issues/91), §0.3):**
 
 `page.goto('/recipes/my-recipes')` sin sesión → `AuthGuard.canActivate()` emite `false` y el
 router **cancela** la navegación. Observado empíricamente:
@@ -85,14 +85,14 @@ La spec lo fija con `await expect(page).toHaveURL(/\/$/)` (**polling**: la cance
 asíncrona respecto a `goto`), más `not.toHaveURL(/login)` y `toHaveCount(0)` para
 `toolbar-login`, `app-my-recipes` y `app-public-recipe-list`. Tres corridas seguidas sin flake.
 
-✅ **D6 — decidido con el usuario (08/11): se abre un issue aparte** para el redirect a
-`/login`; el comportamiento actual queda **cubierto y documentado tal cual** por la spec (sin
-cambios de código en esta fase). Borrador del issue listo para pegar en §0.3.
+✅ **D6 — decidido con el usuario (08/11): issue aparte → https://github.com/RicardoR/recipes/issues/91**
+para el redirect a `/login`; el comportamiento actual queda **cubierto y documentado tal cual**
+por la spec (sin cambios de código en esta fase). El texto con el que se abrió queda en §0.3.
 
-### 0.3 D6 — borrador del issue de follow-up (pendiente de abrir)
+### 0.3 D6 — issue de follow-up: [#91](https://github.com/RicardoR/recipes/issues/91)
 
-> Sin `gh` ni token en la máquina local → se pega manualmente en GitHub. Al abrirlo, sustituir
-> `#NN` por su número y enlazarlo desde aquí.
+> **Abierto el 08/11** (sin `gh` local → pegado manualmente en GitHub). Texto con el que se
+> creó, por si hace falta reabrirlo o comentarlo:
 
 **Título:**
 
@@ -426,8 +426,9 @@ smoke pasa **sin intervención manual** (emuladores y servidor arrancan solos).
       con ese prefill entra de verdad.
 - [x] Toggle de visibilidad de password: `aria-pressed` cambia y el `type` con él.
 - [x] **`AuthGuard` sin sesión** (H6): la lista privada **no se pinta** y **no** hay redirect a
-      `/login`; comportamiento exacto registrado en §0.2 → **D6 decidida**: issue aparte con el
-      redirect (borrador en §0.3), sin tocar código en P1.
+      `/login`; comportamiento exacto registrado en §0.2 → **D6 decidida**: issue
+      [#91](https://github.com/RicardoR/recipes/issues/91) con el redirect, sin tocar código en
+      P1.
 - [x] Logout desde el menú del toolbar (`Cerrar sesión`).
 
 **`data-testid`:** `login-*` (completados en P0), `toolbar-menu`, `toolbar-logout`,
@@ -534,8 +535,8 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
 - [x] Inventario de `data-testid` = inventario de §3.4: **`login` (5) + `toolbar` (9) = 14** en P0;
       P1 no añadió ninguno (§4.2 usó solo los ya existentes); el resto va por fases.
 - [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
-      el redirect a `/login` va en un **issue aparte** (borrador listo en §0.3 — sin `gh` en la
-      máquina local, pendiente de pegarlo en GitHub y anotar aquí el nº).
+      el redirect a `/login` va en el issue
+      [#91](https://github.com/RicardoR/recipes/issues/91) (abierto el 08/11; texto en §0.3).
 - [ ] CI ejecuta los e2e en verde (P6).
 - [ ] `AGENTS.md` documenta los comandos nuevos (P6).
 
@@ -545,6 +546,7 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
   necesita validar reglas de seguridad reales o el deploy de hosting).
 - Sustituir `test@mail.com` por un usuario de test "limpio" (comportamiento demo es
   intencionado y verificado por specs en P1/P5).
-- Redirect automático a `/login` cuando `AuthGuard` cancela la navegación (H6/D6): **issue
-  aparte**, borrador listo en §0.3 (decisión del08/11).
+- Redirect automático a `/login` cuando `AuthGuard` cancela la navegación (H6/D6): issue
+  [#91](https://github.com/RicardoR/recipes/issues/91) (decisión del 08/11; texto del issue en
+  §0.3).
 - Visual regression testing (screenshots con baseline) — solo si se pide.

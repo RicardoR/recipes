@@ -94,8 +94,8 @@ test.describe('AuthGuard', () => {
    * `/recipes/my-recipes`: the router restores the initial URL (`/`), the layout/toolbar are
    * never painted and the outlet stays empty.
    *
-   * Accepted as-is for #56; a follow-up issue will add the redirect to `/login` (draft in
-   * plan/56-playwright-e2e.md §0.3). When that lands, this spec must assert the redirect.
+   * Accepted as-is for #56; issue #91 adds the redirect to `/login` (details in
+   * plan/56-playwright-e2e.md §0.2/§0.3). When that lands, this spec must assert the redirect.
    */
   test('cancels the navigation without redirecting to /login', async ({ page, consoleErrors }) => {
     await page.goto('/recipes/my-recipes');
