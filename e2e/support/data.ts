@@ -149,6 +149,9 @@ export interface SeedRecipeInput {
 export async function seedRecipe(input: SeedRecipeInput): Promise<string> {
   const documentId = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const fields: Record<string, FieldValue> = {
+    // `createRecipe` also writes the id into the document (`{...recipe, id: docRef.id}`) and
+    // `getRecipeDetail` queries by that field, so the seed has to mirror it.
+    id: { stringValue: documentId },
     date: { timestampValue: (input.date ?? new Date()).toISOString() },
     title: { stringValue: input.title },
     description: { stringValue: input.description ?? 'Descripción de prueba' },
@@ -187,4 +190,26 @@ export async function seedRecipe(input: SeedRecipeInput): Promise<string> {
     throw new Error(`seedRecipe failed: ${response.status} ${await response.text()}`);
   }
   return documentId;
+}
+
+/**
+ * Creates a category document (`{id, detail}` — the shape `elementModelConverter` expects) and
+ * returns it. `id` is written as a string on purpose: `RecipeListComponent` matches the selected
+ * categories against `recipe.categories` with `===`, and `seedRecipe` writes category ids as
+ * strings too.
+ */
+export async function seedCategory(id: string, detail: string): Promise<void> {
+  const response = await fetch(
+    `${FIRESTORE_DOCUMENTS_URL}/categories/${id}?documentId=${id}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
+      body: JSON.stringify({
+        fields: { id: { stringValue: id }, detail: { stringValue: detail } },
+      }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`seedCategory failed: ${response.status} ${await response.text()}`);
+  }
 }

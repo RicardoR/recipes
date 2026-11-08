@@ -1,6 +1,10 @@
 <mat-form-field appearance="fill">
   <mat-label>{{ label() }}</mat-label>
-  <mat-select #matmat [formControl]="elementSelectControl" multiple [compareWith]="compareElements">
+  <mat-select #matmat
+              data-testid="category-filter"
+              [formControl]="elementSelectControl"
+              multiple
+              [compareWith]="compareElements">
     <mat-select-trigger>
       {{ selectedDetail() }}
       @if (selectedCountText()) {

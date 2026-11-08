@@ -17,7 +17,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 |---|---|---|---|
 | **P0** | Fundación: deps, config, `connectAuthEmulator`, fixtures, primera spec | ✅ | `@playwright/test` 1.64.1 + `firebase-tools` 15.35.0 (devDep, sin `^`) · config `test` en `serve` (H2) · fix de Auth (H1) · `yarn e2e` ✅ 1 spec · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. Ver §4.1 y §0.1 |
 | **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **D6 decidida: [issue #91](https://github.com/RicardoR/recipes/issues/91)** con el redirect (texto en §0.3) |
-| **P2** | Listado público + toolbar | ⬜ | Render + `@defer`/OnPush, filtros, búsqueda. Ver §4.3 |
+| **P2** | Listado público + toolbar | ✅ | `e2e/public-list.spec.ts` (4 specs): render público/privado, filtro por categoría, búsqueda y "Ver" → detalles. `yarn e2e` ✅ **11 specs** (22/22 con `--repeat-each=2`, **33/33 con ×3**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **5 `data-testid` nuevos** + helpers `seedCategory` y `renderAllCards`. Hallazgos H10 (defer fuera de pliegue) y H11 (panel del select). Ver §4.3 y §0.4 |
 | **P3** | Detalles + permisos | ⬜ | Receta pública/privada/ajena + snackbar. Ver §4.4 |
 | **P4** | CRUD en "Mis recetas" | ⬜ | Crear/editar/borrar con diálogo. Ver §4.5 |
 | **P5** | Flujo de imagen | ⬜ | El smoke más grande de planes anteriores. Ver §4.6 |
@@ -135,6 +135,43 @@ sesión el ReplaySubject emite `false` y el router **cancela** la navegación. N
   cuando se implemente el redirect.
 - Contexto completo: `plan/56-playwright-e2e.md` §0.2 (H6/D6).
 ```
+
+### 0.4 Estado de P2 (al cerrar la fase)
+
+Hecho y verificado:
+
+- [x] `e2e/public-list.spec.ts` — **4 specs**, todos en verde:
+  1. *renders the seeded public recipes and hides private ones*: 2 públicas pintadas + una
+     privada de otro dueño que **no** aparece (cubre el `@defer` + OnPush de #83, vía
+     `renderAllCards` — H10).
+  2. *reduces the list when a category is selected*: seleccionar `Verduras <uid>` deja 1 tarjeta
+     y oculta la otra; deseleccionar las devuelve las dos.
+  3. *searches from the toolbar and restores the list when cleared*: buscar `<uid>` reduce a 1,
+     limpiar restaura las 2.
+  4. *opens the details page with the "Ver" button*: URL `/recipes/details/:id` + `app-recipe-details`
+     con el título.
+- [x] `yarn e2e` ✅ **11 specs** → **22/22** con `--repeat-each=2` y **33/33 con ×3** ·
+  `npm run lint` ✅ 0/0 · `yarn test --watch=false` ✅ 24/139 · `yarn build` ✅ · **0 huérfanos**.
+- [x] **5 `data-testid` nuevos**: `recipe-list`, `recipe-card`, `recipe-card-title`,
+  `recipe-view` (en `recipe-list.component.html`) y `category-filter` (en
+  `recipes-multiple-select.component.html`, el control compartido — inventario actualizado en §3.4).
+  Specs unitarios ✅: los tres que renderizan esa plantilla usan `.overrideTemplate(...)`.
+- [x] Helpers: nuevo `seedCategory()`; `seedRecipe()` **ahora escribe también el campo `id`**
+  (=`id` del documento): lo exigen `getRecipeDetail` y `PrivateRecipeGuard`, que consultan
+  `where('id', '==', id)` — sin él, "Ver" navegaba y el guard devolvía error (§3.5).
+- [x] `renderAllCards()` en `e2e/fixtures.ts` (H10) y fix del flake del panel del select (H11).
+- Con esto quedan resueltos los pendientes 2 (`seedRecipe` sin spec) y 4 (inventario de
+  `data-testid`) que §0.1 dejó al cerrar P0.
+
+Pendientes / riesgos abiertos para las siguientes fases:
+
+1. **P4 necesitará limpiar la BD** (`clearFirestore()` en `beforeEach`) mientras otras specs
+   corren en paralelo contra el mismo emulador → decidir la estrategia en P4 (serializar solo
+   las specs que escriben, o limpiar únicamente los documentos propios). Ver **D7**.
+2. **`npx playwright …` se colgó una vez en local** (cuelgue del entorno: cero salida, cero
+   procesos, no de los tests). Lanzar los e2e con **`yarn e2e`** o
+   `node node_modules/@playwright/test/cli.js test`, que es lo que hace el propio script.
+3. El CI **no** corre los e2e todavía (D3: hasta P6).
 
 ---
 
@@ -255,6 +292,32 @@ alguna spec falla algún día con este mensaje**, el diagnóstico barato es parc
 los sockets conectados y correlacionarlos con `lsof -iTCP:4200` (obtener el PID del emisor);
 revertir el parche después (hay copia de seguridad del fichero).
 
+### H10 — `@defer (on viewport)` deja en placeholder las tarjetas fuera del pliegue (detectado en P2)
+
+`recipe-list.component.html` renderiza cada tarjeta dentro de `@defer (on viewport)`. Las
+tarjetas que quedan **por debajo del pliegue** siguen siendo el placeholder (esqueleto) hasta que
+entran en el viewport, y el placeholder **no lleva** `data-testid="recipe-card"` → un `toBeVisible`
+sobre una tarjeta de abajo falla con *"element(s) not found"* aunque el documento exista en
+Firestore. Verificado con un spec sonda: 8 recetas → `cards=6 skeletons=2`, y tras recorrer la
+página → `cards=8 skeletons=0`.
+
+**Mitigación:** `renderAllCards(page)` en `e2e/fixtures.ts` — espera a que lleguen los datos,
+recorre la página por pasos de media ventana (dos `requestAnimationFrame` por paso para que el
+`IntersectionObserver` dispare) y vuelve arriba, esperando a que no queden `.placeholder-skeleton`.
+Toda spec que aserca de tarjetas la llama tras cada cambio que **crece** la lista.
+
+### H11 — Reabrir el `mat-select` con la animación de cierre en marcha pierde el click (flake en P2)
+
+Al deseleccionar una categoría el patrón *click opción → `Escape` → click en `category-filter` →
+click opción* fallaba de forma intermitente (1 de 8 corridas): el segundo click en el `mat-select`
+se ejecutaba mientras el panel aún se estaba cerrando y **no abría** (o reabría) el panel, con lo
+que el locator de la opción nunca resolvía o se desenganchaba en bucle hasta el timeout del test.
+
+**Mitigación aplicada:** el `mat-select` **multiple** mantiene el panel abierto tras seleccionar,
+así que la deselección se hace **en el mismo panel** (sin reabrir) y después `Escape` +
+`await expect(option).toBeHidden()` como **punto de sincronía** de que el panel está del todo
+destruido antes de tocar la página. Sin este cambio: 1/8 fallos; con él: 22/22 y 33/33 en verde.
+
 ---
 
 ## 2. Decisiones registradas (con el usuario)
@@ -266,6 +329,7 @@ revertir el parche después (hay copia de seguridad del fichero).
 | **D3** | Momento de activar CI | **En la fase P6**; hasta entonces `yarn e2e` corre solo en local, para no pelear con flakiness mientras se construyen las specs. |
 | **D4** | Estrategia de selectores | **`data-testid` en todas** las plantillas implicadas (más estable ante cambios de texto que depender de labels visibles). Convención en §3.4. |
 | **D5** | Ruido de analytics en consola (revisada en P0) | Primero se probó **solo bloquear la red** (§3.3 original) y **no bastó**: el SDK igualmente hace `console.error` (`Installations: …`). Aplicado además un guard en `AnalyticsService`: con `environment.useEmulators` no se inicializa analytics (la app ya degrada a `console.warn`, igual que cuando `isSupported()` es falso). Los hosts de Google se siguen bloqueando por si acaso. **Resultado: `expectNoConsoleErrors` estricto, sin allowlist.** |
+| **D7** | Datos entre specs en paralelo (P2) | Los specs corren en **paralelo contra un único emulador**, así que **no se limpia la BD entre specs**: cada test siembra con un **`uid` único por invocación** y solo aserca de **sus propios documentos** (nunca de totales de lista). `clearFirestore()` sigue en `globalSetup` (arranque de suite). ⚠️ Las specs de P4 que escriban **sí** necesitarán limpieza → ver pendiente en §0.4. |
 
 **Herramienta: Playwright** (`@playwright/test`). Descartados: Cypress (un solo tab, subida de
 ficheros/iframes más incómodos, sin bloqueo de red por test), WebdriverIO/Selenium (setup
@@ -345,7 +409,8 @@ Prefijo por ficha, kebab-case, en inglés (el código es inglés; la UI es espa�
 |---|---|
 | `login.component.html` | `login-email`, `login-password`, `login-submit`, `login-toggle-password`, `login-error` |
 | `toolbar.component.html` | `toolbar-menu`, `toolbar-logout`, `toolbar-create`, `toolbar-my-recipes`, `toolbar-all-recipes`, `toolbar-search`, `toolbar-search-toggle`, `toolbar-login`, `toolbar-list-icon` |
-| `recipe-list.component.html` | `recipe-list`, `recipe-card`, `recipe-card-title`, `recipe-card-description`, `recipe-view`, `recipe-delete`, `category-filter` |
+| `recipe-list.component.html` | `recipe-list`, `recipe-card`, `recipe-card-title`, `recipe-card-description`, `recipe-view`, `recipe-delete` |
+| `recipes-multiple-select.component.html` | `category-filter` (el `mat-select` compartido: filtro de la lista y selector de categorías del formulario) |
 | `recipe-card-form.component.html` | `recipe-form`, `form-title`, `form-description`, `form-submit`, `picture-upload`, `form-error-*` |
 | `file-input.component.html` | `file-input-display`, `file-input-browse`, `file-input-native` |
 | `delete-recipe-dialog.component.html` | `dialog-confirm`, `dialog-cancel` |
@@ -368,7 +433,9 @@ Sembrados: `e2e@example.com` / `123456` (CRUD) y `test@mail.com` / `123456` (dem
 
 **Recetas** — REST del Firestore emulator (documento plano, debe casar con
 `recipesConverter` de `recipe.service.ts:298`: `date` Timestamp, `title`, `description`,
-`ownerId`, `steps`, `ingredients`, `imgSrc`, `private`, `categories`):
+`ownerId`, `steps`, `ingredients`, `imgSrc`, `private`, `categories` — y **`id`**, el mismo que
+el `id` del documento, porque `getRecipeDetail`/`PrivateRecipeGuard` hacen
+`where('id', '==', id)`, igual que `createRecipe`):
 
 ```
 POST http://localhost:8080/v1/projects/demo-recipes/databases/(default)/documents/recipes
@@ -378,11 +445,17 @@ Authorization: Bearer owner
 **Limpieza entre specs** — el emulador **no** tiene endpoint `clear` (H8), así que
 `clearFirestore()` lista `recipes` + `categories` y borra documento a documento
 (`Authorization: Bearer owner`). Se ejecuta en el `globalSetup` para partir de una BD vacía; las
-specs de P4 que escriban repetirán el patrón en su `beforeEach`.
+specs de P4 que escriban repetirán el patrón en su `beforeEach` — **ojo**, en paralelo eso
+borraría los datos de las demás: ver **D7**.
 
-Helper central: `e2e/support/data.ts` con `ensureUser()`, `seedRecipe()`, `clearFirestore()`,
-`waitForEmulators()` — los specs nunca hablan REST directamente. Los cuatro están probados contra
-el emulador en P0 (`seedRecipe` con `PATCH …/{col}/{id}?documentId=…`).
+**`categories`** — la colección `categories` lleva documentos `{id, detail}` (lo que lee
+`elementModelConverter`); el helper `seedCategory(id, detail)` los crea con `PATCH`. El `id` se
+escribe como **string**, igual que en `seedRecipe`, porque `RecipeListComponent` compara las
+categorías seleccionadas con las de la receta mediante `===`.
+
+Helper central: `e2e/support/data.ts` con `ensureUser()`, `seedRecipe()`, `seedCategory()`,
+`clearFirestore()`, `waitForEmulators()` — los specs nunca hablan REST directamente. Todos están
+probados contra el emulador (`seedRecipe`/`seedCategory` con `PATCH …/{col}/{id}?documentId=…`).
 
 ---
 
@@ -434,16 +507,21 @@ smoke pasa **sin intervención manual** (emuladores y servidor arrancan solos).
 **`data-testid`:** `login-*` (completados en P0), `toolbar-menu`, `toolbar-logout`,
 `toolbar-login` — **los 8 ya existían desde P0**, P1 no tocó plantillas.
 
-### 4.3 P2 — Listado público + toolbar (S-M)
+### 4.3 P2 — Listado público + toolbar (S-M) — ✅ cerrada (specs en `e2e/public-list.spec.ts`, ver §0.4)
 
-- Recetas sembradas renderizan en `/recipes` (cubre el `@defer (on viewport)` + OnPush: la
-  vista se pinta tras lo asíncrono — riesgo que #83 dejó marcado como smoke manual).
-- Filtro por categoría(s) (`category-filter`) → la lista se reduce.
-- Búsqueda del toolbar (`toolbar-search`) → la lista se reduce y al limpiar vuelve.
-- Botón "Ver" (`recipe-view`) → navega a `/recipes/details/:id`.
+- [x] Recetas sembradas renderizan en `/recipes` (cubre el `@defer (on viewport)` + OnPush: la
+      vista se pinta tras lo asíncrono — riesgo que #83 dejó marcado como smoke manual). Ojo:
+      las tarjetas fuera del pliegue siguen en placeholder → `renderAllCards` (H10).
+- [x] Filtro por categoría(s) (`category-filter`) → la lista se reduce (y vuelve al
+      deseleccionar; ver H11 por el detalle del panel).
+- [x] Búsqueda del toolbar (`toolbar-search`) → la lista se reduce y al limpiar vuelve.
+- [x] Botón "Ver" (`recipe-view`) → navega a `/recipes/details/:id` (requiere que el documento
+      sembrado lleve el campo `id` — §3.5).
 
-**`data-testid`:** `recipe-list`, `recipe-card`, `recipe-card-title`, `recipe-view`,
-`category-filter`, `toolbar-search`.
+**`data-testid`:** `recipe-list`, `recipe-card`, `recipe-card-title`, `recipe-view` (en
+`recipe-list.component.html`), `category-filter` (en `recipes-multiple-select.component.html`,
+control compartido con el formulario) y `toolbar-search` (ya existía). **5 nuevos en P2** →
+inventario total **19**.
 
 ### 4.4 P3 — Detalles + permisos (S)
 
@@ -532,8 +610,9 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
       `npm run lint` ✅ 0 errores / 0 warnings — **en cada fase**.
 - [x] `grep -rn connectAuthEmulator src/` → **2 hits** (import + uso en `firebase.providers.ts`);
       login en emulador verificado por la spec humo.
-- [x] Inventario de `data-testid` = inventario de §3.4: **`login` (5) + `toolbar` (9) = 14** en P0;
-      P1 no añadió ninguno (§4.2 usó solo los ya existentes); el resto va por fases.
+- [x] Inventario de `data-testid` = inventario de §3.4: **`login` (5) + `toolbar` (9) = 14** en
+      P0; P1 no añadió ninguno; **P2 añadió 5** (`recipe-list`, `recipe-card`,
+      `recipe-card-title`, `recipe-view`, `category-filter`) → **19** hoy; el resto va por fases.
 - [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
       el redirect a `/login` va en el issue
       [#91](https://github.com/RicardoR/recipes/issues/91) (abierto el 08/11; texto en §0.3).
