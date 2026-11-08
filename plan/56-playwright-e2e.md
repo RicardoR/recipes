@@ -18,7 +18,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | **P0** | Fundación: deps, config, `connectAuthEmulator`, fixtures, primera spec | ✅ | `@playwright/test` 1.64.1 + `firebase-tools` 15.35.0 (devDep, sin `^`) · config `test` en `serve` (H2) · fix de Auth (H1) · `yarn e2e` ✅ 1 spec · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. Ver §4.1 y §0.1 |
 | **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **D6 decidida: [issue #91](https://github.com/RicardoR/recipes/issues/91)** con el redirect (texto en §0.3) |
 | **P2** | Listado público + toolbar | ✅ | `e2e/public-list.spec.ts` (4 specs): render público/privado, filtro por categoría, búsqueda y "Ver" → detalles. `yarn e2e` ✅ **11 specs** (22/22 con `--repeat-each=2`, **33/33 con ×3**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **5 `data-testid` nuevos** + helpers `seedCategory` y `renderAllCards`. Hallazgos H10 (defer fuera de pliegue) y H11 (panel del select). Ver §4.3 y §0.4 |
-| **P3** | Detalles + permisos | ⬜ | Receta pública/privada/ajena + snackbar. Ver §4.4 |
+| **P3** | Detalles + permisos | ✅ | `e2e/recipe-details.spec.ts` (3 specs): pública sin login (+ paneles de ingredientes/pasos), privada ajena → snackbar + redirect (guard) y privada propia logueado → render. `yarn e2e` ✅ **14 specs** (**42/42 con `--repeat-each=3`**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **3 `data-testid` nuevos** (`recipe-details-*`). Ver §4.4 y §0.5 |
 | **P4** | CRUD en "Mis recetas" | ⬜ | Crear/editar/borrar con diálogo. Ver §4.5 |
 | **P5** | Flujo de imagen | ⬜ | El smoke más grande de planes anteriores. Ver §4.6 |
 | **P6** | CI y hardening | ⬜ | Job en GitHub, lint de `e2e/`, a11y, anti-flake. Ver §4.7 |
@@ -172,6 +172,30 @@ Pendientes / riesgos abiertos para las siguientes fases:
    procesos, no de los tests). Lanzar los e2e con **`yarn e2e`** o
    `node node_modules/@playwright/test/cli.js test`, que es lo que hace el propio script.
 3. El CI **no** corre los e2e todavía (D3: hasta P6).
+
+### 0.5 Estado de P3 (al cerrar la fase)
+
+Hecho y verificado:
+
+- [x] `e2e/recipe-details.spec.ts` — **3 specs**, todos en verde:
+  1. *a public recipe is readable without logging in*: sin sesión, título + expansión de
+     `recipe-details-ingredients` y `recipe-details-steps` con los valores sembrados.
+  2. *a foreign private recipe shows the snackbar and redirects to the list*: privada con
+     `ownerId: 'someone-else'` → URL `/recipes`, snackbar *"No estás autorizado para ver esta
+     receta"* y sin `recipe-details-title` (guard, `private-recipe.guard.ts:27-35`).
+  3. *an own private recipe renders for its signed-in owner*: uid del dueño con
+     `ensureUser(E2E_USER…)` + `signIn(page)` → la receta privada propia sí pinta.
+- [x] `yarn e2e` ✅ **14 specs** → **42/42** con `--repeat-each=3` · `npm run lint` ✅ 0/0 ·
+  `yarn test --watch=false` ✅ 24/139 · `yarn build` ✅ · **0 huérfanos**.
+- [x] **3 `data-testid` nuevos** en `recipe-details.component.html` (`recipe-details-title`,
+  `recipe-details-steps`, `recipe-details-ingredients`) → inventario total **22** (§3.4/§6).
+  Specs unitarios ✅: `recipe-details` se renderiza en specs con plantilla real sin aserciones
+  que se rompan (los testids son atributos pasivos).
+- Sin hallazgos nuevos (H10/H11 siguen documentados en §1; el cuelgue de `npx`/`yarn` se repitió
+  una vez más y otra vez se resolvió invocando el binario directamente → pendiente 2 de §0.4).
+
+Pendiente heredado sin cambios: **D7** — P4 aún debe decidir la estrategia de limpieza en
+paralelo (§0.4.1).
 
 ---
 
@@ -523,14 +547,17 @@ smoke pasa **sin intervención manual** (emuladores y servidor arrancan solos).
 control compartido con el formulario) y `toolbar-search` (ya existía). **5 nuevos en P2** →
 inventario total **19**.
 
-### 4.4 P3 — Detalles + permisos (S)
+### 4.4 P3 — Detalles + permisos (S) — ✅ cerrada (specs en `e2e/recipe-details.spec.ts`, ver §0.5)
 
-- Receta **pública** accesible **sin login**.
-- Receta **privada de otro usuario** sin ser su owner → snackbar
-  "No estás autorizado para ver esta receta" + navegación a `/recipes` (`private-recipe.guard.ts:38-44`).
-- Receta **privada propia** (logueado como owner) → se pinta.
+- [x] Receta **pública** accesible **sin login**: título + expansión de los paneles de
+      ingredientes y pasos (demuestra que los arrays sembrados llegan a la plantilla).
+- [x] Receta **privada de otro usuario** sin ser su owner → snackbar
+      "No estás autorizado para ver esta receta" + navegación a `/recipes`
+      (`private-recipe.guard.ts:27-35`) y `recipe-details-title` ausente tras el redirect.
+- [x] Receta **privada propia** (logueado como owner, uid obtenido con `ensureUser`) → se pinta.
 
-**`data-testid`:** `recipe-details-title`, `recipe-details-steps`, `recipe-details-ingredients`.
+**`data-testid`:** `recipe-details-title`, `recipe-details-steps`, `recipe-details-ingredients`
+(3 nuevos en P3 → inventario total **22**).
 
 ### 4.5 P4 — CRUD en "Mis recetas" (M)
 
@@ -612,7 +639,9 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
       login en emulador verificado por la spec humo.
 - [x] Inventario de `data-testid` = inventario de §3.4: **`login` (5) + `toolbar` (9) = 14** en
       P0; P1 no añadió ninguno; **P2 añadió 5** (`recipe-list`, `recipe-card`,
-      `recipe-card-title`, `recipe-view`, `category-filter`) → **19** hoy; el resto va por fases.
+      `recipe-card-title`, `recipe-view`, `category-filter`) → 19; **P3 añadió 3**
+      (`recipe-details-title`, `recipe-details-steps`, `recipe-details-ingredients`) → **22**
+      hoy; el resto va por fases.
 - [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
       el redirect a `/login` va en el issue
       [#91](https://github.com/RicardoR/recipes/issues/91) (abierto el 08/11; texto en §0.3).
