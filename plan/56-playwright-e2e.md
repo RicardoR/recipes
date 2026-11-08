@@ -16,7 +16,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | Fase | Tarea | Estado | Notas |
 |---|---|---|---|
 | **P0** | Fundación: deps, config, `connectAuthEmulator`, fixtures, primera spec | ✅ | `@playwright/test` 1.64.1 + `firebase-tools` 15.35.0 (devDep, sin `^`) · config `test` en `serve` (H2) · fix de Auth (H1) · `yarn e2e` ✅ 1 spec · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. Ver §4.1 y §0.1 |
-| **P1** | Auth y guards | ⬜ | Login, validación, logout, `AuthGuard`. Ver §4.2 |
+| **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **decisión D6 pendiente** |
 | **P2** | Listado público + toolbar | ⬜ | Render + `@defer`/OnPush, filtros, búsqueda. Ver §4.3 |
 | **P3** | Detalles + permisos | ⬜ | Receta pública/privada/ajena + snackbar. Ver §4.4 |
 | **P4** | CRUD en "Mis recetas" | ⬜ | Crear/editar/borrar con diálogo. Ver §4.5 |
@@ -44,6 +44,97 @@ Pendientes / riesgos abiertos para las siguientes fases:
 2. `seedRecipe` funciona pero **ningún spec lo usa** aún → se consumirá en P2 (habrá que añadir el `data-testid` de `recipe-list`).
 3. El CI **no** corre los e2e todavía (decisión D3: hasta P6).
 4. Convención de `data-testid`: solo aplicada a `login.component.html` y `toolbar.component.html` (§3.4); el resto va por fases.
+
+### 0.2 Estado de P1 (al cerrar la fase)
+
+Hecho y verificado (corrida completa en frío + `--repeat-each=3`):
+
+- [x] `e2e/auth.spec.ts` — **6 specs**, todos en verde:
+  1. *is prefilled with the demo user and signs in on submit*: `test@mail.com` / `123456` en los
+     campos, sin `login-error` al cargar, submit → `/recipes/my-recipes` + `toolbar-menu`.
+  2. *rejects an empty or invalid email and stays on /login*: `You must enter a value` /
+     `Not a valid email` y la URL sigue en `/login` tras pulsar el botón.
+  3. *toggles the password visibility*: `type` `password` ⇄ `text` y `aria-pressed` `true` ⇄ `false`
+     (ida y vuelta).
+  4. *is reached from the toolbar login button*: `toolbar-login` → `/login`.
+  5. *logs out from the toolbar menu*: ítem con el texto **`Cerrar sesión`** → `/recipes` +
+     `toolbar-login` visible + `toolbar-menu` oculto. (El flujo completo boot→login→logout ya
+     lo cubre `smoke.spec.ts`; aquí se añade la aserción de la etiqueta en español.)
+  6. *AuthGuard cancels the navigation without redirecting to /login* — ver H6 más abajo.
+- [x] `yarn e2e` ✅ **7 specs** (6 de P1 + el humo) · corrida con `--repeat-each=3` → **18/18**.
+- [x] `npm run lint` ✅ 0/0 · `yarn test --watch=false` ✅ 24/139 · `yarn build` ✅.
+- [x] **0 procesos huérfanos** tras la corrida (H7 sigue vigente).
+- [x] **Sin cambios en `src/`**: los testids de §4.2 (`login-*` y `toolbar-menu` /
+  `toolbar-logout` / `toolbar-login`) se añadieron en P0, así que no hay riesgo para los specs
+  unitarios (la suite completa pasa igual).
+- Nota (H9): la línea transitoria de Firestore volvió a aparecer en la salida del dev-server en
+  la corrida en frío, **sin llegar al fixture** (specs en verde) — coherente con lo concluido en P0.
+
+**H6 — comportamiento observado del `AuthGuard` sin sesión (decisión D6 pendiente):**
+
+`page.goto('/recipes/my-recipes')` sin sesión → `AuthGuard.canActivate()` emite `false` y el
+router **cancela** la navegación. Observado empíricamente:
+
+| Momento | URL | Contenido |
+|---|---|---|
+| Resuelve `page.goto` (antes de que el router evalúe el guard) | `/recipes/my-recipes` | aún sin pintar |
+| Tras la cancelación (estado asentado) | `/` (el router restaura la URL inicial) | **página en blanco**: ni toolbar ni listas (el único texto del `<body>` es el banner "Running in emulator mode" que inyecta el SDK de Auth) |
+| En ningún momento | `/login` | **no hay redirect automático** — el único `navigate` a login es `toolbar.component.ts:81` |
+
+La spec lo fija con `await expect(page).toHaveURL(/\/$/)` (**polling**: la cancelación es
+asíncrona respecto a `goto`), más `not.toHaveURL(/login)` y `toHaveCount(0)` para
+`toolbar-login`, `app-my-recipes` y `app-public-recipe-list`. Tres corridas seguidas sin flake.
+
+⚠️ **D6 — decidido con el usuario (08/11): se abre un issue aparte** para el redirect a
+`/login`; el comportamiento actual queda **cubierto y documentado tal cual** por la spec (sin
+cambios de código en esta fase). Borrador del issue listo para pegar en §0.3.
+
+### 0.3 D6 — borrador del issue de follow-up (pendiente de abrir)
+
+> Sin `gh` ni token en la máquina local → se pega manualmente en GitHub. Al abrirlo, sustituir
+> `#NN` por su número y enlazarlo desde aquí.
+
+**Título:**
+
+```
+AuthGuard cancela la navegación sin sesión y deja una pantalla en blanco (sin redirect a /login)
+```
+
+**Cuerpo:**
+
+```markdown
+Descubierto al implementar P1 de #56 (specs e2e de auth/guards).
+
+## Pasos para reproducir
+
+1. Abrir la app **sin sesión** en una ruta protegida, p.ej. `/recipes/my-recipes`
+   (igual con `/recipes/new` o `/recipes/edit/:id`).
+2. Observar: la URL acaba en `/` y se pinta una **página en blanco** — sin toolbar y sin
+   listas (el único texto del `<body>` es el banner "Running in emulator mode" que inyecta el
+   SDK de Auth).
+3. Recargar el navegador → ahora sí se muestra la lista pública (la ruta `**` redirige a
+   `recipes`).
+
+## Comportamiento esperado
+
+Redirigir a `/login` (idealmente conservando la ruta original, p.ej. con un query param
+`returnUrl`, para volver tras autenticarse) en lugar de dejar una pantalla en blanco.
+
+## Causa
+
+`AuthGuard` (`src/app/core/auth/guards/auth.guard.ts`) devuelve `initAuthListener()`: sin
+sesión el ReplaySubject emite `false` y el router **cancela** la navegación. No hay ningún
+`navigate` a `/login` en el guard — el único de la app está en
+`toolbar.component.ts:81` (`goToLogin`).
+
+## Notas
+
+- Comportamiento actual cubierto por la spec `e2e/auth.spec.ts` →
+  `AuthGuard › cancels the navigation without redirecting to /login`
+  (aserciones: URL asentada en `/`, nunca `/login`, outlet vacío). **Hay que actualizarla**
+  cuando se implemente el redirect.
+- Contexto completo: `plan/56-playwright-e2e.md` §0.2 (H6/D6).
+```
 
 ---
 
@@ -327,19 +418,20 @@ Prerequisito de todo lo demás.
 **Criterio:** `yarn build` · `yarn test --watch=false` · `npm run lint` · `yarn e2e` ✅, y el
 smoke pasa **sin intervención manual** (emuladores y servidor arrancan solos).
 
-### 4.2 P1 — Auth y guards (S)
+### 4.2 P1 — Auth y guards (S) — ✅ cerrada (specs en `e2e/auth.spec.ts`, ver §0.2)
 
-- Validación del form: campo email vacío/inválido → mensajes (`You must enter a value` /
-  `Not a valid email`); botón no envía.
-- Prefill de `test@mail.com` + password `123456` al cargar (H4: usuario demo).
-- Toggle de visibilidad de password: `aria-pressed` cambia y el `type` con él.
-- **`AuthGuard` sin sesión** (H6): navegar a `/recipes/my-recipes` sin login → la lista privada
-  **no se pinta**; registrar en el plan el comportamiento observado exacto (cancelación de
-  navegación, sin redirect automático) — decidir con el usuario si se documenta como
-  comportamiento correcto o se abre issue aparte para añadir redirect a `/login`.
-- Logout desde el menú del toolbar (`Cerrar sesión`).
+- [x] Validación del form: campo email vacío/inválido → mensajes (`You must enter a value` /
+      `Not a valid email`); botón no envía (la URL sigue en `/login`).
+- [x] Prefill de `test@mail.com` + password `123456` al cargar (H4: usuario demo) — y el submit
+      con ese prefill entra de verdad.
+- [x] Toggle de visibilidad de password: `aria-pressed` cambia y el `type` con él.
+- [x] **`AuthGuard` sin sesión** (H6): la lista privada **no se pinta** y **no** hay redirect a
+      `/login`; comportamiento exacto registrado en §0.2 → **decisión D6 pendiente** (documentar
+      como correcto vs. issue aparte con redirect).
+- [x] Logout desde el menú del toolbar (`Cerrar sesión`).
 
-**`data-testid`:** `login-*` (completados en P0), `toolbar-menu`, `toolbar-logout`, `toolbar-login`.
+**`data-testid`:** `login-*` (completados en P0), `toolbar-menu`, `toolbar-logout`,
+`toolbar-login` — **los 8 ya existían desde P0**, P1 no tocó plantillas.
 
 ### 4.3 P2 — Listado público + toolbar (S-M)
 
@@ -440,7 +532,10 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
 - [x] `grep -rn connectAuthEmulator src/` → **2 hits** (import + uso en `firebase.providers.ts`);
       login en emulador verificado por la spec humo.
 - [x] Inventario de `data-testid` = inventario de §3.4: **`login` (5) + `toolbar` (9) = 14** en P0;
-      el resto va por fases.
+      P1 no añadió ninguno (§4.2 usó solo los ya existentes); el resto va por fases.
+- [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
+      el redirect a `/login` va en un **issue aparte** (borrador listo en §0.3 — sin `gh` en la
+      máquina local, pendiente de pegarlo en GitHub y anotar aquí el nº).
 - [ ] CI ejecuta los e2e en verde (P6).
 - [ ] `AGENTS.md` documenta los comandos nuevos (P6).
 
@@ -450,6 +545,6 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
   necesita validar reglas de seguridad reales o el deploy de hosting).
 - Sustituir `test@mail.com` por un usuario de test "limpio" (comportamiento demo es
   intencionado y verificado por specs en P1/P5).
-- Redirect automático a `/login` cuando `AuthGuard` cancela la navegación (H6) — issue aparte
-  si en P1 se confirma que el comportamiento actual no es el deseado.
+- Redirect automático a `/login` cuando `AuthGuard` cancela la navegación (H6/D6): **issue
+  aparte**, borrador listo en §0.3 (decisión del08/11).
 - Visual regression testing (screenshots con baseline) — solo si se pide.
