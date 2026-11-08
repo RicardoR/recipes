@@ -16,7 +16,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | Fase | Tarea | Estado | Notas |
 |---|---|---|---|
 | **P0** | Fundación: deps, config, `connectAuthEmulator`, fixtures, primera spec | ✅ | `@playwright/test` 1.64.1 + `firebase-tools` 15.35.0 (devDep, sin `^`) · config `test` en `serve` (H2) · fix de Auth (H1) · `yarn e2e` ✅ 1 spec · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. Ver §4.1 y §0.1 |
-| **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **decisión D6 pendiente** |
+| **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **D6 decidida: issue aparte** con el redirect (borrador en §0.3) |
 | **P2** | Listado público + toolbar | ⬜ | Render + `@defer`/OnPush, filtros, búsqueda. Ver §4.3 |
 | **P3** | Detalles + permisos | ⬜ | Receta pública/privada/ajena + snackbar. Ver §4.4 |
 | **P4** | CRUD en "Mis recetas" | ⬜ | Crear/editar/borrar con diálogo. Ver §4.5 |
@@ -70,7 +70,7 @@ Hecho y verificado (corrida completa en frío + `--repeat-each=3`):
 - Nota (H9): la línea transitoria de Firestore volvió a aparecer en la salida del dev-server en
   la corrida en frío, **sin llegar al fixture** (specs en verde) — coherente con lo concluido en P0.
 
-**H6 — comportamiento observado del `AuthGuard` sin sesión (decisión D6 pendiente):**
+**H6 — comportamiento observado del `AuthGuard` sin sesión (D6 decidida → issue aparte, §0.3):**
 
 `page.goto('/recipes/my-recipes')` sin sesión → `AuthGuard.canActivate()` emite `false` y el
 router **cancela** la navegación. Observado empíricamente:
@@ -85,7 +85,7 @@ La spec lo fija con `await expect(page).toHaveURL(/\/$/)` (**polling**: la cance
 asíncrona respecto a `goto`), más `not.toHaveURL(/login)` y `toHaveCount(0)` para
 `toolbar-login`, `app-my-recipes` y `app-public-recipe-list`. Tres corridas seguidas sin flake.
 
-⚠️ **D6 — decidido con el usuario (08/11): se abre un issue aparte** para el redirect a
+✅ **D6 — decidido con el usuario (08/11): se abre un issue aparte** para el redirect a
 `/login`; el comportamiento actual queda **cubierto y documentado tal cual** por la spec (sin
 cambios de código en esta fase). Borrador del issue listo para pegar en §0.3.
 
@@ -426,8 +426,8 @@ smoke pasa **sin intervención manual** (emuladores y servidor arrancan solos).
       con ese prefill entra de verdad.
 - [x] Toggle de visibilidad de password: `aria-pressed` cambia y el `type` con él.
 - [x] **`AuthGuard` sin sesión** (H6): la lista privada **no se pinta** y **no** hay redirect a
-      `/login`; comportamiento exacto registrado en §0.2 → **decisión D6 pendiente** (documentar
-      como correcto vs. issue aparte con redirect).
+      `/login`; comportamiento exacto registrado en §0.2 → **D6 decidida**: issue aparte con el
+      redirect (borrador en §0.3), sin tocar código en P1.
 - [x] Logout desde el menú del toolbar (`Cerrar sesión`).
 
 **`data-testid`:** `login-*` (completados en P0), `toolbar-menu`, `toolbar-logout`,
