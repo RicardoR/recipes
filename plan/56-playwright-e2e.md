@@ -19,7 +19,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | **P1** | Auth y guards | ✅ | `e2e/auth.spec.ts` (6 specs): validación, prefill demo, toggle password, `toolbar-login`, logout y `AuthGuard`. `yarn e2e` ✅ **7 specs** (18/18 con `--repeat-each=3`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **Sin cambios de plantilla**: los 8 `data-testid` de §4.2 ya existían desde P0. Comportamiento de H6 registrado en §0.2 → **D6 decidida: [issue #91](https://github.com/RicardoR/recipes/issues/91)** con el redirect (texto en §0.3) |
 | **P2** | Listado público + toolbar | ✅ | `e2e/public-list.spec.ts` (4 specs): render público/privado, filtro por categoría, búsqueda y "Ver" → detalles. `yarn e2e` ✅ **11 specs** (22/22 con `--repeat-each=2`, **33/33 con ×3**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **5 `data-testid` nuevos** + helpers `seedCategory` y `renderAllCards`. Hallazgos H10 (defer fuera de pliegue) y H11 (panel del select). Ver §4.3 y §0.4 |
 | **P3** | Detalles + permisos | ✅ | `e2e/recipe-details.spec.ts` (3 specs): pública sin login (+ paneles de ingredientes/pasos), privada ajena → snackbar + redirect (guard) y privada propia logueado → render. `yarn e2e` ✅ **14 specs** (**42/42 con `--repeat-each=3`**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **3 `data-testid` nuevos** (`recipe-details-*`). Ver §4.4 y §0.5 |
-| **P4** | CRUD en "Mis recetas" | ⬜ | Crear/editar/borrar con diálogo. Ver §4.5 |
+| **P4** | CRUD en "Mis recetas" | ✅ | `e2e/my-recipes.spec.ts` (3 specs): crear con validación de requeridos, editar + recarga verifica persistencia, borrar con cancelar/confirmar. `yarn e2e` ✅ **17 specs** (34/34 con `--repeat-each=2`, 15/15 de esta spec ×5) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **7 `data-testid` nuevos**. Limpieza resuelta con **D8** (borrado por etiqueta en `afterEach`). Hallazgo H12 (diálogo tras animación). Ver §4.5 y §0.6 |
 | **P5** | Flujo de imagen | ⬜ | El smoke más grande de planes anteriores. Ver §4.6 |
 | **P6** | CI y hardening | ⬜ | Job en GitHub, lint de `e2e/`, a11y, anti-flake. Ver §4.7 |
 
@@ -167,7 +167,8 @@ Pendientes / riesgos abiertos para las siguientes fases:
 
 1. **P4 necesitará limpiar la BD** (`clearFirestore()` en `beforeEach`) mientras otras specs
    corren en paralelo contra el mismo emulador → decidir la estrategia en P4 (serializar solo
-   las specs que escriben, o limpiar únicamente los documentos propios). Ver **D7**.
+   las specs que escriben, o limpiar únicamente los documentos propios). Ver **D7**;
+   **resuelta en D8** (borrado por etiqueta en `afterEach`).
 2. **`npx playwright …` se colgó una vez en local** (cuelgue del entorno: cero salida, cero
    procesos, no de los tests). Lanzar los e2e con **`yarn e2e`** o
    `node node_modules/@playwright/test/cli.js test`, que es lo que hace el propio script.
@@ -195,7 +196,42 @@ Hecho y verificado:
   una vez más y otra vez se resolvió invocando el binario directamente → pendiente 2 de §0.4).
 
 Pendiente heredado sin cambios: **D7** — P4 aún debe decidir la estrategia de limpieza en
-paralelo (§0.4.1).
+paralelo (§0.4.1) → **resuelta en D8** (arriba, §2).
+
+### 0.6 Estado de P4 (al cerrar la fase)
+
+Hecho y verificado:
+
+- [x] `e2e/my-recipes.spec.ts` — **3 specs**, todos en verde:
+  1. *creates a recipe from the form, with required-field validation*: botón deshabilitado
+     con el formulario vacío (y con un ingrediente recién añadido vacío), habilitado al
+     completar título/descripción/ingrediente → crear → URL `/recipes/my-recipes` + tarjeta
+     visible en la lista.
+  2. *edits a recipe and the change persists after a reload*: receta sembrada con el uid de
+     `e2e@example.com` → `/recipes/edit/:id` → cambiar título → snackbar *"Receta actualizada"*
+     → **`page.reload()`** → el form vuelve con el título nuevo (lectura de Firestore) → y la
+     página de detalles lo muestra también.
+  3. *deletes a recipe from the confirmation dialog*: `recipe-delete` → `dialog-cancel` → la
+     receta sigue (tras esperar a que el diálogo se destruya, **H12**) → `recipe-delete` →
+     `dialog-confirm` → la tarjeta desaparece (`toHaveCount(0)`).
+- [x] `yarn e2e` ✅ **17 specs** → **34/34** con `--repeat-each=2` · esta spec **15/15** con
+  `--repeat-each=5` · `npm run lint` ✅ 0/0 · `yarn test --watch=false` ✅ 24/139 ·
+  `yarn build` ✅ · **0 huérfanos**.
+- [x] **7 `data-testid` nuevos** (§4.5) → inventario total **29** (§3.4/§6). Specs unitarios ✅:
+  los que renderizan esas plantillas (`recipe-card-form`, `delete-recipe-dialog`, `recipe-list`)
+  usan `.overrideTemplate(...)`.
+- [x] **D8 aplicada**: `uniqueId()` compartido (antes duplicado en `public-list.spec.ts`,
+  ahora importado de `e2e/support/data.ts`) + `deleteRecipesWithTitle(tag)` en el `afterEach`
+  de las specs de escritura; `clearFirestore()` sigue solo en `globalSetup`.
+- [x] Hallazgo **H12** (diálogo que reabre durante la animación de cierre) — misma familia
+  que H11; ver §1.
+
+Notas de entorno (no son de los tests):
+
+- La carga de la máquina local (load > 100 en un pico, apps de escritorio + `ng serve`)
+  retrasó/superó timeouts en varios runs: tras calmar el sistema, todo pasa limpio. Los
+  cuelgues de `npx playwright …`/`yarn e2e` (cero salida) se repitieron; sigue en pie el
+  pendiente 2 de §0.4 (invocar el binario directamente).
 
 ---
 
@@ -342,6 +378,18 @@ así que la deselección se hace **en el mismo panel** (sin reabrir) y después 
 `await expect(option).toBeHidden()` como **punto de sincronía** de que el panel está del todo
 destruido antes de tocar la página. Sin este cambio: 1/8 fallos; con él: 22/22 y 33/33 en verde.
 
+### H12 — Reabrir el diálogo de borrado durante su animación de cierre superpone dos diálogos (flake en P4)
+
+En `my-recipes.spec.ts` (*deletes a recipe…*): tras `dialog-cancel` se volvía a pulsar
+`recipe-delete` de inmediato, y el `DeleteRecipeDialogComponent` anterior aún estaba saliendo →
+**dos** `data-testid="dialog-confirm"` en el DOM a la vez y fallo de *strict mode* en el segundo
+click. Misma familia que H11: el problema no es el locator, es **reabrir antes de que la
+animación de cierre termine**.
+
+**Mitigación:** `await expect(page.getByTestId('dialog-confirm')).toHaveCount(0)` tras cancelar,
+como punto de sincronía de que el diálogo quedó destruido (y solo después se reabre). Verificado:
+la spec pasó **15/15** con `--repeat-each=5` después del fix.
+
 ---
 
 ## 2. Decisiones registradas (con el usuario)
@@ -353,7 +401,8 @@ destruido antes de tocar la página. Sin este cambio: 1/8 fallos; con él: 22/22
 | **D3** | Momento de activar CI | **En la fase P6**; hasta entonces `yarn e2e` corre solo en local, para no pelear con flakiness mientras se construyen las specs. |
 | **D4** | Estrategia de selectores | **`data-testid` en todas** las plantillas implicadas (más estable ante cambios de texto que depender de labels visibles). Convención en §3.4. |
 | **D5** | Ruido de analytics en consola (revisada en P0) | Primero se probó **solo bloquear la red** (§3.3 original) y **no bastó**: el SDK igualmente hace `console.error` (`Installations: …`). Aplicado además un guard en `AnalyticsService`: con `environment.useEmulators` no se inicializa analytics (la app ya degrada a `console.warn`, igual que cuando `isSupported()` es falso). Los hosts de Google se siguen bloqueando por si acaso. **Resultado: `expectNoConsoleErrors` estricto, sin allowlist.** |
-| **D7** | Datos entre specs en paralelo (P2) | Los specs corren en **paralelo contra un único emulador**, así que **no se limpia la BD entre specs**: cada test siembra con un **`uid` único por invocación** y solo aserca de **sus propios documentos** (nunca de totales de lista). `clearFirestore()` sigue en `globalSetup` (arranque de suite). ⚠️ Las specs de P4 que escriban **sí** necesitarán limpieza → ver pendiente en §0.4. |
+| **D7** | Datos entre specs en paralelo (P2) | Los specs corren en **paralelo contra un único emulador**, así que **no se limpia la BD entre specs**: cada test siembra con un **`uid` único por invocación** y solo aserca de **sus propios documentos** (nunca de totales de lista). `clearFirestore()` sigue en `globalSetup` (arranque de suite). ⚠️ Las specs de P4 que escriban **sí** necesitarán limpieza → resuelta en **D8**. |
+| **D8** | Limpieza de las specs que escriben (P4) | En lugar del `clearFirestore()` en `beforeEach` que planteaba §4.5 (borraría los datos de las specs que corren en paralelo — el problema que D7 dejó abierto): cada spec de escritura **etiqueta sus documentos con `uniqueId()`** (en el título) y en su **`afterEach` borra solo los suyos** con `deleteRecipesWithTitle(tag)` (`e2e/support/data.ts`). La BD global solo se limpia en `globalSetup`, al arrancar la suite. Los specs de lectura (P1-P3) no se ven afectados: solo asercan de documentos con su propio `uid`. |
 
 **Herramienta: Playwright** (`@playwright/test`). Descartados: Cypress (un solo tab, subida de
 ficheros/iframes más incómodos, sin bloqueo de red por test), WebdriverIO/Selenium (setup
@@ -468,9 +517,9 @@ Authorization: Bearer owner
 
 **Limpieza entre specs** — el emulador **no** tiene endpoint `clear` (H8), así que
 `clearFirestore()` lista `recipes` + `categories` y borra documento a documento
-(`Authorization: Bearer owner`). Se ejecuta en el `globalSetup` para partir de una BD vacía; las
-specs de P4 que escriban repetirán el patrón en su `beforeEach` — **ojo**, en paralelo eso
-borraría los datos de las demás: ver **D7**.
+(`Authorization: Bearer owner`). Se ejecuta en el `globalSetup` para partir de una BD vacía. Las
+specs de P4 que escriban **no** lo repiten en `beforeEach` (borraría los datos de las specs en
+paralelo) → usan `deleteRecipesWithTitle(tag)` en su `afterEach`, según **D8**.
 
 **`categories`** — la colección `categories` lleva documentos `{id, detail}` (lo que lee
 `elementModelConverter`); el helper `seedCategory(id, detail)` los crea con `PATCH`. El `id` se
@@ -478,8 +527,10 @@ escribe como **string**, igual que en `seedRecipe`, porque `RecipeListComponent`
 categorías seleccionadas con las de la receta mediante `===`.
 
 Helper central: `e2e/support/data.ts` con `ensureUser()`, `seedRecipe()`, `seedCategory()`,
-`clearFirestore()`, `waitForEmulators()` — los specs nunca hablan REST directamente. Todos están
-probados contra el emulador (`seedRecipe`/`seedCategory` con `PATCH …/{col}/{id}?documentId=…`).
+`clearFirestore()`, `waitForEmulators()`, `uniqueId()` y `deleteRecipesWithTitle()` — los specs
+nunca hablan REST directamente. Los de arranque están probados contra el emulador
+(`seedRecipe`/`seedCategory` con `PATCH …/{col}/{id}?documentId=…`); `uniqueId()` y
+`deleteRecipesWithTitle()` se añadieron en P4 con **D8**.
 
 ---
 
@@ -559,19 +610,27 @@ inventario total **19**.
 **`data-testid`:** `recipe-details-title`, `recipe-details-steps`, `recipe-details-ingredients`
 (3 nuevos en P3 → inventario total **22**).
 
-### 4.5 P4 — CRUD en "Mis recetas" (M)
+### 4.5 P4 — CRUD en "Mis recetas" (M) — ✅ cerrada (specs en `e2e/my-recipes.spec.ts`, ver §0.6)
 
-- **Crear**: rellena `recipe-card-form` (título/descripción/ingredientes) → `form-submit` →
-  aparece en la lista. Validación: campos requeridos deshabilitan/error.
-- **Editar** (`/recipes/edit/:id`): cambiar título → guardar → el cambio persiste (recarga la
-  página y verifica).
-- **Borrar**: `recipe-delete` → diálogo (`dialog-cancel` cancela y la receta sigue;
-  `dialog-confirm` la elimina y desaparece).
-- **Limpieza**: `clearFirestore()` en `beforeEach` de las specs que escriben (§3.5).
-- Specs con `e2e@example.com` (H4: el demo lanza excepción).
+- [x] **Crear**: rellena `recipe-card-form` (`form-title`, `form-description` + un ingrediente
+  añadido con "Añadir ingrediente") → `form-submit` → aparece en la lista. Validación: el
+  botón sigue deshabilitado con campos requeridos vacíos (y con un ingrediente nuevo vacío)
+  hasta completarlos.
+- [x] **Editar** (`/recipes/edit/:id`): cambiar título → guardar (snackbar *"Receta actualizada"*)
+  → **recarga la página** y verifica que el valor nuevo vuelve de Firestore, además de
+  comprobarlo en la página de detalles.
+- [x] **Borrar**: `recipe-delete` → diálogo (`dialog-cancel` cancela y la receta sigue —
+  esperando a que el diálogo se **destruya** antes de reabrirlo, ver H12 —; `dialog-confirm`
+  la elimina y desaparece).
+- [x] **Limpieza**: ~~`clearFirestore()` en `beforeEach`~~ → **D8**: borrado por etiqueta en
+  `afterEach` (`deleteRecipesWithTitle(uniqueId())`), sin tocar los datos de las specs en
+  paralelo (§3.5).
+- [x] Specs con `e2e@example.com` (H4: el demo lanza excepción).
 
-**`data-testid`:** `recipe-form`, `form-title`, `form-description`, `form-submit`,
-`dialog-confirm`, `dialog-cancel`.
+**`data-testid` (7 nuevos):** `recipe-form`, `form-title`, `form-description`, `form-submit`
+(en `recipe-card-form.component.html`), `dialog-confirm`, `dialog-cancel` (en
+`delete-recipe-dialog.component.html`) y `recipe-delete` (en `recipe-list.component.html`) →
+inventario total **29**.
 
 ### 4.6 P5 — Flujo de imagen (M-L) ← el smoke más grande de planes anteriores
 
@@ -640,8 +699,9 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
 - [x] Inventario de `data-testid` = inventario de §3.4: **`login` (5) + `toolbar` (9) = 14** en
       P0; P1 no añadió ninguno; **P2 añadió 5** (`recipe-list`, `recipe-card`,
       `recipe-card-title`, `recipe-view`, `category-filter`) → 19; **P3 añadió 3**
-      (`recipe-details-title`, `recipe-details-steps`, `recipe-details-ingredients`) → **22**
-      hoy; el resto va por fases.
+      (`recipe-details-title`, `recipe-details-steps`, `recipe-details-ingredients`) → 22;
+      **P4 añadió 7** (`recipe-form`, `form-title`, `form-description`, `form-submit`,
+      `dialog-confirm`, `dialog-cancel`, `recipe-delete`) → **29** hoy; el resto va por fases.
 - [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
       el redirect a `/login` va en el issue
       [#91](https://github.com/RicardoR/recipes/issues/91) (abierto el 08/11; texto en §0.3).

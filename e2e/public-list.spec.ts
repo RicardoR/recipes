@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-import { seedCategory, seedRecipe } from './support/data';
+import { seedCategory, seedRecipe, uniqueId } from './support/data';
 import { expect, expectNoConsoleErrors, renderAllCards, test } from './fixtures';
 
 /**
@@ -11,9 +11,6 @@ import { expect, expectNoConsoleErrors, renderAllCards, test } from './fixtures'
  * Specs run in parallel against one shared emulator, so every test seeds data tagged with a
  * per-invocation `uid` and only asserts about *its own* documents — never about list totals.
  */
-function uniqueId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
 
 /** Cards whose text contains `title` (titles embed the test's unique uid, so this is 0 or 1). */
 function card(page: Page, title: string) {

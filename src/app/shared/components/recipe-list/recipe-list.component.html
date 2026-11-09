@@ -55,6 +55,7 @@
               @if (recipe.ownerId === userId()) {
                 <button mat-button
                         color="warn"
+                        data-testid="recipe-delete"
                         (click)="deleteRecipe(recipe)">
                   Borrar
                 </button>

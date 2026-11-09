@@ -1,4 +1,4 @@
-import { E2E_USER, ensureUser, seedRecipe } from './support/data';
+import { E2E_USER, ensureUser, seedRecipe, uniqueId } from './support/data';
 import { expect, expectNoConsoleErrors, signIn, test } from './fixtures';
 
 /**
@@ -7,7 +7,7 @@ import { expect, expectNoConsoleErrors, signIn, test } from './fixtures';
  * to /recipes) and an own private one renders once signed in as its owner.
  */
 test('a public recipe is readable without logging in', async ({ page, consoleErrors }) => {
-  const uid = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const uid = uniqueId();
   const title = `Receta pública ${uid}`;
   const recipeId = await seedRecipe({
     title,
@@ -32,7 +32,7 @@ test('a foreign private recipe shows the snackbar and redirects to the list', as
   page,
   consoleErrors,
 }) => {
-  const uid = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const uid = uniqueId();
   const title = `Receta privada ajena ${uid}`;
   const recipeId = await seedRecipe({ title, private: true, ownerId: 'someone-else' });
 
@@ -49,7 +49,7 @@ test('a foreign private recipe shows the snackbar and redirects to the list', as
 });
 
 test('an own private recipe renders for its signed-in owner', async ({ page, consoleErrors }) => {
-  const uid = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const uid = uniqueId();
   const title = `Receta privada propia ${uid}`;
   // Same user `signIn` logs in with: the guard compares `recipe.ownerId` with the session uid.
   const ownerId = await ensureUser(E2E_USER.email, E2E_USER.password);

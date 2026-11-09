@@ -6,11 +6,12 @@
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form class="recipe-card-form__form" [formGroup]='form'>
+      <form class="recipe-card-form__form" data-testid="recipe-form" [formGroup]='form'>
         <mat-form-field appearance="fill">
           <mat-label>Título</mat-label>
           <input matInput
                  type="text"
+                 data-testid="form-title"
                  formControlName="title"
                  required>
           <mat-icon matSuffix>receipt</mat-icon>
@@ -19,6 +20,7 @@
         <mat-form-field appearance="fill">
           <mat-label>Descripción</mat-label>
           <textarea matInput
+                    data-testid="form-description"
                     formControlName="description"
                     required
                     cdkTextareaAutosize>
@@ -173,6 +175,7 @@
         <button
           mat-raised-button
           color="primary"
+          data-testid="form-submit"
           [disabled]='form.invalid || disabled()'
           (click)='sendRecipe()'>
           <ng-content select="[button-action-text]"></ng-content>

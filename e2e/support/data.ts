@@ -9,6 +9,15 @@ const PROJECT_ID = 'demo-recipes';
 
 const FIRESTORE_DOCUMENTS_URL = `${FIRESTORE_EMULATOR}/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
+/**
+ * Returns a token unique to the current invocation. Specs that seed or create data tag their
+ * documents with it (usually inside the title) so they can assert about — and clean up —
+ * *their own* documents while other specs run in parallel against the same emulator (D8).
+ */
+export function uniqueId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 /** Users seeded in the auth emulator by `global-setup.ts`. */
 export const E2E_USER = { email: 'e2e@example.com', password: '123456' };
 export const DEMO_USER = { email: 'test@mail.com', password: '123456' };
@@ -211,5 +220,36 @@ export async function seedCategory(id: string, detail: string): Promise<void> {
   );
   if (!response.ok) {
     throw new Error(`seedCategory failed: ${response.status} ${await response.text()}`);
+  }
+}
+
+/**
+ * Deletes every recipe document whose title contains `tag` — the cleanup for write specs.
+ *
+ * Replaces the "clearFirestore() in beforeEach" of plan §4.5: specs run in parallel against one
+ * shared emulator (D7), so a global wipe would destroy the data of the specs running at the
+ * same time. Each write spec tags its documents with `uniqueId()` and cleans only those (D8).
+ */
+export async function deleteRecipesWithTitle(tag: string): Promise<void> {
+  const response = await fetch(`${FIRESTORE_DOCUMENTS_URL}/recipes?pageSize=300`, {
+    headers: { Authorization: 'Bearer owner' },
+  });
+  if (!response.ok) {
+    throw new Error(`deleteRecipesWithTitle: listing failed: ${response.status}`);
+  }
+  const json = await response.json();
+  const matches = (json.documents ?? []).filter(
+    (document: { fields?: { title?: { stringValue?: string } } }) =>
+      document.fields?.title?.stringValue?.includes(tag) ?? false,
+  );
+
+  for (const document of matches as Array<{ name: string }>) {
+    const deleteResponse = await fetch(`${FIRESTORE_EMULATOR}/v1/${document.name}`, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer owner' },
+    });
+    if (!deleteResponse.ok) {
+      throw new Error(`deleteRecipesWithTitle: deleting failed: ${deleteResponse.status}`);
+    }
   }
 }
