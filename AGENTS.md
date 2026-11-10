@@ -45,9 +45,12 @@ npm run start:debugMode                # ng serve --configuration=debugMode (deb
 npm run build                          # ng build -> dist/recipes/browser
 npm test                               # ng test (Vitest)
 npm run test-coverage                  # ng test --coverage
-npm run lint                           # ng lint (angular-eslint, ts + html)
+npm run lint                           # ng lint (angular-eslint, src/ + e2e/ + playwright.config.ts)
 npm run deploy                         # ng build && firebase deploy
 npm run firebase:emulators:start      # auth 9099, firestore 8080, storage 9199, UI 4000
+
+yarn e2e                               # Playwright e2e (starts emulators + dev server itself)
+yarn e2e:ui                            # same, in Playwright's UI mode
 ```
 
 ### Focused verification
@@ -59,14 +62,41 @@ npx ng test --list-tests                                                 # list 
 ```
 
 `--watch` defaults to **true in a TTY**; always pass `--watch=false` for scripted/CI runs.
-Full suite takes on the order of **~1 min cold / ~15-40s warm** (24 files / 135 tests). No
-`--browsers` is set, so tests run in **jsdom**, not a real browser. There is **no e2e setup** in the
-repo (no e2e target, no e2e runner installed).
+Full suite takes on the order of **~1 min cold / ~15-40s warm** (24 files / 139 tests). No
+`--browsers` is set, so tests run in **jsdom**, not a real browser.
 
 Tests run isolated per spec file: `vitest-base.config.mts` (loaded via the `runnerConfig` option of
 the `test` target in `angular.json`) sets `isolate: true`, overriding the `@angular/build:unit-test`
 builder default of `isolate: false`. Without it, `vi.mock(...)` becomes execution-order dependent
 (the module registry is shared across specs) and fails only on full-suite runs.
+
+## E2E (Playwright + Firebase emulators)
+
+Issue #56, plan `plan/56-playwright-e2e.md`. Specs live in `e2e/**/*.spec.ts` (Vitest ignores
+them: `tsconfig.spec.json` only includes `src/`), helpers in `e2e/fixtures.ts` and
+`e2e/support/`.
+
+```bash
+yarn e2e                                       # whole suite
+node node_modules/@playwright/test/cli.js test # same, direct binary (npx playwright can hang)
+node node_modules/@playwright/test/cli.js test e2e/image-flow.spec.ts --repeat-each=5
+node node_modules/@playwright/test/cli.js test --repeat-each=2   # flake check before closing a phase
+```
+
+- **Playwright owns the servers**: `playwright.config.ts` starts the emulators (`yarn emulators`,
+  ports 9099/8080/9199) and `ng serve --configuration=test` (port 4200, `useEmulators: true`), and
+  shuts them down at the end. Do **not** run a plain `ng serve` alongside: it points at the real
+  Firebase project and every login redirects to `/login`.
+- First run downloads Chromium (`yarn playwright install --with-deps chromium`).
+- **Data**: specs run in parallel against one emulator, so each test seeds with a unique
+  `uniqueId()` tag and asserts/cleans only its own documents (`deleteRecipesWithTitle` in
+  `afterEach`). `clearFirestore()` runs only in `e2e/global-setup.ts`. Never assert on list totals.
+- **`data-testid` convention** (plan §3.4): one per interactive/asserted element, kebab-case,
+  English, added *next to* the existing classes/roles (never replacing them).
+  `grep -rn "data-testid" src/ | wc -l` must match the plan's inventory (**34** today).
+- **Console errors fail the test** (`expectNoConsoleErrors`): Google hosts are blocked by the
+  shared fixture; analytics is additionally disabled under `useEmulators` (D5).
+- a11y: `e2e/a11y.spec.ts` runs axe-core (WCAG 2.1 A/AA) on login, list and recipe form.
 
 ## Architecture
 
@@ -138,7 +168,9 @@ The demo user can browse but `createRecipe`, `updateRecipe`, `deleteRecipe`,
 
 `.github/workflows/node.js.yml` (push/PR to `master`, Node 22.x) runs, in order:
 `node server.js` (with the `FIREBASE_DETAILS` / `FIREBASE_DETAILS_TEST` secrets) ->
-`yarn install --frozen-lockfile` -> `yarn build` -> `yarn test`.
+`yarn install --frozen-lockfile` -> `yarn build` -> `yarn test` -> Playwright browser install
+(cached by version) -> `yarn e2e`. The Playwright HTML report is uploaded as an artifact when the
+e2e step fails.
 
 The repo uses **Yarn 1.x** and tracks `yarn.lock` (lockfiles are **not** gitignored); the workflow
 caches with `cache: 'yarn'`. Install with yarn, not npm: `package.json` uses `resolutions` (a

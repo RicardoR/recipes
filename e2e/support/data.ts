@@ -5,9 +5,12 @@
 
 const AUTH_EMULATOR = 'http://localhost:9099';
 const FIRESTORE_EMULATOR = 'http://localhost:8080';
+const STORAGE_EMULATOR = 'http://localhost:9199';
 const PROJECT_ID = 'demo-recipes';
 
 const FIRESTORE_DOCUMENTS_URL = `${FIRESTORE_EMULATOR}/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
+/** Default bucket of the test project (matches `storageBucket` in `environment.test.ts`). */
+const STORAGE_BUCKET = 'demo-recipes.appspot.com';
 
 /**
  * Returns a token unique to the current invocation. Specs that seed or create data tag their
@@ -29,7 +32,16 @@ type FieldValue =
   | { arrayValue: { values: FieldValue[] } }
   | { mapValue: { fields: Record<string, FieldValue> } };
 
-async function authCall(path: string, body: Record<string, unknown>): Promise<{ status: number; json: Record<string, any> }> {
+/** Body returned by the Auth emulator REST endpoints (only `localId` is read by the helpers). */
+interface AuthResponse {
+  localId?: string;
+  [key: string]: unknown;
+}
+
+async function authCall(
+  path: string,
+  body: Record<string, unknown>,
+): Promise<{ status: number; json: AuthResponse }> {
   const response = await fetch(
     `${AUTH_EMULATOR}/identitytoolkit.googleapis.com/v1/${path}?key=any`,
     {
@@ -87,9 +99,12 @@ export async function waitForEmulators(timeoutMs = 30_000): Promise<void> {
     }
   };
 
-  const checks: Array<[string, () => Promise<boolean>]> = [
+  const checks: [string, () => Promise<boolean>][] = [
     ['auth', authReady],
     ['firestore', firestoreReady],
+    // Storage answers on its port before it serves requests; a real list operation also warms
+    // it up for the upload specs.
+    ['storage', () => isHttpOk(`${STORAGE_EMULATOR}/v0/b/${STORAGE_BUCKET}/o`)],
   ];
 
   for (;;) {
@@ -224,6 +239,35 @@ export async function seedCategory(id: string, detail: string): Promise<void> {
 }
 
 /**
+ * Deletes every object of the default Storage bucket.
+ *
+ * The emulator has no `clear` endpoint either (H8), so objects are listed and deleted one by
+ * one. Run from `global-setup.ts` only: uploads during a run are unique by timestamp (P5) and
+ * never read back by another spec, so wiping mid-run is both unnecessary and unsafe.
+ */
+export async function clearStorage(): Promise<void> {
+  const listUrl = `${STORAGE_EMULATOR}/v0/b/${STORAGE_BUCKET}/o`;
+
+  const listResponse = await fetch(listUrl);
+  if (!listResponse.ok) {
+    throw new Error(`clearStorage: listing failed: ${listResponse.status}`);
+  }
+  const json = (await listResponse.json()) as { items?: { name?: string }[] };
+
+  for (const item of json.items ?? []) {
+    if (!item.name) {
+      continue;
+    }
+    const deleteResponse = await fetch(`${listUrl}/${encodeURIComponent(item.name)}`, {
+      method: 'DELETE',
+    });
+    if (!deleteResponse.ok) {
+      throw new Error(`clearStorage: deleting ${item.name} failed: ${deleteResponse.status}`);
+    }
+  }
+}
+
+/**
  * Deletes every recipe document whose title contains `tag` — the cleanup for write specs.
  *
  * Replaces the "clearFirestore() in beforeEach" of plan §4.5: specs run in parallel against one
@@ -243,7 +287,7 @@ export async function deleteRecipesWithTitle(tag: string): Promise<void> {
       document.fields?.title?.stringValue?.includes(tag) ?? false,
   );
 
-  for (const document of matches as Array<{ name: string }>) {
+  for (const document of matches as { name: string }[]) {
     const deleteResponse = await fetch(`${FIRESTORE_EMULATOR}/v1/${document.name}`, {
       method: 'DELETE',
       headers: { Authorization: 'Bearer owner' },

@@ -33,3 +33,27 @@ jobs:
     - run: yarn install --frozen-lockfile
     - run: yarn build
     - run: yarn test
+
+    # --- e2e (issue #56, plan §4.7) -------------------------------------------
+    # Playwright drives the local Firebase emulators (auth/firestore/storage) started by
+    # `yarn e2e` itself; Java ships with ubuntu-latest, so only the browser is missing.
+    - name: Get Playwright version
+      id: playwright-version
+      run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+    - name: Install Playwright browser
+      run: yarn playwright install --with-deps chromium
+    - name: Run e2e tests
+      run: yarn e2e
+    - name: Upload Playwright report
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 7
+        if-no-files-found: ignore

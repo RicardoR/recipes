@@ -21,7 +21,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | **P3** | Detalles + permisos | ✅ | `e2e/recipe-details.spec.ts` (3 specs): pública sin login (+ paneles de ingredientes/pasos), privada ajena → snackbar + redirect (guard) y privada propia logueado → render. `yarn e2e` ✅ **14 specs** (**42/42 con `--repeat-each=3`**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **3 `data-testid` nuevos** (`recipe-details-*`). Ver §4.4 y §0.5 |
 | **P4** | CRUD en "Mis recetas" | ✅ | `e2e/my-recipes.spec.ts` (3 specs): crear con validación de requeridos, editar + recarga verifica persistencia, borrar con cancelar/confirmar. `yarn e2e` ✅ **17 specs** (34/34 con `--repeat-each=2`, 15/15 de esta spec ×5) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **7 `data-testid` nuevos**. Limpieza resuelta con **D8** (borrado por etiqueta en `afterEach`). Hallazgo H12 (diálogo tras animación). Ver §4.5 y §0.6 |
 | **P5** | Flujo de imagen | ✅ | `e2e/image-flow.spec.ts` (3 specs): imagen por defecto + `deleteImage` ignorando `DEFAULT_IMAGE`, subida a Storage que sobrevive a cambios de categoría, y los gates `required`/`imageValidator` de "Subir imagen". `yarn e2e` ✅ **20 specs** (40/40 con `--repeat-each=2`, 15/15 de esta spec ×5) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **5 `data-testid` nuevos**. Ficheros `e2e/fixtures/sample.png` + `sample.txt`. Hallazgo **H13** (el `mat-error` necesita `touched`, no `dirty`). `setDisabledState` documentado como N/A en §4.6. Ver §4.6 y §0.7 |
-| **P6** | CI y hardening | ⬜ | Job en GitHub, lint de `e2e/`, a11y, anti-flake. Ver §4.7 |
+| **P6** | CI y hardening | ✅ | Job de CI con `yarn e2e` (+ caché de navegador y reporte como artefacto), lint de `e2e/` + `playwright.config.ts`, `e2e/a11y.spec.ts` (axe WCAG 2.1 A/AA) y docs en `AGENTS.md`. `yarn e2e` ✅ **23 specs** (46/46 con `--repeat-each=2`) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. La spec de a11y encontró y se corrigieron **2 defectos reales** (`meta-viewport` bloqueaba el zoom; botón Examinar sin nombre accesible). Sin `data-testid` nuevos → inventario **34**. Ver §4.7 y §0.8 |
 
 Cada fase cierra con `yarn build` · `yarn test --watch=false` · `npm run lint` · `yarn e2e` en verde.
 
@@ -280,6 +280,60 @@ Notas de entorno (no son de los tests):
   la causa**: el fallo era de estado del control (H13). Todo el instrumentación de depuración
   (`e2e/_probe.spec.ts`, `console.log` en plantillas) se retiró antes de cerrar; `git diff src/`
   solo contiene los 5 `data-testid`.
+
+---
+
+### 0.8 Estado de P6 (al cerrar la fase)
+
+Hecho y verificado:
+
+- [x] **CI**: `.github/workflows/node.js.yml` ejecuta ahora, tras `yarn test`, el paso de e2e:
+  1. `Get Playwright version` (lee la versión instalada para la clave de caché);
+  2. `actions/cache` sobre `~/.cache/ms-playwright` claveada por `runner.os` + versión;
+  3. `yarn playwright install --with-deps chromium` (Java ya viene en `ubuntu-latest`, que es
+     lo que piden los emuladores);
+  4. `yarn e2e` (con `retries: 1` + `trace: on-first-retry` que ya aplicaba `playwright.config.ts`
+     cuando `process.env.CI` está definido);
+  5. `actions/upload-artifact` con `playwright-report/` **solo si el paso falla** (7 días).
+  El YAML se validó cargándolo con `js-yaml` (los 11 steps, en orden).
+- [x] **Lint de `e2e/`**: `angular.json` añade `e2e/**/*.ts` y `playwright.config.ts` al
+  `lintFilePatterns`. Al activarlo aparecieron **5 errores reales** que se corrigieron:
+  - `global-setup.ts`: parámetro `_config` sin usar → se eliminó (y su `import type`);
+  - `image-flow.spec.ts`: `ownerId` asignado y no usado en el spec 2 → `await ensureUser(...)`
+    sin capturar el resultado (el usuario sí hace falta para `signIn`);
+  - `data.ts`: `Record<string, any>` → `interface AuthResponse { localId?: string; ... }`;
+  - `data.ts` ×2: `Array<T>` → `T[]` (regla `array-type`).
+- [x] **a11y**: `@axe-core/playwright` 4.14.0 (devDep) + `e2e/a11y.spec.ts`, 3 specs (login,
+  listado público, formulario) con `withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa'])` y un
+  informe legible de **todas** las violaciones a la vez. Encontró y se corrigieron **2 defectos
+  reales de la app**:
+  1. `src/index.html`: `maximum-scale=1, user-scalable=no` bloqueaba el zoom (axe `meta-viewport`,
+     WCAG 1.4.4) → `content="width=device-width, initial-scale=1"`;
+  2. `file-input.component.html`: el botón Examinar solo contenía un `<mat-icon>` (que Material
+     marca `aria-hidden`) → sin nombre accesible (axe `button-name`, WCAG 4.1.2) →
+     `aria-label="Examinar archivos"`.
+  Además, `<html lang="en">` → `lang="es"` (la UI es española).
+  Los dos primeros cambios tocan `src/`, no solo `e2e/`: es la primera vez que una fase corrige
+  la app, y es exactamente para lo que sirve este spec.
+- [x] **Anti-flake**: `retries: 1` en CI y `trace: 'on-first-retry'` ya estaban;
+  `grep -rn waitForTimeout e2e/` → **0 hits** (solo una mención en un comentario de `data.ts`).
+- [x] **`AGENTS.md`**: nueva sección *E2E (Playwright + Firebase emulators)* (comandos, quién
+  arranca los servidores, limpieza de datos D7/D8, convención de `data-testid`, consola limpia,
+  a11y), scripts `yarn e2e` / `yarn e2e:ui` en *Commands*, nota de lint ampliada y el paso de e2e
+  descrito en *CI*. Corregida la frase obsoleta "There is no e2e setup in the repo".
+- [x] **Pendiente de P5 cerrado**: `clearStorage()` en `e2e/support/data.ts` + llamada en
+  `globalSetup` (los objetos de Storage se acumulaban entre corridas). Verificado a mano contra
+  el emulador: subir objeto → `DELETE …/o/<nombre>` → 204 → lista vacía. `waitForEmulators`
+  añade además el chequeo del emulador de Storage.
+- [x] `yarn e2e` ✅ **23 specs** → **46/46** con `--repeat-each=2` · `npm run lint` ✅ 0/0 ·
+  `yarn test --watch=false` ✅ 24/139 · `yarn build` ✅ · **0 huérfanos**.
+- [x] **Sin `data-testid` nuevos** → inventario **34** (sin cambios en §3.4/§6).
+
+Pendiente / fuera de alcance de esta fase:
+
+- Proyectos `firefox` / `webkit` (§4.7.6, opcional) — solo si se pide.
+- El job de CI real aún no ha corrido en GitHub: se verificará en el primer push a `master`
+  (D3: hasta P6 los e2e eran solo locales).
 
 ---
 
@@ -739,17 +793,20 @@ Ficheros de imagen de prueba: `e2e/fixtures/sample.png` (PNG de 1×1) + `e2e/fix
 (en `file-input.component.html`), `picture-upload`, `picture-preview` (en
 `recipe-card-form.component.html`) → inventario total **34**.
 
-### 4.7 P6 — CI y hardening (M)
+### 4.7 P6 — CI y hardening (M) — ✅ cerrada (ver §0.8)
 
-1. Job/step en `.github/workflows/node.js.yml`: `yarn e2e` tras `yarn test`
-   (Java ya viene en `ubuntu-latest`; caché de navegadores Playwright con `actions/cache`;
-   `npx playwright install --with-deps chromium`).
-2. Incluir `e2e/**/*.ts` en el target `lint` de `angular.json` (hoy solo `src/**`).
-3. `@axe-core/playwright`: 1 spec de accesibilidad por pantalla clave (login, listado, formulario).
-4. Anti-flake: `retries: 1` en CI, `trace: on-first-retry`, sin `waitForTimeout` (siempre
-   espera por estado visible).
-5. Documentar en `AGENTS.md`: scripts nuevos, convención de `data-testid`, cómo correr en local.
-6. Opcional: proyectos `firefox` / `webkit`.
+1. [x] Job/step en `.github/workflows/node.js.yml`: `yarn e2e` tras `yarn test`
+   (Java ya viene en `ubuntu-latest`; caché de navegadores Playwright con `actions/cache`
+   claveada por versión; `yarn playwright install --with-deps chromium`). El reporte HTML de
+   Playwright se sube como artefacto **solo si el paso falla**.
+2. [x] Incluir `e2e/**/*.ts` + `playwright.config.ts` en el target `lint` de `angular.json`.
+3. [x] `@axe-core/playwright` (4.14.0, devDep): `e2e/a11y.spec.ts` con 3 specs — login, listado
+   público y formulario de receta, con `runOnly` en las tags WCAG 2.1 A/AA.
+4. [x] Anti-flake: `retries: 1` en CI + `trace: 'on-first-retry'` ya estaban en
+   `playwright.config.ts`; verificado que **ningún spec usa `waitForTimeout`**.
+5. [x] Documentar en `AGENTS.md`: scripts nuevos, convención de `data-testid`, cómo correr en
+   local, cómo funciona la limpieza de datos y el paso de e2e del CI.
+6. [ ] (opcional, fuera de alcance de esta fase) proyectos `firefox` / `webkit`.
 
 ---
 
@@ -776,7 +833,7 @@ Ficheros de imagen de prueba: `e2e/fixtures/sample.png` (PNG de 1×1) + `e2e/fix
       sin procesos huérfanos entre corridas) — verificado en 3 corridas seguidas.
 - [x] Los smoke checklists de `plan/85` (F5.4) y `plan/86` (F5.5) quedan cubiertos por specs de
       **P4** y **P5** — ya no hacen falta comprobaciones a mano al cerrar fases.
-- [ ] `yarn build` ✅ · `yarn test --watch=false` ✅ (24 ficheros / 139 tests) ·
+- [x] `yarn build` ✅ · `yarn test --watch=false` ✅ (24 ficheros / 139 tests) ·
       `npm run lint` ✅ 0 errores / 0 warnings — **en cada fase**.
 - [x] `grep -rn connectAuthEmulator src/` → **2 hits** (import + uso en `firebase.providers.ts`);
       login en emulador verificado por la spec humo.
@@ -791,8 +848,11 @@ Ficheros de imagen de prueba: `e2e/fixtures/sample.png` (PNG de 1×1) + `e2e/fix
 - [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
       el redirect a `/login` va en el issue
       [#91](https://github.com/RicardoR/recipes/issues/91) (abierto el 08/11; texto en §0.3).
-- [ ] CI ejecuta los e2e en verde (P6).
-- [ ] `AGENTS.md` documenta los comandos nuevos (P6).
+- [ ] CI ejecuta los e2e en verde — el job está añadido en P6 (§0.8), **pendiente de verificar
+      en el primer push a `master`** (D3: hasta P6 los e2e corrían solo en local).
+- [x] `AGENTS.md` documenta los comandos nuevos (P6): sección *E2E (Playwright + Firebase
+      emulators)*, scripts `yarn e2e`/`yarn e2e:ui`, convención de `data-testid` y el paso de e2e
+      del CI.
 
 ## 7. Fuera de alcance (posibles seguimientos)
 

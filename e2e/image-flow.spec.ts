@@ -85,7 +85,8 @@ test('uploads a picture to the emulator and keeps it through category changes', 
   consoleErrors,
 }) => {
   const title = `Receta con imagen ${uid}`;
-  const ownerId = await ensureUser(E2E_USER.email, E2E_USER.password);
+  // The signed-in user must exist; the recipe itself is created through the form below.
+  await ensureUser(E2E_USER.email, E2E_USER.password);
   const category = { id: `p5-${uid}`, detail: `Categoría p5 ${uid}` };
   await seedCategory(category.id, category.detail);
 
