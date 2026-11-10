@@ -88,25 +88,32 @@ test.describe('login form', () => {
 
 test.describe('AuthGuard', () => {
   /**
-   * H6/D6 of the plan: `AuthGuard` returns `initAuthListener()`, so without a session the
-   * emission of `false` **cancels** the navigation — it does **not** redirect to `/login` (the
-   * only navigation to the login page is the toolbar button). Observed on a cold load of
-   * `/recipes/my-recipes`: the router restores the initial URL (`/`), the layout/toolbar are
-   * never painted and the outlet stays empty.
-   *
-   * Accepted as-is for #56; issue #91 adds the redirect to `/login` (details in
-   * plan/56-playwright-e2e.md §0.2/§0.3). When that lands, this spec must assert the redirect.
+   * Issue #91 (evolution of H6/D6 in plan/56-playwright-e2e.md): without a session the guard used
+   * to return `false` and cancel the navigation, leaving a blank screen. It now returns a `UrlTree`
+   * to `/login` carrying the requested route in `returnUrl`.
    */
-  test('cancels the navigation without redirecting to /login', async ({ page, consoleErrors }) => {
+  test('redirects to /login with the requested route as returnUrl', async ({ page, consoleErrors }) => {
     await page.goto('/recipes/my-recipes');
-
-    // Polled: `page.goto` resolves before the router evaluates the guard, so the requested URL
-    // is still there for a moment; the cancelled navigation then restores the initial URL.
-    await expect(page).toHaveURL(/\/$/);
-    await expect(page).not.toHaveURL(/\/login/);
-    await expect(page.getByTestId('toolbar-login')).toHaveCount(0);
+    await expect(page).toHaveURL(/\/login\?returnUrl=%2Frecipes%2Fmy-recipes$/);
+    await expect(page.getByTestId('login-email')).toBeVisible();
     await expect(page.locator('app-my-recipes')).toHaveCount(0);
-    await expect(page.locator('app-public-recipe-list')).toHaveCount(0);
+
+    await page.goto('/recipes/new');
+    await expect(page).toHaveURL(/\/login\?returnUrl=%2Frecipes%2Fnew$/);
+    await expect(page.getByTestId('login-email')).toBeVisible();
+
+    expectNoConsoleErrors(consoleErrors);
+  });
+
+  test('returns to the requested route after signing in', async ({ page, consoleErrors }) => {
+    await page.goto('/recipes/my-recipes');
+    await expect(page).toHaveURL(/\/login\?returnUrl=%2Frecipes%2Fmy-recipes$/);
+
+    await page.getByTestId('login-submit').click();
+
+    await expect(page).toHaveURL(/\/recipes\/my-recipes$/);
+    await expect(page.getByTestId('toolbar-menu')).toBeVisible();
+    await expect(page.getByTestId('login-email')).toHaveCount(0);
 
     expectNoConsoleErrors(consoleErrors);
   });
