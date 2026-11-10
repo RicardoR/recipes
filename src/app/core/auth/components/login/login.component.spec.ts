@@ -1,5 +1,6 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ReactiveFormsModule} from '@angular/forms';
+import {ActivatedRoute, convertToParamMap} from '@angular/router';
 import {vi} from 'vitest';
 
 import {AuthService} from '../../services/auth.service';
@@ -12,17 +13,26 @@ describe('LoginComponent', () => {
   const authServiceSpy = {
     login: vi.fn().mockName("AuthService.login")
   };
+  const activatedRouteSpy = {
+    snapshot: {
+      queryParamMap: convertToParamMap({}),
+    },
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, LoginComponent],
-      providers: [{provide: AuthService, useValue: authServiceSpy}],
+      providers: [
+        {provide: AuthService, useValue: authServiceSpy},
+        {provide: ActivatedRoute, useValue: activatedRouteSpy},
+      ],
     })
       .overrideTemplate(LoginComponent, '')
       .compileComponents();
   });
 
   beforeEach(() => {
+    activatedRouteSpy.snapshot.queryParamMap = convertToParamMap({});
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -47,6 +57,20 @@ describe('LoginComponent', () => {
       component.form.get('password')?.setValue('valid-password');
       component.login();
       expect(authServiceSpy.login).toHaveBeenCalled();
+    });
+
+    // issue #91: AuthGuard redirects to /login?returnUrl=… and the login must go back to it.
+    it('should pass the returnUrl query param to the auth service', () => {
+      activatedRouteSpy.snapshot.queryParamMap = convertToParamMap({
+        returnUrl: '/recipes/my-recipes',
+      });
+      component.form.get('email')?.setValue('email@domain.com');
+      component.form.get('password')?.setValue('valid-password');
+      component.login();
+      expect(authServiceSpy.login).toHaveBeenCalledWith(
+        {email: 'email@domain.com', password: 'valid-password'},
+        '/recipes/my-recipes'
+      );
     });
   });
 
