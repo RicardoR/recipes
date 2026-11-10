@@ -332,8 +332,8 @@ Hecho y verificado:
 Pendiente / fuera de alcance de esta fase:
 
 - Proyectos `firefox` / `webkit` (§4.7.6, opcional) — solo si se pide.
-- El job de CI real aún no ha corrido en GitHub: se verificará en el primer push a `master`
-  (D3: hasta P6 los e2e eran solo locales).
+- ~~El job de CI real aún no ha corrido en GitHub~~ → **verificado en el run 45** (PR #92,
+  10/11/2026): `Run e2e tests` → `success`. Criterio de §6 marcado.
 
 ---
 
@@ -848,8 +848,11 @@ Ficheros de imagen de prueba: `e2e/fixtures/sample.png` (PNG de 1×1) + `e2e/fix
 - [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
       el redirect a `/login` va en el issue
       [#91](https://github.com/RicardoR/recipes/issues/91) (abierto el 08/11; texto en §0.3).
-- [ ] CI ejecuta los e2e en verde — el job está añadido en P6 (§0.8), **pendiente de verificar
-      en el primer push a `master`** (D3: hasta P6 los e2e corrían solo en local).
+- [x] CI ejecuta los e2e en verde — verificado el 10/11/2026 en el **run 45** del workflow
+      *Node.js CI* (evento `pull_request`, PR [#92](https://github.com/RicardoR/recipes/pull/92),
+      head `fd09a63`): job `build (22.x)` → `success`, con `Run e2e tests` → `success`
+      (19:46:23–19:46:59) y `Upload Playwright report` → `skipped` (correcto: solo se sube si
+      el paso falla). Los 11 steps, en verde.
 - [x] `AGENTS.md` documenta los comandos nuevos (P6): sección *E2E (Playwright + Firebase
       emulators)*, scripts `yarn e2e`/`yarn e2e:ui`, convención de `data-testid` y el paso de e2e
       del CI.
