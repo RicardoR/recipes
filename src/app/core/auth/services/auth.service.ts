@@ -34,11 +34,14 @@ export class AuthService {
     return this._currentUser?.email === FAKE_USER_EMAIL;
   }
 
-  login(authData: AuthData): void {
+  /**
+   * `returnUrl` is the route the visitor asked for before being sent to `/login` (AuthGuard,
+   * issue #91). Only internal paths are honoured — a hand-crafted `?returnUrl=//evil.com` falls
+   * back to the default destination.
+   */
+  login(authData: AuthData, returnUrl?: string): void {
     signInWithEmailAndPassword(this.auth, authData.email, authData.password).then(() =>
-      this.router.navigate([
-        `${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`,
-      ])
+      this.router.navigateByUrl(this.postLoginUrl(returnUrl))
     );
   }
 
@@ -48,6 +51,14 @@ export class AuthService {
       this.router.navigate([`/${AppRoutingNames.recipes}`]);
       this.logoutSuccess$.next();
     });
+  }
+
+  private postLoginUrl(returnUrl?: string): string {
+    if (returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+      return returnUrl;
+    }
+
+    return `/${AppRoutingNames.recipes}/${RecipesRoutingNames.myRecipes}`;
   }
 
   initAuthListener(): Observable<boolean> {

@@ -1,5 +1,6 @@
 import {Component, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
 
 import {AuthData} from '../../auth-data.model';
 import {AuthService, FAKE_USER_EMAIL} from '../../services/auth.service';
@@ -32,6 +33,7 @@ interface LoginFormGroup {
 export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
 
   form!: FormGroup<LoginFormGroup>;
   passWordHidden = true;
@@ -61,8 +63,16 @@ export class LoginComponent implements OnInit {
         password: this.form.controls.password.value,
       };
 
-      this.authService.login(user);
+      this.authService.login(user, this.returnUrl);
     }
+  }
+
+  /**
+   * Route the visitor asked for before `AuthGuard` sent them to `/login` (issue #91). `undefined`
+   * when they came from the toolbar button, so the service falls back to the default route.
+   */
+  private get returnUrl(): string | undefined {
+    return this.route.snapshot.queryParamMap.get('returnUrl') ?? undefined;
   }
 
   private buildLoginForm(): void {

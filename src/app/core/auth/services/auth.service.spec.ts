@@ -19,7 +19,8 @@ describe('AuthService', () => {
   let service: import('./auth.service').AuthService;
 
   const routerSpy = {
-    navigate: vi.fn().mockName('Router.navigate')
+    navigate: vi.fn().mockName('Router.navigate'),
+    navigateByUrl: vi.fn().mockName('Router.navigateByUrl')
   };
   const mockAuth = {};
 
@@ -49,7 +50,24 @@ describe('AuthService', () => {
     service.login(autData);
     expect(mockSignIn).toHaveBeenCalledWith(mockAuth, autData.email, autData.password);
     await Promise.resolve();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['recipes/my-recipes']);
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/recipes/my-recipes');
+  });
+
+  // issue #91: the AuthGuard saves the requested route in `returnUrl` and the login goes back to it.
+  it('should navigate to the requested returnUrl after login', async () => {
+    service.login({email: 'email@domain.com', password: 'password'}, '/recipes/new');
+    await Promise.resolve();
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/recipes/new');
+  });
+
+  it('should ignore an external returnUrl and navigate to my recipes', async () => {
+    service.login({email: 'email@domain.com', password: 'password'}, '//evil.com');
+    await Promise.resolve();
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/recipes/my-recipes');
+
+    service.login({email: 'email@domain.com', password: 'password'}, 'https://evil.com');
+    await Promise.resolve();
+    expect(routerSpy.navigateByUrl).toHaveBeenLastCalledWith('/recipes/my-recipes');
   });
 
   it('should allow to logout', async () => {
