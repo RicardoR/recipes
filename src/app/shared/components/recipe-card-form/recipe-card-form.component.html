@@ -33,6 +33,7 @@
             <img
               mat-card-image
               class="preview-image"
+              data-testid="picture-preview"
               [src]="recipeImage()"
               alt="Imagen de la receta"/>
           }
@@ -59,6 +60,7 @@
 
           <button mat-raised-button
                   color="primary"
+                  data-testid="picture-upload"
                   [disabled]="pictureForm.invalid || submitted()"
                   (click)="postImage()">
             Subir imagen

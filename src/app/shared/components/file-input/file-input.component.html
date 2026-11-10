@@ -2,6 +2,7 @@
   #displayInput
   autocomplete="off"
   class="mat-mdc-input-element mat-mdc-form-field-input-control mdc-text-field__input"
+  data-testid="file-input-display"
   [attr.id]="id"
   [attr.placeholder]="placeholder()"
   [disabled]="disabled()"
@@ -15,6 +16,7 @@
   <button
     matSuffix
     mat-icon-button
+    data-testid="file-input-browse"
     [color]="color()"
     class="button-browse"
     (click)="openFilePicker($event)"
@@ -29,6 +31,7 @@
 <input
   type="file"
   #fileInput
+  data-testid="file-input-native"
   (change)="onFileChange($event)"
   class="input-file"
   [multiple]="multiple()"

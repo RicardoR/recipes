@@ -20,7 +20,7 @@ Rama: `56-playwright-e2e` (creada desde `master`)
 | **P2** | Listado público + toolbar | ✅ | `e2e/public-list.spec.ts` (4 specs): render público/privado, filtro por categoría, búsqueda y "Ver" → detalles. `yarn e2e` ✅ **11 specs** (22/22 con `--repeat-each=2`, **33/33 con ×3**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **5 `data-testid` nuevos** + helpers `seedCategory` y `renderAllCards`. Hallazgos H10 (defer fuera de pliegue) y H11 (panel del select). Ver §4.3 y §0.4 |
 | **P3** | Detalles + permisos | ✅ | `e2e/recipe-details.spec.ts` (3 specs): pública sin login (+ paneles de ingredientes/pasos), privada ajena → snackbar + redirect (guard) y privada propia logueado → render. `yarn e2e` ✅ **14 specs** (**42/42 con `--repeat-each=3`**) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **3 `data-testid` nuevos** (`recipe-details-*`). Ver §4.4 y §0.5 |
 | **P4** | CRUD en "Mis recetas" | ✅ | `e2e/my-recipes.spec.ts` (3 specs): crear con validación de requeridos, editar + recarga verifica persistencia, borrar con cancelar/confirmar. `yarn e2e` ✅ **17 specs** (34/34 con `--repeat-each=2`, 15/15 de esta spec ×5) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **7 `data-testid` nuevos**. Limpieza resuelta con **D8** (borrado por etiqueta en `afterEach`). Hallazgo H12 (diálogo tras animación). Ver §4.5 y §0.6 |
-| **P5** | Flujo de imagen | ⬜ | El smoke más grande de planes anteriores. Ver §4.6 |
+| **P5** | Flujo de imagen | ✅ | `e2e/image-flow.spec.ts` (3 specs): imagen por defecto + `deleteImage` ignorando `DEFAULT_IMAGE`, subida a Storage que sobrevive a cambios de categoría, y los gates `required`/`imageValidator` de "Subir imagen". `yarn e2e` ✅ **20 specs** (40/40 con `--repeat-each=2`, 15/15 de esta spec ×5) · lint ✅ 0/0 · unit ✅ 24/139 · build ✅. **5 `data-testid` nuevos**. Ficheros `e2e/fixtures/sample.png` + `sample.txt`. Hallazgo **H13** (el `mat-error` necesita `touched`, no `dirty`). `setDisabledState` documentado como N/A en §4.6. Ver §4.6 y §0.7 |
 | **P6** | CI y hardening | ⬜ | Job en GitHub, lint de `e2e/`, a11y, anti-flake. Ver §4.7 |
 
 Cada fase cierra con `yarn build` · `yarn test --watch=false` · `npm run lint` · `yarn e2e` en verde.
@@ -235,6 +235,54 @@ Notas de entorno (no son de los tests):
 
 ---
 
+### 0.7 Estado de P5 (al cerrar la fase)
+
+Hecho y verificado:
+
+- [x] `e2e/image-flow.spec.ts` — **3 specs**, todos en verde:
+  1. *a recipe without an uploaded picture shows the default image and deletes cleanly*:
+     receta sembrada con `imgSrc: ''` → converter → `img.recipe-details__image` con
+     `src=/verduras\.jpeg/` → **Borrar** → `dialog-confirm` → vuelve a `/recipes` y
+     `deleteImage` **no** toca `DEFAULT_IMAGE` (`recipe.service.ts:267`), sin errores de consola.
+  2. *uploads a picture to the emulator and keeps it through category changes*: en
+     `/recipes/new` → seleccionar `sample.png` → `file-input-display` con el nombre +
+     `picture-preview` visible + `picture-upload` habilitado → cambiar de categoría (con H11:
+     deseleccionar en el panel abierto, `Escape`, esperar `toBeHidden`) y el campo **no se
+     pierde** → `picture-upload` → esperar a que `mat-progress-bar` esté oculto (subida al
+     emulador de Storage) → rellenar título/descripción → `form-submit` → `/recipes/my-recipes`
+     → `renderAllCards` (H10) → detalles → `src` con `:9199` (URL del emulador, no el asset).
+  3. *gates "Subir imagen" on the required field and the image validator*: sin foto ⇒
+     `picture-upload` deshabilitado y sin error → fichero no-imagen ⇒ **`Formato de archivo
+     incorrecto`** visible + botón deshabilitado + `file-input-display` = `sample.txt` →
+     imagen válida ⇒ error fuera + botón habilitado.
+- [x] `yarn e2e` ✅ **20 specs** → **40/40** con `--repeat-each=2` · esta spec **15/15** con
+  `--repeat-each=5` · `npm run lint` ✅ 0/0 · `yarn test --watch=false` ✅ 24/139 ·
+  `yarn build` ✅ · **0 huérfanos**.
+- [x] **5 `data-testid` nuevos** (§4.6) → inventario total **34** (§3.4/§6): los tres de
+  `file-input.component.html` (`file-input-display`, `file-input-browse`, `file-input-native`)
+  y `picture-preview`/`picture-upload` en `recipe-card-form.component.html`. Specs unitarios ✅:
+  los que renderizan esas plantillas usan `.overrideTemplate(...)`.
+- [x] Ficheros de prueba: `e2e/fixtures/sample.png` (PNG de 1×1) + `e2e/fixtures/sample.txt`.
+- [x] **Limpieza**: la única escritura es la subida a **Storage**, con nombre con timestamp único
+  → no queda nada en Firestore que limpiar; no hace falta `afterEach` (los objetos de Storage
+  sin limpiar quedan anotados como pendiente de P6).
+- [x] **`setDisabledState` → N/A**: `grep` en `src/` no hay ninguna ruta de UI que deshabilite
+  el control `photo` (nada hace `disable()` sobre ese `formControl`), así que no se puede
+  ejercitar desde un e2e. Queda cubierto por el unitario
+  `file-input.component.spec.ts` (`setDisabledState` marca `disabled` y avisa a `stateChanges`).
+  Documentado en §4.6.
+- [x] Hallazgo **H13** (el `<mat-error>` exige `touched`, no `dirty`) — ver §1: fue el motivo
+  real del único fallo de la fase.
+
+Notas de entorno (no son de los tests):
+
+- Se reintentó la teoría del "build en vuelo" (Vite sirve la plantilla editada) y **no era esa
+  la causa**: el fallo era de estado del control (H13). Todo el instrumentación de depuración
+  (`e2e/_probe.spec.ts`, `console.log` en plantillas) se retiró antes de cerrar; `git diff src/`
+  solo contiene los 5 `data-testid`.
+
+---
+
 ## 1. Contexto — hallazgos verificados en el repo
 
 Investigación hecha antes de escribir este plan (todo con `grep`/lectura en `master`):
@@ -390,6 +438,39 @@ animación de cierre termine**.
 como punto de sincronía de que el diálogo quedó destruido (y solo después se reabre). Verificado:
 la spec pasó **15/15** con `--repeat-each=5` después del fix.
 
+### H13 — El `<mat-error>` de `mat-form-field` solo se proyecta con `errorState = true`, que exige `touched` (no `dirty`) (P5)
+
+Detectado en `image-flow.spec.ts` (gates de "Subir imagen"): `setInputFiles()` sobre
+`file-input-native` dejaba el control `INVALID` (el `<input>` mostraba `IF=true ST=INVALID`)
+pero **el texto `Formato de archivo incorrecto` no aparecía** y el spec fallaba. Causa, leída en
+el código de Angular Material:
+
+- `mat-form-field` solo inserta los hijos `<mat-error>` en el DOM cuando
+  `_getSubscriptMessageType() === 'error'`, y eso exige `_control.errorState === true`
+  (`@angular/material/fesm2022/_form-field-chunk.mjs:938`); con `false` el tipo es `'hint'` y
+  los errores **no se renderizan** (no es un problema de timing ni de build en vuelo).
+- `FileInputComponent.errorState` usa el `ErrorStateMatcher` **por defecto**:
+  `invalid && (touched || form.submitted)` — **no mira `dirty`**
+  (`@angular/material/fesm2022/_error-options-chunk.mjs:45`).
+- Escribir directamente en el input nativo (`setInputFiles()`) dispara el *view change pipeline*
+  (`_pendingDirty` → `dirty`), pero **no** el *blur pipeline* → el control queda **`dirty` pero
+  `untouched`** → `errorState = false` → `mat-error` fuera del DOM.
+- El `touched` lo pone la ruta real del usuario: `openFilePicker()` llama a `markAsTouched()`
+  (`file-input.component.ts:145`) al pulsar el botón Examinar.
+
+**Mitigación (en el spec, no en la app):** seleccionar el fichero por la ruta del usuario —
+`page.waitForEvent('filechooser')` + click en `file-input-browse` → `chooser.setFiles(...)` —
+con el helper `selectFile(page, file)` de `image-flow.spec.ts`. Así el control queda `touched`
+y el `mat-error` se proyecta. Es además más realista y ejercita `file-input-browse`.
+
+**Implicación para futuras specs:** cualquier assert de un `mat-error` de este formulario pasa
+por **pulsar el botón Examinar** (o hacer `blur()`/`markAsTouched()` vía UI); nunca por
+escribir directamente en `file-input-native`. Correr con `setInputFiles()` solo sigue valiendo
+para asserts que **no** dependan del error (p.ej. el preview y el nombre en el spec 2).
+
+Verificado: la spec **15/15** con `--repeat-each=5` y la suite completa **40/40** con
+`--repeat-each=2` después del cambio.
+
 ---
 
 ## 2. Decisiones registradas (con el usuario)
@@ -484,7 +565,7 @@ Prefijo por ficha, kebab-case, en inglés (el código es inglés; la UI es espa�
 | `toolbar.component.html` | `toolbar-menu`, `toolbar-logout`, `toolbar-create`, `toolbar-my-recipes`, `toolbar-all-recipes`, `toolbar-search`, `toolbar-search-toggle`, `toolbar-login`, `toolbar-list-icon` |
 | `recipe-list.component.html` | `recipe-list`, `recipe-card`, `recipe-card-title`, `recipe-card-description`, `recipe-view`, `recipe-delete` |
 | `recipes-multiple-select.component.html` | `category-filter` (el `mat-select` compartido: filtro de la lista y selector de categorías del formulario) |
-| `recipe-card-form.component.html` | `recipe-form`, `form-title`, `form-description`, `form-submit`, `picture-upload`, `form-error-*` |
+| `recipe-card-form.component.html` | `recipe-form`, `form-title`, `form-description`, `form-submit`, `picture-upload`, `picture-preview`, `form-error-*` |
 | `file-input.component.html` | `file-input-display`, `file-input-browse`, `file-input-native` |
 | `delete-recipe-dialog.component.html` | `dialog-confirm`, `dialog-cancel` |
 | `recipe-details.component.html` | `recipe-details-title`, `recipe-details-steps`, … |
@@ -632,28 +713,31 @@ inventario total **19**.
 `delete-recipe-dialog.component.html`) y `recipe-delete` (en `recipe-list.component.html`) →
 inventario total **29**.
 
-### 4.6 P5 — Flujo de imagen (M-L) ← el smoke más grande de planes anteriores
+### 4.6 P5 — Flujo de imagen (M-L) — ✅ cerrada (specs en `e2e/image-flow.spec.ts`, ver §0.7)
 
 Cubre literalmente el checklist de `plan/86` §3.5 punto 5 y `plan/85` F5 punto 4:
 
-- `file-input-native` + `page.setInputFiles()` (sin diálogo del sistema):
-  - preview de la imagen y **nombre en `file-input-display`**;
-  - **`required`**: borrar el campo `photo` ⇒ botón "Subir imagen" `[disabled]` y el error pinta
-    con el matcher correcto;
-  - **`imageValidator`**: fichero no-imagen ⇒ `Formato de archivo incorrecto`;
-  - **`setDisabledState`**: editar receta con imagen ya guardada / form deshabilitado ⇒
-    `file-input-browse` y `file-input-display` deshabilitados (atributo `disabled`, en gris);
-  - cambiar de categoría y volver ⇒ el estado del campo no se pierde;
-- **Ambos caminos de `imgSrc`** (escriben distinto en Firestore):
+- [x] Selección de fichero por la **ruta real del usuario** (`file-input-browse` +
+  `page.waitForEvent('filechooser')`, helper `selectFile()`; nunca un diálogo del sistema):
+  - [x] preview de la imagen y **nombre en `file-input-display`**;
+  - [x] **`required`**: sin foto ⇒ botón "Subir imagen" `[disabled]` y sin error en el DOM;
+  - [x] **`imageValidator`**: fichero no-imagen ⇒ `Formato de archivo incorrecto` visible y
+        botón deshabilitado — hace falta `touched`, ver **H13**;
+  - [x] **`setDisabledState`** → **N/A**: no hay ruta de UI en la app que deshabilite el
+        control `photo` (grep en `src/`); cubierto por `file-input.component.spec.ts`
+        (`setDisabledState` → `disabled` + `stateChanges`);
+  - [x] cambiar de categoría y volver ⇒ el estado del campo no se pierde (H11 en el panel);
+- [x] **Ambos caminos de `imgSrc`** (escriben distinto en Firestore):
   - *sin subir*: `imgSrc: ''` → converter → se ve `verduras.jpeg` (`DEFAULT_IMAGE`);
   - *subir*: `pictureForm` (FormGroup aparte, `formControlName="photo"`) → preview +
-    `postImage()` a Storage ⇒ se ve la subida;
-- **Borrar receta ⇒ `deleteImage` ignora `DEFAULT_IMAGE`** (`recipe.service.ts:267`).
+    `postImage()` a Storage ⇒ se ve la subida (URL con `:9199`);
+- [x] **Borrar receta ⇒ `deleteImage` ignora `DEFAULT_IMAGE`** (`recipe.service.ts:267`).
 
-Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `sample.txt`).
+Ficheros de imagen de prueba: `e2e/fixtures/sample.png` (PNG de 1×1) + `e2e/fixtures/sample.txt`.
 
-**`data-testid`:** `file-input-display`, `file-input-browse`, `file-input-native`,
-`picture-upload`, `picture-preview`.
+**`data-testid` (5 nuevos):** `file-input-display`, `file-input-browse`, `file-input-native`
+(en `file-input.component.html`), `picture-upload`, `picture-preview` (en
+`recipe-card-form.component.html`) → inventario total **34**.
 
 ### 4.7 P6 — CI y hardening (M)
 
@@ -690,7 +774,7 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
 
 - [x] `yarn e2e` verde en local **sin intervención manual** (emuladores + servidor arrancan solos,
       sin procesos huérfanos entre corridas) — verificado en 3 corridas seguidas.
-- [ ] Los smoke checklists de `plan/85` (F5.4) y `plan/86` (F5.5) quedan cubiertos por specs de
+- [x] Los smoke checklists de `plan/85` (F5.4) y `plan/86` (F5.5) quedan cubiertos por specs de
       **P4** y **P5** — ya no hacen falta comprobaciones a mano al cerrar fases.
 - [ ] `yarn build` ✅ · `yarn test --watch=false` ✅ (24 ficheros / 139 tests) ·
       `npm run lint` ✅ 0 errores / 0 warnings — **en cada fase**.
@@ -701,7 +785,9 @@ Fichero de imagen de prueba: `e2e/fixtures/sample.png` (+ uno inválido p.ej. `s
       `recipe-card-title`, `recipe-view`, `category-filter`) → 19; **P3 añadió 3**
       (`recipe-details-title`, `recipe-details-steps`, `recipe-details-ingredients`) → 22;
       **P4 añadió 7** (`recipe-form`, `form-title`, `form-description`, `form-submit`,
-      `dialog-confirm`, `dialog-cancel`, `recipe-delete`) → **29** hoy; el resto va por fases.
+      `dialog-confirm`, `dialog-cancel`, `recipe-delete`) → 29; **P5 añadió 5**
+      (`file-input-display`, `file-input-browse`, `file-input-native`, `picture-upload`,
+      `picture-preview`) → **34** hoy; el resto va por fases.
 - [x] **D6 resuelta**: el `AuthGuard` sin sesión (H6) queda cubierto y documentado como está hoy;
       el redirect a `/login` va en el issue
       [#91](https://github.com/RicardoR/recipes/issues/91) (abierto el 08/11; texto en §0.3).
