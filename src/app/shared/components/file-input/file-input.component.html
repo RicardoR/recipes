@@ -2,6 +2,7 @@
   #displayInput
   autocomplete="off"
   class="mat-mdc-input-element mat-mdc-form-field-input-control mdc-text-field__input"
+  data-testid="file-input-display"
   [attr.id]="id"
   [attr.placeholder]="placeholder()"
   [disabled]="disabled()"
@@ -12,14 +13,18 @@
   [attr.aria-required]="required()"
 />
 <div class="mat-mdc-form-field-suffix">
+  <!-- The projected <mat-icon> is aria-hidden, so the button needs an explicit accessible
+       name (axe `button-name`, WCAG 4.1.2) — see e2e/a11y.spec.ts. -->
   <button
     matSuffix
     mat-icon-button
+    data-testid="file-input-browse"
     [color]="color()"
     class="button-browse"
     (click)="openFilePicker($event)"
     type="button"
     [disabled]="disabled()"
+    aria-label="Examinar archivos"
   >
     <ng-content select="[appFileInputIcon]">
       <mat-icon class="ngx-mat-file-input--default-icon">attach_file</mat-icon>
@@ -29,6 +34,7 @@
 <input
   type="file"
   #fileInput
+  data-testid="file-input-native"
   (change)="onFileChange($event)"
   class="input-file"
   [multiple]="multiple()"

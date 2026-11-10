@@ -5,11 +5,11 @@
                                  [options]="categories()">
     </app-recipes-multiple-select>
   </div>
-  <div class="recipe-list-wrapper">
+  <div class="recipe-list-wrapper" data-testid="recipe-list">
     @for (recipe of recipesFiltered(); track recipe.id) {
       @defer (on viewport) {
         <div>
-          <mat-card class="mat-elevation-z4">
+          <mat-card class="mat-elevation-z4" data-testid="recipe-card">
             @if ((publicList() && recipe.ownerId === userId()) || recipe.private) {
               <app-recipe-ribbon>
                 <span ribbon-body>{{ ribbonTitle() }}</span>
@@ -22,7 +22,7 @@
               tabindex="0"
               role="button"
               class="cursor-pointer">
-              <mat-card-title> {{ recipe.title }}</mat-card-title>
+              <mat-card-title data-testid="recipe-card-title"> {{ recipe.title }}</mat-card-title>
             </mat-card-header>
             <img
               (click)="goToRecipe(recipe)"
@@ -48,12 +48,14 @@
             <mat-card-actions>
               <button mat-raised-button
                       color="primary"
+                      data-testid="recipe-view"
                       (click)="goToRecipe(recipe)">
                 Ver
               </button>
               @if (recipe.ownerId === userId()) {
                 <button mat-button
                         color="warn"
+                        data-testid="recipe-delete"
                         (click)="deleteRecipe(recipe)">
                   Borrar
                 </button>

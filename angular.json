@@ -122,6 +122,9 @@
             },
             "debugMode": {
               "buildTarget": "recipes:build:debugMode"
+            },
+            "test": {
+              "buildTarget": "recipes:build:test"
             }
           },
           "defaultConfiguration": "development"
@@ -146,7 +149,9 @@
           "options": {
             "lintFilePatterns": [
               "src/**/*.ts",
-              "src/**/*.html"
+              "src/**/*.html",
+              "e2e/**/*.ts",
+              "playwright.config.ts"
             ]
           }
         }

@@ -7,22 +7,25 @@
       <mat-form-field appearance="fill">
         <mat-label>Enter your email</mat-label>
         <input matInput
+               data-testid="login-email"
                placeholder="pat@example.com"
                type="text"
                formControlName="email"
                required>
         <mat-icon class="email__icon" matSuffix>sentiment_very_satisfied</mat-icon>
         @if (form.controls.email.invalid) {
-          <mat-error>{{ getErrorMessage() }}</mat-error>
+          <mat-error data-testid="login-error">{{ getErrorMessage() }}</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="fill">
         <mat-label>Enter your password</mat-label>
         <input matInput
+               data-testid="login-password"
                formControlName="password"
                [type]="passWordHidden ? 'password' : 'text'">
         <button mat-icon-button
+                data-testid="login-toggle-password"
                 matSuffix
                 (click)="passWordHidden = !passWordHidden"
                 [attr.aria-label]="'Hide password'"
@@ -34,6 +37,6 @@
   </mat-card-content>
 
   <mat-card-actions>
-    <button mat-button (click)='login()'>Login</button>
+    <button mat-button data-testid="login-submit" (click)='login()'>Login</button>
   </mat-card-actions>
 </mat-card>

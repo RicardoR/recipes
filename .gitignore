@@ -53,3 +53,8 @@ Thumbs.db
 /database-debug.log
 /firebase-debug.log
 /firestore-debug.log
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
