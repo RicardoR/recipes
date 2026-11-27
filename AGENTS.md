@@ -2,7 +2,8 @@
 
 Angular 22.2.3 standalone app (single project `recipes`) for managing recipes with Firebase
 (Firestore + Storage + Auth + Analytics). UI strings are **Spanish**; code, comments and commit
-messages are English. Node 22+.
+messages are English. Node 24.15+ (Firebase 13.4 requires Node >=24.12; Angular CLI 22 requires
+Node >=24.15 in the Node 24 line).
 
 ## Where the guidance lives
 
@@ -166,7 +167,7 @@ The demo user can browse but `createRecipe`, `updateRecipe`, `deleteRecipe`,
 
 ## CI
 
-`.github/workflows/node.js.yml` (push/PR to `master`, Node 22.x) runs, in order:
+`.github/workflows/node.js.yml` (push/PR to `master`, Node 24.x) runs, in order:
 `node server.js` (with the `FIREBASE_DETAILS` / `FIREBASE_DETAILS_TEST` secrets) ->
 `yarn install --frozen-lockfile` -> `yarn build` -> `yarn test` -> Playwright browser install
 (cached by version) -> `yarn e2e`. The Playwright HTML report is uploaded as an artifact when the
